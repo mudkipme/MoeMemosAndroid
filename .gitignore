@@ -82,4 +82,6 @@ lint/intermediates/
 lint/generated/
 lint/outputs/
 lint/tmp/
-# lint/reports/
+# int/reports/
+#
+.DS_Store
