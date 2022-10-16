@@ -19,7 +19,10 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.skydoves.sandwich.onSuccess
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.viewmodel.UserState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -28,6 +31,7 @@ fun LoginPage(
 ) {
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
+    val userStateViewModel = UserState.current
 
     var email by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())
@@ -153,7 +157,18 @@ fun LoginPage(
             Button(
                 modifier = Modifier.padding(start = 30.dp, end = 30.dp, top = 30.dp).fillMaxWidth(),
                 contentPadding = PaddingValues(vertical = 10.dp),
-                onClick = { /*TODO*/ }
+                onClick = {
+                    coroutineScope.launch {
+                        userStateViewModel.login(host.text, email.text, password.text)
+                            .onSuccess {
+                                navController.navigate(RouteName.MEMOS) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                    }
+                }
             ) {
                 Text("Sign in", style = MaterialTheme.typography.titleMedium)
             }

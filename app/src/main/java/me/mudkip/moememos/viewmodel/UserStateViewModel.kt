@@ -1,0 +1,48 @@
+package me.mudkip.moememos.viewmodel
+
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.skydoves.sandwich.*
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import me.mudkip.moememos.data.api.MemosApiService
+import me.mudkip.moememos.data.api.SignInInput
+import me.mudkip.moememos.data.model.User
+import me.mudkip.moememos.data.repository.UserRepository
+import javax.inject.Inject
+
+@HiltViewModel
+class UserStateViewModel @Inject constructor(
+    private val memosApiService: MemosApiService,
+    private val userRepository: UserRepository
+) : ViewModel() {
+
+    var currentUser: User? by mutableStateOf(null)
+
+    suspend fun loadCurrentUser(): ApiResponse<User> {
+        return viewModelScope.async(Dispatchers.IO) {
+            return@async userRepository.getCurrentUser().onSuccess {
+                currentUser = data
+            }
+        }.await()
+    }
+
+    suspend fun login(host: String, email: String, password: String): ApiResponse<User> {
+        return viewModelScope.async(Dispatchers.IO) {
+            val resp = memosApiService.createClient(host).signIn(SignInInput(email, password)).mapSuccess { data }
+            if (resp.isSuccess) {
+                memosApiService.update(host)
+                currentUser = resp.getOrNull()
+            }
+            return@async resp
+        }.await()
+    }
+}
+
+val UserState = compositionLocalOf<UserStateViewModel> { error("User state not found") }
