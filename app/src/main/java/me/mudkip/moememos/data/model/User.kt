@@ -27,13 +27,13 @@ data class MemosUserSetting(
 ): Serializable
 
 data class User (
-    val createdTs: Date,
+    val createdTs: Long,
     val email: String,
     val id: Int,
     val name: String,
     val openId: String,
     val role: MemosRole = MemosRole.USER,
     val rowStatus: MemosRowStatus = MemosRowStatus.NORMAL,
-    val updatedTs: Date,
+    val updatedTs: Long,
     val userSettingList: List<MemosUserSetting>? = null
 ): Serializable

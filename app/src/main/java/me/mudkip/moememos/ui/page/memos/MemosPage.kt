@@ -1,9 +1,6 @@
 package me.mudkip.moememos.ui.page.memos
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.consumedWindowInsets
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -15,11 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import me.mudkip.moememos.ui.component.MemosCard
+import me.mudkip.moememos.ui.component.MemosList
 import me.mudkip.moememos.ui.component.SideDrawer
 import me.mudkip.moememos.ui.page.common.RouteName
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemosPage(
     navController: NavHostController
@@ -73,14 +70,7 @@ fun MemosPage(
             },
 
             content = { innerPadding ->
-                LazyColumn(
-                    modifier = Modifier.consumedWindowInsets(innerPadding),
-                    contentPadding = innerPadding
-                ) {
-                    items(count = 100) {
-                        MemosCard()
-                    }
-                }
+                MemosList(contentPadding = innerPadding)
             }
         )
     }

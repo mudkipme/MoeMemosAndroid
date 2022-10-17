@@ -22,11 +22,11 @@ enum class MemosRowStatus {
 
 data class Memo(
     val id: Int,
-    val createdTs: Date,
+    val createdTs: Long,
     val creatorId: Int,
     var content: String,
     var pinned: Boolean,
     val rowStatus: MemosRowStatus = MemosRowStatus.NORMAL,
-    val updatedTs: Date,
+    val updatedTs: Long,
     val visibility: MemosVisibility = MemosVisibility.PRIVATE
 ): Serializable

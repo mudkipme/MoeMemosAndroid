@@ -8,7 +8,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import me.mudkip.moememos.ui.page.common.Navigation
-import me.mudkip.moememos.viewmodel.UserState
+import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.UserStateViewModel
 
 @AndroidEntryPoint
@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            CompositionLocalProvider(UserState provides userStateViewModel) {
+            CompositionLocalProvider(LocalUserState provides userStateViewModel) {
                 Navigation()
             }
         }

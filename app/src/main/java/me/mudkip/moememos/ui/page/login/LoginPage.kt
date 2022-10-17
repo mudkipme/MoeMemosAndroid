@@ -22,7 +22,7 @@ import androidx.navigation.NavHostController
 import com.skydoves.sandwich.onSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.ui.page.common.RouteName
-import me.mudkip.moememos.viewmodel.UserState
+import me.mudkip.moememos.viewmodel.LocalUserState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -31,7 +31,7 @@ fun LoginPage(
 ) {
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
-    val userStateViewModel = UserState.current
+    val userStateViewModel = LocalUserState.current
 
     var email by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())

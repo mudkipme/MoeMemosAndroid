@@ -10,7 +10,6 @@ import com.skydoves.sandwich.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.SignInInput
 import me.mudkip.moememos.data.model.User
@@ -27,7 +26,7 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun loadCurrentUser(): ApiResponse<User> {
         return viewModelScope.async(Dispatchers.IO) {
-            return@async userRepository.getCurrentUser().onSuccess {
+            return@async userRepository.getCurrentUser().suspendOnSuccess {
                 currentUser = data
             }
         }.await()
@@ -45,4 +44,4 @@ class UserStateViewModel @Inject constructor(
     }
 }
 
-val UserState = compositionLocalOf<UserStateViewModel> { error("User state not found") }
+val LocalUserState = compositionLocalOf<UserStateViewModel> { error("User state not found") }

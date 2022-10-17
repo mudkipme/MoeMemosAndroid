@@ -7,12 +7,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import me.mudkip.moememos.R
+import me.mudkip.moememos.data.model.Memo
 
 @Composable
-fun MemosCard() {
+fun MemosCard(
+    memo: Memo
+) {
     Card(
         modifier = Modifier
             .padding(horizontal = 15.dp, vertical = 10.dp)
@@ -36,7 +37,7 @@ fun MemosCard() {
             }
             Column(modifier = Modifier.padding(end = 15.dp)) {
                 Text(
-                    stringResource(id = R.string.default_card_content)
+                    memo.content
                 )
             }
         }

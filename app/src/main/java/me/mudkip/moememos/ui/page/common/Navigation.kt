@@ -15,20 +15,19 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
-import com.skydoves.sandwich.onFailure
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
 import me.mudkip.moememos.ui.page.memos.MemosPage
 import me.mudkip.moememos.ui.page.settings.SettingsPage
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
-import me.mudkip.moememos.viewmodel.UserState
+import me.mudkip.moememos.viewmodel.LocalUserState
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Navigation() {
     val navController = rememberAnimatedNavController()
-    val userStateViewModel = UserState.current
+    val userStateViewModel = LocalUserState.current
 
     MoeMemosTheme {
         AnimatedNavHost(
