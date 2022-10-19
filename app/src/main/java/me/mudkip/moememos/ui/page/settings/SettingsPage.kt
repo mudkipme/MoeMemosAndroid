@@ -8,12 +8,17 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Web
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.viewmodel.LocalUserState
+import kotlin.coroutines.coroutineContext
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -21,6 +26,8 @@ fun SettingsPage(
     navController: NavHostController
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val userStateViewModel = LocalUserState.current
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         modifier = Modifier
@@ -40,19 +47,21 @@ fun SettingsPage(
         }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
-            item {
-                Button(
-                    onClick = {
-                        navController.navigate(RouteName.LOGIN)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    contentPadding = PaddingValues(vertical = 10.dp)
-                ) {
-                    Text("Sign in",
-                        style = MaterialTheme.typography.titleLarge
-                    )
+            if (userStateViewModel.currentUser == null) {
+                item {
+                    Button(
+                        onClick = {
+                            navController.navigate(RouteName.LOGIN)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        contentPadding = PaddingValues(vertical = 10.dp)
+                    ) {
+                        Text("Sign in",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
                 }
             }
 
@@ -111,17 +120,29 @@ fun SettingsPage(
                 }
             }
 
-            item {
-                FilledTonalButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                ) {
-                    Text(
-                        text = "Sign out", color = MaterialTheme.colorScheme.error)
+            if (userStateViewModel.currentUser != null) {
+                item {
+                    FilledTonalButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                userStateViewModel.logout()
+                                navController.navigate(RouteName.LOGIN) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp)
+                    ) {
+                        Text(
+                            text = "Sign out", color = MaterialTheme.colorScheme.error)
+                    }
                 }
             }
+
         }
     }
 }

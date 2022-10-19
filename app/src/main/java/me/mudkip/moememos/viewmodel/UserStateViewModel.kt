@@ -10,6 +10,7 @@ import com.skydoves.sandwich.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.SignInInput
 import me.mudkip.moememos.data.model.User
@@ -41,6 +42,12 @@ class UserStateViewModel @Inject constructor(
             }
             return@async resp
         }.await()
+    }
+
+    suspend fun logout() {
+        withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+            memosApiService.memosApi?.logout()
+        }
     }
 }
 
