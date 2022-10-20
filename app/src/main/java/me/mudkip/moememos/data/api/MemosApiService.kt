@@ -25,12 +25,15 @@ class MemosApiService @Inject constructor(
 ) {
     var memosApi: MemosApi? = null
         private set
+    var host: String? = null
+        private set
     private val mutex = Mutex()
 
     init {
         runBlocking {
             context.dataStore.data.map { it[DataStoreKeys.Host.key] }.first()?.let {
                 memosApi = createClient(it)
+                host = it
             }
         }
     }
@@ -42,6 +45,7 @@ class MemosApiService @Inject constructor(
 
         mutex.withLock {
             memosApi = createClient(host)
+            this.host = host
         }
     }
 

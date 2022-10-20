@@ -13,7 +13,7 @@ import java.io.Serializable
 
 data class SignInInput(
     val email: String,
-    val password: String,
+    val password: String
 ): Serializable
 
 data class SignInOutput(
@@ -26,6 +26,15 @@ data class MeOutput(
 
 data class ListMemoOutput(
     val data: List<Memo>
+): Serializable
+
+data class CreateMemoInput(
+    val content: String,
+    val visibility: MemosVisibility? = null
+): Serializable
+
+data class CreateMemoOutput(
+    val data: Memo
 ): Serializable
 
 interface MemosApi {
@@ -44,4 +53,7 @@ interface MemosApi {
         @Query("rowStatus") rowStatus: MemosRowStatus? = null,
         @Query("visibility") visibility: MemosVisibility? = null
     ): ApiResponse<ListMemoOutput>
+
+    @POST("/api/memo")
+    suspend fun createMemo(@Body body: CreateMemoInput): ApiResponse<CreateMemoOutput>
 }

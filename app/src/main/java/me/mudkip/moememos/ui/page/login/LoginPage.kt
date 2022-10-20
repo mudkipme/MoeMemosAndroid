@@ -42,7 +42,7 @@ fun LoginPage(
     }
 
     var host by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue())
+        mutableStateOf(TextFieldValue(userStateViewModel.host))
     }
 
     Scaffold { innerPadding ->

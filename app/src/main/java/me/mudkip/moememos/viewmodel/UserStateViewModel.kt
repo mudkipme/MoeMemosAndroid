@@ -24,6 +24,7 @@ class UserStateViewModel @Inject constructor(
 ) : ViewModel() {
 
     var currentUser: User? by mutableStateOf(null)
+    val host: String get() = memosApiService.host ?: ""
 
     suspend fun loadCurrentUser(): ApiResponse<User> {
         return viewModelScope.async(Dispatchers.IO) {

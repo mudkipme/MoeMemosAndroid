@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
 android {
@@ -61,7 +62,8 @@ dependencies {
 
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
-    implementation "com.github.skydoves:sandwich:1.3.2"
+    implementation "com.github.skydoves:sandwich:$sandwich"
+    implementation "com.github.skydoves:sandwich-serialization:$sandwich"
     implementation "net.gotev:cookie-store:1.5.0"
     implementation "net.gotev:cookie-store-okhttp:1.5.0"
 

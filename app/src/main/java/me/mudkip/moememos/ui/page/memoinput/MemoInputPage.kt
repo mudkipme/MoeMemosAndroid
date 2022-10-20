@@ -14,17 +14,30 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.skydoves.sandwich.serialization.onErrorDeserialize
+import com.skydoves.sandwich.suspendOnError
+import com.skydoves.sandwich.suspendOnSuccess
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import me.mudkip.moememos.data.model.ErrorMessage
+import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.viewmodel.MemoInputViewModel
+import me.mudkip.moememos.viewmodel.MemosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemoInputPage(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: MemoInputViewModel = hiltViewModel()
 ) {
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())
     }
     val focusRequester = remember { FocusRequester() }
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarState = remember { SnackbarHostState() }
 
     Scaffold(
         modifier = Modifier.imePadding(),
@@ -54,11 +67,26 @@ fun MemoInputPage(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                IconButton(onClick = {
-                }) {
+                IconButton(
+                    enabled = text.text.isNotEmpty(),
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModel.createMemo(text.text).suspendOnSuccess {
+                                navController.popBackStack()
+                            }.onErrorDeserialize<Memo, ErrorMessage> { errorMessage ->
+                                coroutineScope.launch {
+                                    snackbarState.showSnackbar(errorMessage.message)
+                                }
+                            }
+                        }
+                    }
+                ) {
                     Icon(Icons.Filled.Send, contentDescription = "Post")
                 }
             }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarState)
         }
     ) { innerPadding ->
         Column(Modifier.padding(innerPadding)) {
