@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import me.mudkip.moememos.viewmodel.MemosViewModel
+import timber.log.Timber
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -23,6 +24,12 @@ fun MemosList(
     ) {
         items(viewModel.memos) { memo ->
             MemosCard(memo)
+        }
+    }
+
+    LaunchedEffect(viewModel.errorMessage) {
+        viewModel.errorMessage?.let {
+            Timber.d(it)
         }
     }
 

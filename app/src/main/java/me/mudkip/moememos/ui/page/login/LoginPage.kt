@@ -19,8 +19,9 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.skydoves.sandwich.onSuccess
+import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalUserState
 
@@ -32,6 +33,7 @@ fun LoginPage(
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
     val userStateViewModel = LocalUserState.current
+    val snackbarState = remember { SnackbarHostState() }
 
     var email by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())
@@ -45,11 +47,15 @@ fun LoginPage(
         mutableStateOf(TextFieldValue(userStateViewModel.host))
     }
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        modifier = Modifier.imePadding(),
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarState)
+        }
+    ) { innerPadding ->
         Column(
             Modifier
                 .padding(innerPadding)
-                .imePadding()
                 .fillMaxHeight()
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -157,15 +163,19 @@ fun LoginPage(
             Button(
                 modifier = Modifier.padding(start = 30.dp, end = 30.dp, top = 30.dp).fillMaxWidth(),
                 contentPadding = PaddingValues(vertical = 10.dp),
+                enabled = host.text.isNotEmpty() && email.text.isNotEmpty() && password.text.isNotEmpty(),
                 onClick = {
                     coroutineScope.launch {
                         userStateViewModel.login(host.text, email.text, password.text)
-                            .onSuccess {
+                            .suspendOnSuccess {
                                 navController.navigate(RouteName.MEMOS) {
                                     popUpTo(navController.graph.startDestinationId) {
                                         inclusive = true
                                     }
                                 }
+                            }
+                            .suspendOnErrorMessage {
+                                snackbarState.showSnackbar(it)
                             }
                     }
                 }

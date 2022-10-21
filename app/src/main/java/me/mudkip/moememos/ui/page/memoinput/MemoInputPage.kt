@@ -16,15 +16,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.skydoves.sandwich.serialization.onErrorDeserialize
-import com.skydoves.sandwich.suspendOnError
 import com.skydoves.sandwich.suspendOnSuccess
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import me.mudkip.moememos.data.model.ErrorMessage
-import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
-import me.mudkip.moememos.viewmodel.MemosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,10 +68,8 @@ fun MemoInputPage(
                         coroutineScope.launch {
                             viewModel.createMemo(text.text).suspendOnSuccess {
                                 navController.popBackStack()
-                            }.onErrorDeserialize<Memo, ErrorMessage> { errorMessage ->
-                                coroutineScope.launch {
-                                    snackbarState.showSnackbar(errorMessage.message)
-                                }
+                            }.suspendOnErrorMessage { message ->
+                                snackbarState.showSnackbar(message)
                             }
                         }
                     }

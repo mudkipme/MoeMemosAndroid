@@ -9,33 +9,32 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
-import java.io.Serializable
 
 data class SignInInput(
     val email: String,
     val password: String
-): Serializable
+)
 
 data class SignInOutput(
     val data: User
-): Serializable
+)
 
 data class MeOutput(
     val data: User
-): Serializable
+)
 
 data class ListMemoOutput(
     val data: List<Memo>
-): Serializable
+)
 
 data class CreateMemoInput(
     val content: String,
     val visibility: MemosVisibility? = null
-): Serializable
+)
 
 data class CreateMemoOutput(
     val data: Memo
-): Serializable
+)
 
 interface MemosApi {
     @POST("/api/auth/signin")

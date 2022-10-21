@@ -2,6 +2,7 @@ package me.mudkip.moememos.data.api
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.adapters.ApiResponseCallAdapterFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -9,11 +10,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.ext.DataStoreKeys
 import me.mudkip.moememos.ext.dataStore
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,8 +25,7 @@ class MemosApiService @Inject constructor(
     private val context: Context,
     private val okHttpClient: OkHttpClient
 ) {
-    var memosApi: MemosApi? = null
-        private set
+    private var memosApi: MemosApi? = null
     var host: String? = null
         private set
     private val mutex = Mutex()
@@ -53,9 +54,13 @@ class MemosApiService @Inject constructor(
         return Retrofit.Builder()
             .baseUrl(host)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create())
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(MemosApi::class.java)
+    }
+
+    suspend fun <T>call(block: suspend (MemosApi) -> ApiResponse<T>): ApiResponse<T> {
+        return memosApi?.let { block(it) } ?: ApiResponse.error(MoeMemosException.notLogin)
     }
 }

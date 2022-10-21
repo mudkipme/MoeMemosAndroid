@@ -1,13 +1,11 @@
 package me.mudkip.moememos.ui.component
 
-import android.icu.text.RelativeDateTimeFormatter
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp

@@ -1,22 +1,23 @@
 package me.mudkip.moememos.data.model
 
-import com.google.gson.annotations.SerializedName
-import java.io.Serializable
-import java.util.*
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = false)
 enum class MemosRole {
-    @SerializedName("HOST")
+    @field:Json(name = "HOST")
     HOST,
-    @SerializedName("USER")
+    @field:Json(name = "USER")
     USER
 }
 
+@JsonClass(generateAdapter = false)
 enum class MemosUserSettingKey {
-    @SerializedName("locale")
+    @field:Json(name = "locale")
     LOCALE,
-    @SerializedName("memoVisibility")
+    @field:Json(name = "memoVisibility")
     MEMO_VISIBILITY,
-    @SerializedName("editorFontStyle")
+    @field:Json(name = "editorFontStyle")
     EDITOR_FONT_STYLE,
     UNKNOWN
 }
@@ -24,9 +25,9 @@ enum class MemosUserSettingKey {
 data class MemosUserSetting(
     val key: MemosUserSettingKey = MemosUserSettingKey.UNKNOWN,
     val value: String
-): Serializable
+)
 
-data class User (
+data class User(
     val createdTs: Long,
     val email: String,
     val id: Int,
@@ -36,4 +37,4 @@ data class User (
     val rowStatus: MemosRowStatus = MemosRowStatus.NORMAL,
     val updatedTs: Long,
     val userSettingList: List<MemosUserSetting>? = null
-): Serializable
+)

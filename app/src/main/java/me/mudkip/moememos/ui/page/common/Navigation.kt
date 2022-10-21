@@ -13,9 +13,7 @@ import androidx.compose.ui.Modifier
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.skydoves.sandwich.onError
-import com.skydoves.sandwich.onException
-import me.mudkip.moememos.data.constant.MoeMemosException
+import me.mudkip.moememos.ext.suspendOnNotLogin
 import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
 import me.mudkip.moememos.ui.page.memos.MemosPage
@@ -82,15 +80,7 @@ fun Navigation() {
     }
 
     LaunchedEffect(Unit) {
-        userStateViewModel.loadCurrentUser().onException {
-            if (exception == MoeMemosException.notLogin) {
-                navController.navigate(RouteName.LOGIN) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        inclusive = true
-                    }
-                }
-            }
-        }.onError {
+        userStateViewModel.loadCurrentUser().suspendOnNotLogin {
             navController.navigate(RouteName.LOGIN) {
                 popUpTo(navController.graph.startDestinationId) {
                     inclusive = true
