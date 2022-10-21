@@ -6,15 +6,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.viewmodel.MemosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SideDrawer(
     navController: NavHostController,
+    viewModel: MemosViewModel
 ) {
     ModalDrawerSheet {
         LazyColumn {
@@ -72,15 +75,21 @@ fun SideDrawer(
                 Text("Tags", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(20.dp))
             }
 
-            item {
-                NavigationDrawerItem(
-                    label = { Text("Hardware") },
-                    icon = { Icon(Icons.Outlined.Tag, contentDescription = null) },
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
+            viewModel.tags.forEach { tag ->
+                item {
+                    NavigationDrawerItem(
+                        label = { Text(tag) },
+                        icon = { Icon(Icons.Outlined.Tag, contentDescription = null) },
+                        selected = false,
+                        onClick = { /*TODO*/ },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadTags()
     }
 }

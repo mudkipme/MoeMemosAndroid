@@ -18,7 +18,11 @@ import javax.inject.Inject
 class MemosViewModel @Inject constructor(
     private val memoRepository: MemoRepository
 ) : ViewModel() {
+
     var memos: List<Memo> by mutableStateOf(ArrayList())
+        private set
+    var tags: List<String> by mutableStateOf(ArrayList())
+        private set
     var errorMessage: String? by mutableStateOf(null)
 
     suspend fun loadMemos() = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
@@ -27,6 +31,12 @@ class MemosViewModel @Inject constructor(
             errorMessage = null
         }.suspendOnErrorMessage {
             errorMessage = it
+        }
+    }
+
+    suspend fun loadTags() = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+        memoRepository.getTags().suspendOnSuccess {
+            tags = data
         }
     }
 }

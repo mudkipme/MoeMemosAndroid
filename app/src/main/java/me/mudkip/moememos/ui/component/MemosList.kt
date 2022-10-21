@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import me.mudkip.moememos.viewmodel.MemosViewModel
 import timber.log.Timber
 
@@ -16,7 +15,7 @@ import timber.log.Timber
 @Composable
 fun MemosList(
     contentPadding: PaddingValues,
-    viewModel: MemosViewModel = hiltViewModel()
+    viewModel: MemosViewModel
 ) {
     LazyColumn(
         modifier = Modifier.consumedWindowInsets(contentPadding),

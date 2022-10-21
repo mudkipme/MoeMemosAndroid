@@ -15,4 +15,8 @@ class MemoRepository @Inject constructor(private val memosApiService: MemosApiSe
     suspend fun createMemo(content: String): ApiResponse<Memo> = memosApiService.call { api ->
         api.createMemo(CreateMemoInput(content)).mapSuccess { data }
     }
+
+    suspend fun getTags(): ApiResponse<List<String>> = memosApiService.call {
+        api -> api.getTags().mapSuccess { data }
+    }
 }

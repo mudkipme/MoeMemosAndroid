@@ -10,16 +10,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.ui.component.MemosList
 import me.mudkip.moememos.ui.component.SideDrawer
 import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.viewmodel.MemosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemosPage(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: MemosViewModel = hiltViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -34,7 +37,10 @@ fun MemosPage(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            SideDrawer(navController = navController)
+            SideDrawer(
+                navController = navController,
+                viewModel = viewModel
+            )
         }
     ) {
         Scaffold(
@@ -70,7 +76,10 @@ fun MemosPage(
             },
 
             content = { innerPadding ->
-                MemosList(contentPadding = innerPadding)
+                MemosList(
+                    contentPadding = innerPadding,
+                    viewModel = viewModel
+                )
             }
         )
     }

@@ -15,16 +15,8 @@ data class SignInInput(
     val password: String
 )
 
-data class SignInOutput(
-    val data: User
-)
-
-data class MeOutput(
-    val data: User
-)
-
-data class ListMemoOutput(
-    val data: List<Memo>
+data class MemosOutput<T>(
+    val data: T
 )
 
 data class CreateMemoInput(
@@ -32,27 +24,26 @@ data class CreateMemoInput(
     val visibility: MemosVisibility? = null
 )
 
-data class CreateMemoOutput(
-    val data: Memo
-)
-
 interface MemosApi {
     @POST("/api/auth/signin")
-    suspend fun signIn(@Body body: SignInInput): ApiResponse<SignInOutput>
+    suspend fun signIn(@Body body: SignInInput): ApiResponse<MemosOutput<User>>
 
     @POST("/api/auth/logout")
     suspend fun logout(): ApiResponse<Unit>
 
     @GET("/api/user/me")
-    suspend fun me(): ApiResponse<MeOutput>
+    suspend fun me(): ApiResponse<MemosOutput<User>>
 
     @GET("/api/memo")
     suspend fun listMemo(
         @Query("creatorId") creatorId: Int? = null,
         @Query("rowStatus") rowStatus: MemosRowStatus? = null,
         @Query("visibility") visibility: MemosVisibility? = null
-    ): ApiResponse<ListMemoOutput>
+    ): ApiResponse<MemosOutput<List<Memo>>>
 
     @POST("/api/memo")
-    suspend fun createMemo(@Body body: CreateMemoInput): ApiResponse<CreateMemoOutput>
+    suspend fun createMemo(@Body body: CreateMemoInput): ApiResponse<MemosOutput<Memo>>
+
+    @GET("/api/tag")
+    suspend fun getTags(@Query("creatorId") creatorId: Int? = null): ApiResponse<MemosOutput<List<String>>>
 }
