@@ -17,10 +17,14 @@ import me.mudkip.moememos.viewmodel.MemosViewModel
 @Composable
 fun SideDrawer(
     navController: NavHostController,
-    viewModel: MemosViewModel
+    memosViewModel: MemosViewModel
 ) {
     ModalDrawerSheet {
         LazyColumn {
+            item {
+                Stats(memosViewModel = memosViewModel)
+            }
+            
             item {
                 Text(
                     "Moe Memos",
@@ -75,7 +79,7 @@ fun SideDrawer(
                 Text("Tags", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(20.dp))
             }
 
-            viewModel.tags.forEach { tag ->
+            memosViewModel.tags.forEach { tag ->
                 item {
                     NavigationDrawerItem(
                         label = { Text(tag) },
@@ -90,6 +94,6 @@ fun SideDrawer(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.loadTags()
+        memosViewModel.loadTags()
     }
 }

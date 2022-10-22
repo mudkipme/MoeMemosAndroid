@@ -39,7 +39,7 @@ fun MemosPage(
         drawerContent = {
             SideDrawer(
                 navController = navController,
-                viewModel = viewModel
+                memosViewModel = viewModel
             )
         }
     ) {

@@ -24,6 +24,13 @@ class MemosViewModel @Inject constructor(
     var tags: List<String> by mutableStateOf(ArrayList())
         private set
     var errorMessage: String? by mutableStateOf(null)
+    var refreshing by mutableStateOf(false)
+
+    suspend fun refresh() {
+        refreshing = true
+        loadMemos()
+        refreshing = false
+    }
 
     suspend fun loadMemos() = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
         memoRepository.loadMemos().suspendOnSuccess {

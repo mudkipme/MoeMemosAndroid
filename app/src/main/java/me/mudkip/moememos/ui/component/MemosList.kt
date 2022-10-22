@@ -7,7 +7,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.launch
 import me.mudkip.moememos.viewmodel.MemosViewModel
 import timber.log.Timber
 
@@ -15,14 +19,29 @@ import timber.log.Timber
 @Composable
 fun MemosList(
     contentPadding: PaddingValues,
-    viewModel: MemosViewModel
+    viewModel: MemosViewModel,
+    swipeEnabled: Boolean = true
 ) {
-    LazyColumn(
-        modifier = Modifier.consumedWindowInsets(contentPadding),
-        contentPadding = contentPadding
+    val coroutineScope = rememberCoroutineScope()
+    val refreshState = rememberSwipeRefreshState(viewModel.refreshing)
+
+    SwipeRefresh(
+        indicatorPadding = contentPadding,
+        state = refreshState,
+        swipeEnabled = swipeEnabled,
+        onRefresh = {
+            coroutineScope.launch {
+                viewModel.refresh()
+            }
+        }
     ) {
-        items(viewModel.memos) { memo ->
-            MemosCard(memo)
+        LazyColumn(
+            modifier = Modifier.consumedWindowInsets(contentPadding),
+            contentPadding = contentPadding
+        ) {
+            items(viewModel.memos) { memo ->
+                MemosCard(memo)
+            }
         }
     }
 
