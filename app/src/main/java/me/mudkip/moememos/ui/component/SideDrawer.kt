@@ -1,15 +1,17 @@
 package me.mudkip.moememos.ui.component
 
-import androidx.compose.foundation.layout.padding
+import android.icu.text.DateFormatSymbols
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.MemosViewModel
 
@@ -17,12 +19,50 @@ import me.mudkip.moememos.viewmodel.MemosViewModel
 @Composable
 fun SideDrawer(
     navController: NavHostController,
-    memosViewModel: MemosViewModel
+    memosViewModel: MemosViewModel,
+    drawerState: DrawerState
 ) {
+    val weekDays = remember {
+        DateFormatSymbols.getInstance().shortWeekdays
+    }
+    var showHeatMap by remember {
+        mutableStateOf(false)
+    }
+    val scope = rememberCoroutineScope()
+
     ModalDrawerSheet {
         LazyColumn {
             item {
                 Stats(memosViewModel = memosViewModel)
+            }
+            
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .padding(10.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(end = 5.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(weekDays[1],
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline)
+                        Text(weekDays[4],
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline)
+                        Text(weekDays[7],
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline)
+                    }
+                    if (showHeatMap) {
+                        Heatmap(memosViewModel = memosViewModel)
+                    }
+                }
             }
             
             item {
@@ -65,7 +105,10 @@ fun SideDrawer(
                     icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
                     selected = false,
                     onClick = {
-                        navController.navigate(RouteName.SETTINGS)
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate(RouteName.SETTINGS)
+                        }
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
@@ -95,5 +138,7 @@ fun SideDrawer(
 
     LaunchedEffect(Unit) {
         memosViewModel.loadTags()
+        delay(500)
+        showHeatMap = true
     }
 }

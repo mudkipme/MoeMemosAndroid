@@ -8,8 +8,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
@@ -24,7 +22,6 @@ fun MemosPage(
     navController: NavHostController,
     viewModel: MemosViewModel = hiltViewModel()
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -39,15 +36,14 @@ fun MemosPage(
         drawerContent = {
             SideDrawer(
                 navController = navController,
-                memosViewModel = viewModel
+                memosViewModel = viewModel,
+                drawerState = drawerState
             )
         }
     ) {
         Scaffold(
-            modifier = Modifier
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
-                LargeTopAppBar(
+                TopAppBar(
                     title = { Text(text = "Memos") },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
@@ -60,8 +56,7 @@ fun MemosPage(
                         }) {
                             Icon(Icons.Filled.Search, contentDescription = "Search")
                         }
-                    },
-                    scrollBehavior = scrollBehavior
+                    }
                 )
             },
 
