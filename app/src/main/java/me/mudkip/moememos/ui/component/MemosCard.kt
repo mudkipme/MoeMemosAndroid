@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.model.MemosRowStatus
+import me.mudkip.moememos.viewmodel.LocalArchivedMemos
 import me.mudkip.moememos.viewmodel.LocalMemos
 
 @Composable
@@ -26,7 +28,7 @@ fun MemosCard(
         modifier = Modifier
             .padding(horizontal = 15.dp, vertical = 10.dp)
             .fillMaxWidth(),
-        border = if (memo.pinned) { BorderStroke(1.dp, MaterialTheme.colorScheme.primary) } else { null }
+        border = if (memo.pinned && memo.rowStatus == MemosRowStatus.NORMAL) { BorderStroke(1.dp, MaterialTheme.colorScheme.primary) } else { null }
     ) {
         Column(
             modifier = Modifier.padding(start = 15.dp, bottom = 15.dp)
@@ -40,7 +42,11 @@ fun MemosCard(
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )
-                MemosCardActionButton(memo)
+                if (memo.rowStatus == MemosRowStatus.ARCHIVED) {
+                    ArchivedMemosCardActionButton(memo)
+                } else {
+                    MemosCardActionButton(memo)
+                }
             }
             Column(modifier = Modifier.padding(end = 15.dp)) {
                 Text(
@@ -128,7 +134,13 @@ fun MemosCardActionButton(
                 })
             DropdownMenuItem(
                 text = { Text("Archive") },
-                onClick = { /* Handle edit! */ },
+                onClick = {
+                    scope.launch {
+                        memosViewModel.archiveMemo(memo.id).suspendOnSuccess {
+                            menuExpanded = false
+                        }
+                    }
+                },
                 colors = MenuDefaults.itemColors(
                     textColor = MaterialTheme.colorScheme.error,
                     leadingIconColor = MaterialTheme.colorScheme.error,
@@ -140,5 +152,90 @@ fun MemosCardActionButton(
                     )
                 })
         }
+    }
+}
+
+@Composable
+fun ArchivedMemosCardActionButton(
+    memo: Memo
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val archivedMemoListViewModel = LocalArchivedMemos.current
+    val memosViewModel = LocalMemos.current
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .wrapContentSize(Alignment.TopEnd)) {
+        IconButton(onClick = { menuExpanded = true }) {
+            Icon(Icons.Filled.MoreVert, contentDescription = null)
+        }
+        DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+            DropdownMenuItem(
+                text = { Text("Restore") },
+                onClick = {
+                    scope.launch {
+                        archivedMemoListViewModel.restoreMemo(memo.id).suspendOnSuccess {
+                            menuExpanded = false
+                            memosViewModel.loadMemos()
+                        }
+                    }
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.Restore,
+                        contentDescription = null
+                    )
+                })
+            DropdownMenuItem(
+                text = { Text("Delete") },
+                onClick = {
+                    showDeleteDialog = true
+                    menuExpanded = false
+                },
+                colors = MenuDefaults.itemColors(
+                    textColor = MaterialTheme.colorScheme.error,
+                    leadingIconColor = MaterialTheme.colorScheme.error,
+                ),
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.Delete,
+                        contentDescription = null
+                    )
+                })
+        }
+    }
+    
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete this memo?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        scope.launch {
+                            archivedMemoListViewModel.deleteMemo(memo.id).suspendOnSuccess {
+                                showDeleteDialog = false
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

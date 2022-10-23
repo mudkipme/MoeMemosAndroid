@@ -18,7 +18,8 @@ import me.mudkip.moememos.viewmodel.LocalMemos
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SideDrawer(
-    navController: NavHostController,
+    rootNavController: NavHostController,
+    memosNavController: NavHostController,
     drawerState: DrawerState
 ) {
     val weekDays = remember {
@@ -76,8 +77,16 @@ fun SideDrawer(
                 NavigationDrawerItem(
                     label = { Text("Memos") },
                     icon = { Icon(Icons.Outlined.GridView, contentDescription = null) },
-                    selected = true,
-                    onClick = { /*TODO*/ },
+                    selected = memosNavController.currentDestination?.route == RouteName.MEMOS,
+                    onClick = {
+                        scope.launch {
+                            memosNavController.navigate(RouteName.MEMOS) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                            drawerState.close()
+                        }
+                    },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
             }
@@ -94,8 +103,16 @@ fun SideDrawer(
                 NavigationDrawerItem(
                     label = { Text("Archived") },
                     icon = { Icon(Icons.Outlined.Inventory2, contentDescription = null) },
-                    selected = false,
-                    onClick = { /*TODO*/ },
+                    selected = memosNavController.currentDestination?.route == RouteName.ARCHIVED,
+                    onClick = {
+                        scope.launch {
+                            memosNavController.navigate(RouteName.ARCHIVED) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                            drawerState.close()
+                        }
+                    },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
             }
@@ -107,7 +124,7 @@ fun SideDrawer(
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            navController.navigate(RouteName.SETTINGS)
+                            rootNavController.navigate(RouteName.SETTINGS)
                         }
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)

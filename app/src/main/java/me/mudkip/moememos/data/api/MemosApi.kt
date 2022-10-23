@@ -25,6 +25,14 @@ data class UpdateMemoOrganizerInput(
     val pinned: Boolean
 )
 
+data class PatchMemoInput(
+    val id: Long,
+    val createdTs: Long? = null,
+    val rowStatus: MemosRowStatus? = null,
+    val content: String? = null,
+    val visibility: MemosVisibility? = null
+)
+
 interface MemosApi {
     @POST("/api/auth/signin")
     suspend fun signIn(@Body body: SignInInput): ApiResponse<MemosOutput<User>>
@@ -50,4 +58,10 @@ interface MemosApi {
 
     @POST("/api/memo/{id}/organizer")
     suspend fun updateMemoOrganizer(@Path("id") memoId: Long, @Body body: UpdateMemoOrganizerInput): ApiResponse<MemosOutput<Memo>>
+
+    @PATCH("/api/memo/{id}")
+    suspend fun patchMemo(@Path("id") memoId: Long, @Body body: PatchMemoInput): ApiResponse<MemosOutput<Memo>>
+
+    @DELETE("/api/memo/{id}")
+    suspend fun deleteMemo(@Path("id") memoId: Long): ApiResponse<Unit>
 }

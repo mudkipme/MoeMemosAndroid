@@ -1,4 +1,4 @@
-package me.mudkip.moememos.ui.component
+package me.mudkip.moememos.ui.page.memos
 
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.ui.component.MemosCard
 import me.mudkip.moememos.viewmodel.LocalMemos
 import timber.log.Timber
 

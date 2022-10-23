@@ -70,6 +70,12 @@ class MemosViewModel @Inject constructor(
         }
     }
 
+    suspend fun archiveMemo(memoId: Long) = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+        memoRepository.archiveMemo(memoId).suspendOnSuccess {
+            memos.removeIf { it.id == memoId }
+        }
+    }
+
     private fun updateMemo(memo: Memo) {
         val index = memos.indexOfFirst { it.id == memo.id }
         if (index != -1) {

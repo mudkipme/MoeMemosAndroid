@@ -5,4 +5,5 @@ object RouteName {
     const val SETTINGS = "settings"
     const val LOGIN = "login"
     const val INPUT = "input"
+    const val ARCHIVED = "archived"
 }
