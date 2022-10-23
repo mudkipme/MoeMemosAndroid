@@ -1,5 +1,6 @@
 package me.mudkip.moememos.data.model
 
+import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -21,6 +22,7 @@ enum class MemosRowStatus {
     ARCHIVED
 }
 
+@Keep
 data class Memo(
     val id: Long,
     val createdTs: Long,

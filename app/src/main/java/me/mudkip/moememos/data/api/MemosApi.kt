@@ -1,5 +1,6 @@
 package me.mudkip.moememos.data.api
 
+import androidx.annotation.Keep
 import com.skydoves.sandwich.ApiResponse
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
@@ -7,24 +8,29 @@ import me.mudkip.moememos.data.model.MemosVisibility
 import me.mudkip.moememos.data.model.User
 import retrofit2.http.*
 
+@Keep
 data class MemosOutput<T>(
     val data: T
 )
 
+@Keep
 data class SignInInput(
     val email: String,
     val password: String
 )
 
+@Keep
 data class CreateMemoInput(
     val content: String,
     val visibility: MemosVisibility? = null
 )
 
+@Keep
 data class UpdateMemoOrganizerInput(
     val pinned: Boolean
 )
 
+@Keep
 data class PatchMemoInput(
     val id: Long,
     val createdTs: Long? = null,

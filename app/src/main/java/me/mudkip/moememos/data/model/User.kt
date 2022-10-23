@@ -1,5 +1,6 @@
 package me.mudkip.moememos.data.model
 
+import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -22,11 +23,13 @@ enum class MemosUserSettingKey {
     UNKNOWN
 }
 
+@Keep
 data class MemosUserSetting(
     val key: MemosUserSettingKey = MemosUserSettingKey.UNKNOWN,
     val value: String
 )
 
+@Keep
 data class User(
     val createdTs: Long,
     val email: String,

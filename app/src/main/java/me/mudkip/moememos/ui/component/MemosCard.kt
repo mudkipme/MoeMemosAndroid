@@ -226,7 +226,8 @@ fun ArchivedMemosCardActionButton(
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.error
+                        contentColor = MaterialTheme.colorScheme.error,
+                        containerColor = MaterialTheme.colorScheme.errorContainer
                     )
                 ) {
                     Text("Confirm")
