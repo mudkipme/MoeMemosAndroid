@@ -30,7 +30,7 @@ data class MemosUserSetting(
 data class User(
     val createdTs: Long,
     val email: String,
-    val id: Int,
+    val id: Long,
     val name: String,
     val openId: String,
     val role: MemosRole = MemosRole.USER,

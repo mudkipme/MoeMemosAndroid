@@ -5,23 +5,24 @@ import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
 import me.mudkip.moememos.data.model.MemosVisibility
 import me.mudkip.moememos.data.model.User
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
+
+data class MemosOutput<T>(
+    val data: T
+)
 
 data class SignInInput(
     val email: String,
     val password: String
 )
 
-data class MemosOutput<T>(
-    val data: T
-)
-
 data class CreateMemoInput(
     val content: String,
     val visibility: MemosVisibility? = null
+)
+
+data class UpdateMemoOrganizerInput(
+    val pinned: Boolean
 )
 
 interface MemosApi {
@@ -36,7 +37,7 @@ interface MemosApi {
 
     @GET("/api/memo")
     suspend fun listMemo(
-        @Query("creatorId") creatorId: Int? = null,
+        @Query("creatorId") creatorId: Long? = null,
         @Query("rowStatus") rowStatus: MemosRowStatus? = null,
         @Query("visibility") visibility: MemosVisibility? = null
     ): ApiResponse<MemosOutput<List<Memo>>>
@@ -45,5 +46,8 @@ interface MemosApi {
     suspend fun createMemo(@Body body: CreateMemoInput): ApiResponse<MemosOutput<Memo>>
 
     @GET("/api/tag")
-    suspend fun getTags(@Query("creatorId") creatorId: Int? = null): ApiResponse<MemosOutput<List<String>>>
+    suspend fun getTags(@Query("creatorId") creatorId: Long? = null): ApiResponse<MemosOutput<List<String>>>
+
+    @POST("/api/memo/{id}/organizer")
+    suspend fun updateMemoOrganizer(@Path("id") memoId: Long, @Body body: UpdateMemoOrganizerInput): ApiResponse<MemosOutput<Memo>>
 }

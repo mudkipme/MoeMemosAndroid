@@ -13,13 +13,12 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.ui.page.common.RouteName
-import me.mudkip.moememos.viewmodel.MemosViewModel
+import me.mudkip.moememos.viewmodel.LocalMemos
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SideDrawer(
     navController: NavHostController,
-    memosViewModel: MemosViewModel,
     drawerState: DrawerState
 ) {
     val weekDays = remember {
@@ -29,11 +28,12 @@ fun SideDrawer(
         mutableStateOf(false)
     }
     val scope = rememberCoroutineScope()
+    val memosViewModel = LocalMemos.current
 
     ModalDrawerSheet {
         LazyColumn {
             item {
-                Stats(memosViewModel = memosViewModel)
+                Stats()
             }
             
             item {
@@ -60,7 +60,7 @@ fun SideDrawer(
                             color = MaterialTheme.colorScheme.outline)
                     }
                     if (showHeatMap) {
-                        Heatmap(memosViewModel = memosViewModel)
+                        Heatmap()
                     }
                 }
             }

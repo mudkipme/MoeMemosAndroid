@@ -22,9 +22,9 @@ enum class MemosRowStatus {
 }
 
 data class Memo(
-    val id: Int,
+    val id: Long,
     val createdTs: Long,
-    val creatorId: Int,
+    val creatorId: Long,
     var content: String,
     var pinned: Boolean,
     val rowStatus: MemosRowStatus = MemosRowStatus.NORMAL,

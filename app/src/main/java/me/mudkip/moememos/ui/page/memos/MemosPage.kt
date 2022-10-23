@@ -8,19 +8,16 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.ui.component.MemosList
 import me.mudkip.moememos.ui.component.SideDrawer
 import me.mudkip.moememos.ui.page.common.RouteName
-import me.mudkip.moememos.viewmodel.MemosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemosPage(
-    navController: NavHostController,
-    viewModel: MemosViewModel = hiltViewModel()
+    navController: NavHostController
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -36,7 +33,6 @@ fun MemosPage(
         drawerContent = {
             SideDrawer(
                 navController = navController,
-                memosViewModel = viewModel,
                 drawerState = drawerState
             )
         }
@@ -72,8 +68,7 @@ fun MemosPage(
 
             content = { innerPadding ->
                 MemosList(
-                    contentPadding = innerPadding,
-                    viewModel = viewModel
+                    contentPadding = innerPadding
                 )
             }
         )

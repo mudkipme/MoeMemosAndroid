@@ -7,23 +7,29 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
-import me.mudkip.moememos.viewmodel.MemosViewModel
+import me.mudkip.moememos.viewmodel.LocalMemos
 import timber.log.Timber
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MemosList(
     contentPadding: PaddingValues,
-    viewModel: MemosViewModel,
     swipeEnabled: Boolean = true
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val viewModel = LocalMemos.current
     val refreshState = rememberSwipeRefreshState(viewModel.refreshing)
+    val filteredMemos = remember(viewModel.memos.toList()) {
+        val pinned = viewModel.memos.filter { it.pinned }
+        val nonPinned = viewModel.memos.filter { !it.pinned }
+        pinned + nonPinned
+    }
 
     SwipeRefresh(
         indicatorPadding = contentPadding,
@@ -39,7 +45,7 @@ fun MemosList(
             modifier = Modifier.consumedWindowInsets(contentPadding),
             contentPadding = contentPadding
         ) {
-            items(viewModel.memos) { memo ->
+            items(filteredMemos, key = { it.id }) { memo ->
                 MemosCard(memo)
             }
         }

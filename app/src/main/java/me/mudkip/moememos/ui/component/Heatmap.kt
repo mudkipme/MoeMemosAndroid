@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
-import me.mudkip.moememos.viewmodel.MemosViewModel
+import me.mudkip.moememos.viewmodel.LocalMemos
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
@@ -19,9 +19,9 @@ import java.util.*
 import kotlin.math.ceil
 
 @Composable
-fun Heatmap(
-    memosViewModel: MemosViewModel
-) {
+fun Heatmap() {
+    val memosViewModel = LocalMemos.current
+
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         LazyHorizontalGrid(
             rows = GridCells.Fixed(7),

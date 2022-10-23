@@ -8,18 +8,24 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import me.mudkip.moememos.ui.page.common.Navigation
+import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
+import me.mudkip.moememos.viewmodel.MemosViewModel
 import me.mudkip.moememos.viewmodel.UserStateViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val userStateViewModel: UserStateViewModel by viewModels()
+    private val memosViewModel: MemosViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            CompositionLocalProvider(LocalUserState provides userStateViewModel) {
+            CompositionLocalProvider(
+                LocalUserState provides userStateViewModel,
+                LocalMemos provides memosViewModel
+            ) {
                 Navigation()
             }
         }

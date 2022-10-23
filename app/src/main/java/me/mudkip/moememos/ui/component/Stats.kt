@@ -8,17 +8,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
-import me.mudkip.moememos.viewmodel.MemosViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
 @Composable
-fun Stats(
-    memosViewModel: MemosViewModel
-) {
+fun Stats() {
+    val memosViewModel = LocalMemos.current
     val userStateViewModel = LocalUserState.current
     val days = remember(userStateViewModel.currentUser, LocalDate.now()) {
         userStateViewModel.currentUser?.let { currentUser ->
