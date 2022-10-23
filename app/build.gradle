@@ -63,6 +63,9 @@ dependencies {
 
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+    implementation "com.squareup.moshi:moshi:$moshi"
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi"
+    implementation "com.squareup.moshi:moshi-adapters:$moshi"
     implementation "com.github.skydoves:sandwich:$sandwich"
     implementation "com.github.skydoves:sandwich-serialization:$sandwich"
     implementation "net.gotev:cookie-store:1.5.0"

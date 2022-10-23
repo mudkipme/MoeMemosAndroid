@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.adapters.ApiResponseCallAdapterFactory
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapters.EnumJsonAdapter
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -11,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.mudkip.moememos.data.constant.MoeMemosException
+import me.mudkip.moememos.data.model.MemosUserSettingKey
 import me.mudkip.moememos.ext.DataStoreKeys
 import me.mudkip.moememos.ext.dataStore
 import okhttp3.OkHttpClient
@@ -54,7 +58,13 @@ class MemosApiService @Inject constructor(
         return Retrofit.Builder()
             .baseUrl(host)
             .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create(
+                Moshi.Builder()
+                    .add(MemosUserSettingKey::class.java, EnumJsonAdapter.create(MemosUserSettingKey::class.java)
+                        .withUnknownFallback(MemosUserSettingKey.UNKNOWN))
+                    .add(KotlinJsonAdapterFactory())
+                    .build()
+            ))
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(MemosApi::class.java)

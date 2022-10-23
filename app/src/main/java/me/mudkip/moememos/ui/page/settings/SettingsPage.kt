@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Source
 import androidx.compose.material.icons.outlined.Web
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
@@ -26,6 +28,7 @@ fun SettingsPage(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val userStateViewModel = LocalUserState.current
     val coroutineScope = rememberCoroutineScope()
+    val uriHandler = LocalUriHandler.current
 
     Scaffold(
         modifier = Modifier
@@ -45,36 +48,58 @@ fun SettingsPage(
         }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
-            if (userStateViewModel.currentUser == null) {
+            userStateViewModel.currentUser?.let { user ->
                 item {
-                    Button(
-                        onClick = {
-                            navController.navigate(RouteName.LOGIN)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        contentPadding = PaddingValues(vertical = 10.dp)
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(15.dp)
                     ) {
-                        Text("Sign in",
-                            style = MaterialTheme.typography.titleLarge
-                        )
+                        Column(Modifier.padding(15.dp)) {
+                            Text(user.name,
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                            if (user.name != user.email) {
+                                Text(user.email,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            }
+                        }
                     }
+                }
+            } ?: item {
+                Button(
+                    onClick = {
+                        navController.navigate(RouteName.LOGIN)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    contentPadding = PaddingValues(vertical = 10.dp)
+                ) {
+                    Text("Sign in",
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
             }
 
             item {
                 Text("About Moe Memos",
-                    modifier = Modifier.fillMaxWidth().padding(24.dp, 10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp, 10.dp),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.outline
                 )
             }
 
             item {
-                Surface(onClick = { /*TODO*/ }) {
+                Surface(onClick = {
+                    uriHandler.openUri("https://memos.moe")
+                }) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(24.dp, 10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp, 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
@@ -94,10 +119,12 @@ fun SettingsPage(
             }
 
             item {
-                Surface(onClick = { /*TODO*/ }) {
+                Surface(onClick = {
+                    uriHandler.openUri("https://memos.moe/privacy")
+                }) {
                     Row(
-                        modifier = Modifier.
-                        fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                             .padding(8.dp, 16.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -118,6 +145,33 @@ fun SettingsPage(
                 }
             }
 
+            item {
+                Surface(onClick = {
+                    uriHandler.openUri("https://memos.moe/android-acknowledgements")
+                }) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(8.dp, 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Outlined.Source,
+                            contentDescription = "Acknowledgements",
+                            modifier = Modifier.padding(start = 8.dp, end = 16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            "Acknowledgements",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+
             if (userStateViewModel.currentUser != null) {
                 item {
                     FilledTonalButton(
@@ -131,12 +185,16 @@ fun SettingsPage(
                                 }
                             }
                         },
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.error
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(20.dp)
+                            .padding(20.dp),
+                        contentPadding = PaddingValues(10.dp)
                     ) {
-                        Text(
-                            text = "Sign out", color = MaterialTheme.colorScheme.error)
+                        Text("Sign out")
                     }
                 }
             }
