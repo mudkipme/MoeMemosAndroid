@@ -12,8 +12,7 @@ import me.mudkip.moememos.ui.page.common.RouteName
 @Composable
 fun MemosNavigation(
     drawerState: DrawerState,
-    navController: NavHostController,
-    rootNavController: NavHostController
+    navController: NavHostController
 ) {
     NavHost(
         navController = navController,
@@ -23,8 +22,7 @@ fun MemosNavigation(
             RouteName.MEMOS,
         ) {
             MemosHomePage(
-                drawerState = drawerState,
-                rootNavController = rootNavController
+                drawerState = drawerState
             )
         }
 
@@ -33,6 +31,15 @@ fun MemosNavigation(
         ) {
             ArchivedMemoPage(
                 drawerState = drawerState
+            )
+        }
+
+        composable(
+            "${RouteName.TAG}/{tag}"
+        ) { entry ->
+            TagMemoPage(
+                drawerState = drawerState,
+                tag = entry.arguments?.getString("tag") ?: ""
             )
         }
     }

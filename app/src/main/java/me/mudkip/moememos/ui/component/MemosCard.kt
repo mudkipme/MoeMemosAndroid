@@ -17,6 +17,8 @@ import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
+import me.mudkip.moememos.ui.page.common.LocalRootNavController
+import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalArchivedMemos
 import me.mudkip.moememos.viewmodel.LocalMemos
 
@@ -64,6 +66,7 @@ fun MemosCardActionButton(
     var menuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val memosViewModel = LocalMemos.current
+    val rootNavController = LocalRootNavController.current
     val scope = rememberCoroutineScope()
 
     Box(modifier = Modifier
@@ -108,7 +111,9 @@ fun MemosCardActionButton(
             }
             DropdownMenuItem(
                 text = { Text("Edit") },
-                onClick = { /* Handle edit! */ },
+                onClick = {
+                    rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.id}")
+                },
                 leadingIcon = {
                     Icon(
                         Icons.Outlined.Edit,

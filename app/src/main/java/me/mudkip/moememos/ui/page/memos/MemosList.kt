@@ -21,7 +21,8 @@ import timber.log.Timber
 @Composable
 fun MemosList(
     contentPadding: PaddingValues,
-    swipeEnabled: Boolean = true
+    swipeEnabled: Boolean = true,
+    tag: String? = null
 ) {
     val coroutineScope = rememberCoroutineScope()
     val viewModel = LocalMemos.current
@@ -29,7 +30,16 @@ fun MemosList(
     val filteredMemos = remember(viewModel.memos.toList()) {
         val pinned = viewModel.memos.filter { it.pinned }
         val nonPinned = viewModel.memos.filter { !it.pinned }
-        pinned + nonPinned
+        var fullList = pinned + nonPinned
+
+        tag?.let { tag ->
+            fullList = fullList.filter { memo ->
+                memo.content.contains("#$tag") ||
+                    memo.content.contains("#$tag/")
+            }
+        }
+
+        fullList
     }
 
     SwipeRefresh(

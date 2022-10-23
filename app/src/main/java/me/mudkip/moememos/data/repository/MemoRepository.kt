@@ -38,4 +38,8 @@ class MemoRepository @Inject constructor(private val memosApiService: MemosApiSe
     suspend fun deleteMemo(memoId: Long): ApiResponse<Unit> = memosApiService.call { api ->
         api.deleteMemo(memoId)
     }
+
+    suspend fun editMemo(memoId: Long, content: String): ApiResponse<Memo> = memosApiService.call { api ->
+        api.patchMemo(memoId, PatchMemoInput(id = memoId, content = content)).mapSuccess { data }
+    }
 }

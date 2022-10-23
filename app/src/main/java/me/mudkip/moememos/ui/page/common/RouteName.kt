@@ -6,4 +6,6 @@ object RouteName {
     const val LOGIN = "login"
     const val INPUT = "input"
     const val ARCHIVED = "archived"
+    const val EDIT = "edit"
+    const val TAG = "tag"
 }

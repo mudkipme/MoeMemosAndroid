@@ -15,4 +15,9 @@ sealed class DataStoreKeys<T> {
         override val key: Preferences.Key<String>
             get() = stringPreferencesKey("host")
     }
+
+    object Draft : DataStoreKeys<String>() {
+        override val key: Preferences.Key<String>
+            get() = stringPreferencesKey("draft")
+    }
 }

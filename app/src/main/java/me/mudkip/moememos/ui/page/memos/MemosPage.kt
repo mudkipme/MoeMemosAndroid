@@ -4,16 +4,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.ui.component.SideDrawer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MemosPage(
-    navController: NavHostController
-) {
+fun MemosPage() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val memosNavController = rememberNavController()
@@ -28,7 +25,6 @@ fun MemosPage(
         drawerState = drawerState,
         drawerContent = {
             SideDrawer(
-                rootNavController = navController,
                 memosNavController = memosNavController,
                 drawerState = drawerState
             )
@@ -36,8 +32,7 @@ fun MemosPage(
     ) {
         MemosNavigation(
             drawerState = drawerState,
-            navController = memosNavController,
-            rootNavController = navController
+            navController = memosNavController
         )
     }
 }

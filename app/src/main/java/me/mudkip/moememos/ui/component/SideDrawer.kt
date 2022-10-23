@@ -12,13 +12,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
+import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SideDrawer(
-    rootNavController: NavHostController,
     memosNavController: NavHostController,
     drawerState: DrawerState
 ) {
@@ -30,6 +31,7 @@ fun SideDrawer(
     }
     val scope = rememberCoroutineScope()
     val memosViewModel = LocalMemos.current
+    val rootNavController = LocalRootNavController.current
 
     ModalDrawerSheet {
         LazyColumn {
@@ -90,15 +92,15 @@ fun SideDrawer(
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
             }
-            item {
-                NavigationDrawerItem(
-                    label = { Text("Resources") },
-                    icon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-            }
+//            item {
+//                NavigationDrawerItem(
+//                    label = { Text("Resources") },
+//                    icon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
+//                    selected = false,
+//                    onClick = { /*TODO*/ },
+//                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+//                )
+//            }
             item {
                 NavigationDrawerItem(
                     label = { Text("Archived") },
@@ -145,7 +147,15 @@ fun SideDrawer(
                         label = { Text(tag) },
                         icon = { Icon(Icons.Outlined.Tag, contentDescription = null) },
                         selected = false,
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            scope.launch {
+                                memosNavController.navigate("${RouteName.TAG}/${URLEncoder.encode(tag, "UTF-8")}") {
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                                drawerState.close()
+                            }
+                        },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
                 }
