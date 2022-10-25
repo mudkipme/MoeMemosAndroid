@@ -1,0 +1,1 @@
+An app to help you capture thoughts & ideas, syncs with self-hosted Memos server
