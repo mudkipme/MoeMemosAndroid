@@ -168,11 +168,8 @@ fun LoginPage(
                     coroutineScope.launch {
                         userStateViewModel.login(host.text, email.text, password.text)
                             .suspendOnSuccess {
-                                navController.navigate(RouteName.MEMOS) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        inclusive = true
-                                    }
-                                }
+                                navController.popBackStack()
+                                navController.navigate(RouteName.MEMOS)
                             }
                             .suspendOnErrorMessage {
                                 snackbarState.showSnackbar(it)

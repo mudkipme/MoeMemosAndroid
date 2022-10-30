@@ -1,11 +1,11 @@
 buildscript {
     ext {
         // https://developer.android.com/jetpack/androidx/releases/compose-ui
-        compose_version = '1.3.0-rc01'
+        compose_version = '1.3.0'
         // https://github.com/google/accompanist/releases
-        accompanist = '0.26.5-rc'
+        accompanist = '0.27.0'
         // https://developer.android.com/jetpack/androidx/releases/compose-material3
-        material3 = '1.0.0-rc01'
+        material3 = '1.0.0'
         // https://square.github.io/okhttp/changelogs/changelog/
         okhttp_version = '4.10.0'
         // https://github.com/square/retrofit/tags
