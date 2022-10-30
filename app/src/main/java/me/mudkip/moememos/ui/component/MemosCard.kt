@@ -56,17 +56,17 @@ fun MemosCard(
                 }
             }
             Column(modifier = Modifier.padding(end = 15.dp)) {
-                Text(
-                    memo.content
+                Text(memo.content,
+                    modifier = Modifier.padding(bottom = 10.dp)
                 )
 
                 memo.resourceList?.forEach { resource ->
                     AsyncImage(
                         model = resource.uri(LocalUserState.current.host).toString(),
                         contentDescription = null,
-                        modifier = Modifier.width(160.dp).height(160.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .padding(bottom = 10.dp),
+                        modifier = Modifier.heightIn(max = 300.dp).widthIn(min = 100.dp)
+                            .padding(bottom = 10.dp)
+                            .clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Crop
                     )
                 }

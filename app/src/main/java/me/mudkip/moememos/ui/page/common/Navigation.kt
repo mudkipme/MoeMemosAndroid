@@ -21,6 +21,7 @@ import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
 import me.mudkip.moememos.ui.page.memos.MemosPage
 import me.mudkip.moememos.ui.page.memos.SearchPage
+import me.mudkip.moememos.ui.page.resource.ResourceListPage
 import me.mudkip.moememos.ui.page.settings.SettingsPage
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
 import me.mudkip.moememos.viewmodel.LocalUserState
@@ -81,6 +82,10 @@ fun Navigation() {
 
                 composable(RouteName.SEARCH) {
                     SearchPage()
+                }
+
+                composable(RouteName.RESOURCE) {
+                    ResourceListPage(navController = navController)
                 }
             }
         }

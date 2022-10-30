@@ -9,4 +9,5 @@ object RouteName {
     const val EDIT = "edit"
     const val TAG = "tag"
     const val SEARCH = "search"
+    const val RESOURCE = "resource"
 }

@@ -92,15 +92,20 @@ fun SideDrawer(
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
             }
-//            item {
-//                NavigationDrawerItem(
-//                    label = { Text("Resources") },
-//                    icon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
-//                    selected = false,
-//                    onClick = { /*TODO*/ },
-//                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-//                )
-//            }
+            item {
+                NavigationDrawerItem(
+                    label = { Text("Resources") },
+                    icon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            rootNavController.navigate(RouteName.RESOURCE)
+                        }
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+            }
             item {
                 NavigationDrawerItem(
                     label = { Text("Archived") },

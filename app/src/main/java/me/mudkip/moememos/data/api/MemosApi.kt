@@ -2,10 +2,7 @@ package me.mudkip.moememos.data.api
 
 import androidx.annotation.Keep
 import com.skydoves.sandwich.ApiResponse
-import me.mudkip.moememos.data.model.Memo
-import me.mudkip.moememos.data.model.MemosRowStatus
-import me.mudkip.moememos.data.model.MemosVisibility
-import me.mudkip.moememos.data.model.User
+import me.mudkip.moememos.data.model.*
 import retrofit2.http.*
 
 @Keep
@@ -70,4 +67,7 @@ interface MemosApi {
 
     @DELETE("/api/memo/{id}")
     suspend fun deleteMemo(@Path("id") memoId: Long): ApiResponse<Unit>
+
+    @GET("/api/resource")
+    suspend fun getResources(): ApiResponse<MemosOutput<List<Resource>>>
 }
