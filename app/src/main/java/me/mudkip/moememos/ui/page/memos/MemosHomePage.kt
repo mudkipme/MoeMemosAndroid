@@ -3,6 +3,7 @@ package me.mudkip.moememos.ui.page.memos
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,13 +28,13 @@ fun MemosHomePage(
                         Icon(Icons.Filled.Menu, contentDescription = "Menu")
                     }
                 },
-//                actions = {
-//                    IconButton(onClick = {
-//
-//                    }) {
-//                        Icon(Icons.Filled.Search, contentDescription = "Search")
-//                    }
-//                }
+                actions = {
+                    IconButton(onClick = {
+                        rootNavController.navigate(RouteName.SEARCH)
+                    }) {
+                        Icon(Icons.Filled.Search, contentDescription = "Search")
+                    }
+                }
             )
         },
 

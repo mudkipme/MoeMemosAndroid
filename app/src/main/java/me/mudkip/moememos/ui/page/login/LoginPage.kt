@@ -169,7 +169,11 @@ fun LoginPage(
                         userStateViewModel.login(host.text, email.text, password.text)
                             .suspendOnSuccess {
                                 navController.popBackStack()
-                                navController.navigate(RouteName.MEMOS)
+                                navController.navigate(RouteName.MEMOS) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        inclusive = true
+                                    }
+                                }
                             }
                             .suspendOnErrorMessage {
                                 snackbarState.showSnackbar(it)

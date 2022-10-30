@@ -22,12 +22,13 @@ import timber.log.Timber
 fun MemosList(
     contentPadding: PaddingValues,
     swipeEnabled: Boolean = true,
-    tag: String? = null
+    tag: String? = null,
+    searchString: String? = null
 ) {
     val coroutineScope = rememberCoroutineScope()
     val viewModel = LocalMemos.current
     val refreshState = rememberSwipeRefreshState(viewModel.refreshing)
-    val filteredMemos = remember(viewModel.memos.toList()) {
+    val filteredMemos = remember(viewModel.memos.toList(), tag, searchString) {
         val pinned = viewModel.memos.filter { it.pinned }
         val nonPinned = viewModel.memos.filter { !it.pinned }
         var fullList = pinned + nonPinned
@@ -36,6 +37,14 @@ fun MemosList(
             fullList = fullList.filter { memo ->
                 memo.content.contains("#$tag") ||
                     memo.content.contains("#$tag/")
+            }
+        }
+
+        searchString?.let { searchString ->
+            if (searchString.isNotEmpty()) {
+                fullList = fullList.filter { memo ->
+                    memo.content.contains(searchString, true)
+                }
             }
         }
 

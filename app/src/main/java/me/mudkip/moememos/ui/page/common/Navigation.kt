@@ -20,6 +20,7 @@ import me.mudkip.moememos.ext.suspendOnNotLogin
 import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
 import me.mudkip.moememos.ui.page.memos.MemosPage
+import me.mudkip.moememos.ui.page.memos.SearchPage
 import me.mudkip.moememos.ui.page.settings.SettingsPage
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
 import me.mudkip.moememos.viewmodel.LocalUserState
@@ -76,6 +77,10 @@ fun Navigation() {
                 composable("${RouteName.EDIT}?memoId={id}"
                 ) { entry ->
                     MemoInputPage(memoId = entry.arguments?.getString("id")?.toLong())
+                }
+
+                composable(RouteName.SEARCH) {
+                    SearchPage()
                 }
             }
         }

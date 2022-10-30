@@ -8,4 +8,5 @@ object RouteName {
     const val ARCHIVED = "archived"
     const val EDIT = "edit"
     const val TAG = "tag"
+    const val SEARCH = "search"
 }
