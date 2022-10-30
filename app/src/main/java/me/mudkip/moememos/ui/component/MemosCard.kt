@@ -64,7 +64,7 @@ fun MemosCard(
                     AsyncImage(
                         model = resource.uri(LocalUserState.current.host).toString(),
                         contentDescription = null,
-                        modifier = Modifier.heightIn(max = 300.dp).widthIn(min = 100.dp)
+                        modifier = Modifier.heightIn(max = 400.dp).widthIn(min = 100.dp)
                             .padding(bottom = 10.dp)
                             .clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Crop

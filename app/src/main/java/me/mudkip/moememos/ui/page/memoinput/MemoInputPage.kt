@@ -1,9 +1,18 @@
 package me.mudkip.moememos.ui.page.memoinput
 
+import android.graphics.ImageDecoder
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,6 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -21,6 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.ext.suspendOnErrorMessage
+import me.mudkip.moememos.ui.component.InputImage
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
@@ -38,9 +49,31 @@ fun MemoInputPage(
     val memosViewModel = LocalMemos.current
     val memo = remember { memosViewModel.memos.find { it.id == memoId } }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(memo?.content ?: ""))
+        mutableStateOf(TextFieldValue(memo?.content ?: "", TextRange(memo?.content?.length ?: 0)))
     }
     var tagMenuExpanded by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val pickImage = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
+        uri?.let {
+            coroutineScope.launch {
+                try {
+                    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, it))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                    }
+                    viewModel.upload(bitmap).suspendOnSuccess {
+                        delay(300)
+                        focusRequester.requestFocus()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
 
     fun submit() = coroutineScope.launch {
         memo?.let {
@@ -118,10 +151,11 @@ fun MemoInputPage(
                     }
                 }
 
-//                IconButton(onClick = {
-//                }) {
-//                    Icon(Icons.Outlined.Image, contentDescription = "Add Image")
-//                }
+                IconButton(onClick = {
+                    pickImage.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+                }) {
+                    Icon(Icons.Outlined.Image, contentDescription = "Add Image")
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -137,11 +171,14 @@ fun MemoInputPage(
             SnackbarHost(hostState = snackbarState)
         }
     ) { innerPadding ->
-        Column(Modifier.padding(innerPadding)) {
+        Column(
+            Modifier
+                .padding(innerPadding)
+                .fillMaxHeight()) {
             OutlinedTextField(
                 modifier = Modifier
-                    .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
                     .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
                     .weight(1f)
                     .focusRequester(focusRequester),
                 value = text,
@@ -150,14 +187,29 @@ fun MemoInputPage(
                     text = it
                 },
             )
+
+            if (viewModel.uploadResources.isNotEmpty()) {
+                LazyRow(
+                    modifier = Modifier
+                        .height(80.dp)
+                        .padding(start = 15.dp, end = 15.dp, bottom = 15.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(viewModel.uploadResources, { it.id }) { resource ->
+                        InputImage(resource = resource, inputViewModel = viewModel)
+                    }
+                }
+            }
         }
     }
     
     LaunchedEffect(Unit) {
         if (memo == null) {
             viewModel.draft.first()?.let {
-                text = TextFieldValue(it)
+                text = TextFieldValue(it, TextRange(it.length))
             }
+        } else {
+            memo.resourceList?.let { resourceList -> viewModel.uploadResources.addAll(resourceList) }
         }
         delay(300)
         focusRequester.requestFocus()

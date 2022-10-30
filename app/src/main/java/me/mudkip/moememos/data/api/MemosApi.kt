@@ -3,6 +3,7 @@ package me.mudkip.moememos.data.api
 import androidx.annotation.Keep
 import com.skydoves.sandwich.ApiResponse
 import me.mudkip.moememos.data.model.*
+import okhttp3.MultipartBody
 import retrofit2.http.*
 
 @Keep
@@ -19,7 +20,8 @@ data class SignInInput(
 @Keep
 data class CreateMemoInput(
     val content: String,
-    val visibility: MemosVisibility? = null
+    val visibility: MemosVisibility? = null,
+    val resourceIdList: List<Long>? = null
 )
 
 @Keep
@@ -33,7 +35,8 @@ data class PatchMemoInput(
     val createdTs: Long? = null,
     val rowStatus: MemosRowStatus? = null,
     val content: String? = null,
-    val visibility: MemosVisibility? = null
+    val visibility: MemosVisibility? = null,
+    val resourceIdList: List<Long>? = null,
 )
 
 interface MemosApi {
@@ -70,4 +73,8 @@ interface MemosApi {
 
     @GET("/api/resource")
     suspend fun getResources(): ApiResponse<MemosOutput<List<Resource>>>
+
+    @Multipart
+    @POST("/api/resource")
+    suspend fun uploadResource(@Part file: MultipartBody.Part): ApiResponse<MemosOutput<Resource>>
 }

@@ -15,8 +15,8 @@ class MemoRepository @Inject constructor(private val memosApiService: MemosApiSe
         api.listMemo(rowStatus = rowStatus).mapSuccess { data }
     }
 
-    suspend fun createMemo(content: String): ApiResponse<Memo> = memosApiService.call { api ->
-        api.createMemo(CreateMemoInput(content)).mapSuccess { data }
+    suspend fun createMemo(content: String, resourceIdList: List<Long>? = null): ApiResponse<Memo> = memosApiService.call { api ->
+        api.createMemo(CreateMemoInput(content, resourceIdList = resourceIdList)).mapSuccess { data }
     }
 
     suspend fun getTags(): ApiResponse<List<String>> = memosApiService.call { api ->
@@ -39,7 +39,7 @@ class MemoRepository @Inject constructor(private val memosApiService: MemosApiSe
         api.deleteMemo(memoId)
     }
 
-    suspend fun editMemo(memoId: Long, content: String): ApiResponse<Memo> = memosApiService.call { api ->
-        api.patchMemo(memoId, PatchMemoInput(id = memoId, content = content)).mapSuccess { data }
+    suspend fun editMemo(memoId: Long, content: String, resourceIdList: List<Long>? = null): ApiResponse<Memo> = memosApiService.call { api ->
+        api.patchMemo(memoId, PatchMemoInput(id = memoId, content = content, resourceIdList = resourceIdList)).mapSuccess { data }
     }
 }
