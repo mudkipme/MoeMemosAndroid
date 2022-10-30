@@ -31,5 +31,6 @@ data class Memo(
     var pinned: Boolean,
     val rowStatus: MemosRowStatus = MemosRowStatus.NORMAL,
     val updatedTs: Long,
-    val visibility: MemosVisibility = MemosVisibility.PRIVATE
+    val visibility: MemosVisibility = MemosVisibility.PRIVATE,
+    val resourceList: List<Resource>? = null
 )

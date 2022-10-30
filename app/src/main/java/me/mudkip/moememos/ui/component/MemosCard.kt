@@ -4,6 +4,7 @@ import android.content.Intent
 import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.*
@@ -11,8 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.data.model.Memo
@@ -21,6 +25,7 @@ import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalArchivedMemos
 import me.mudkip.moememos.viewmodel.LocalMemos
+import me.mudkip.moememos.viewmodel.LocalUserState
 
 @Composable
 fun MemosCard(
@@ -54,6 +59,17 @@ fun MemosCard(
                 Text(
                     memo.content
                 )
+
+                memo.resourceList?.forEach { resource ->
+                    AsyncImage(
+                        model = resource.uri(LocalUserState.current.host).toString(),
+                        contentDescription = null,
+                        modifier = Modifier.width(160.dp).height(160.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .padding(bottom = 10.dp),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
         }
     }

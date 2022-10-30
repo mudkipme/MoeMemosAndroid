@@ -42,6 +42,25 @@ fun MemoInputPage(
     }
     var tagMenuExpanded by remember { mutableStateOf(false) }
 
+    fun submit() = coroutineScope.launch {
+        memo?.let {
+            viewModel.editMemo(memo.id, text.text).suspendOnSuccess {
+                navController.popBackStack()
+            }.suspendOnErrorMessage { message ->
+                snackbarState.showSnackbar(message)
+            }
+            return@launch
+        }
+
+        viewModel.createMemo(text.text).suspendOnSuccess {
+            text = TextFieldValue("")
+            viewModel.updateDraft("")
+            navController.popBackStack()
+        }.suspendOnErrorMessage { message ->
+            snackbarState.showSnackbar(message)
+        }
+    }
+
     Scaffold(
         modifier = Modifier.imePadding(),
         topBar = {
@@ -108,26 +127,7 @@ fun MemoInputPage(
 
                 IconButton(
                     enabled = text.text.isNotEmpty(),
-                    onClick = {
-                        coroutineScope.launch {
-                            memo?.let {
-                                viewModel.editMemo(memo.id, text.text).suspendOnSuccess {
-                                    navController.popBackStack()
-                                }.suspendOnErrorMessage { message ->
-                                    snackbarState.showSnackbar(message)
-                                }
-                                return@launch
-                            }
-
-                            viewModel.createMemo(text.text).suspendOnSuccess {
-                                text = TextFieldValue("")
-                                viewModel.updateDraft("")
-                                navController.popBackStack()
-                            }.suspendOnErrorMessage { message ->
-                                snackbarState.showSnackbar(message)
-                            }
-                        }
-                    }
+                    onClick = { submit() }
                 ) {
                     Icon(Icons.Filled.Send, contentDescription = "Post")
                 }
