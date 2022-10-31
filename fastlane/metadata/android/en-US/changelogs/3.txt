@@ -1,0 +1,4 @@
+- Search memos
+- Display images in memos (uploaded with Memos 0.5.0 or later)
+- Attach images in memos (requires Memos 0.5.0 or later)
+- Bug fixes
