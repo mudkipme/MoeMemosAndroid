@@ -31,5 +31,3 @@ Any contributions are greatly appreciated.
 ## License
 
 The Android version of Moe Memos is under [GPLv3](LICENSE).
-
-"Moe Memos" and the app icon belongs to the original developer [Mudkip](https://github.com/mudkipme) and can only be used to refer this project.

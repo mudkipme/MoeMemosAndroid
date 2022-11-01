@@ -13,8 +13,8 @@ android {
         applicationId "me.mudkip.moememos"
         minSdk 26
         targetSdk 33
-        versionCode 3
-        versionName "0.1.0"
+        versionCode 4
+        versionName "0.1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -45,6 +45,9 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+    }
+    aaptOptions {
+        cruncherEnabled = false
     }
     namespace 'me.mudkip.moememos'
 }
