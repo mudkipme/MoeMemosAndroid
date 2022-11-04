@@ -18,4 +18,8 @@ class ResourceRepository @Inject constructor(private val memosApiService: MemosA
         val file = MultipartBody.Part.createFormData("file", filename, resourceData.toRequestBody(mediaType))
         api.uploadResource(file).mapSuccess { data }
     }
+
+    suspend fun deleteResource(resourceId: Long): ApiResponse<Unit> = memosApiService.call { api ->
+        api.deleteResource(resourceId)
+    }
 }

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
+import kotlinx.coroutines.launch
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
@@ -29,6 +30,7 @@ fun InputImage(
     inputViewModel: MemoInputViewModel
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Box {
         AsyncImage(
@@ -51,8 +53,10 @@ fun InputImage(
             DropdownMenuItem(
                 text = { Text("Remove") },
                 onClick = {
-                    inputViewModel.uploadResources.remove(resource)
-                    menuExpanded = false
+                    scope.launch {
+                        inputViewModel.deleteResource(resource.id)
+                        menuExpanded = false
+                    }
                 },
                 leadingIcon = {
                     Icon(

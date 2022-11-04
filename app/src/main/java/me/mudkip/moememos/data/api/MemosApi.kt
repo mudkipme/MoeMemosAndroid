@@ -77,4 +77,7 @@ interface MemosApi {
     @Multipart
     @POST("/api/resource")
     suspend fun uploadResource(@Part file: MultipartBody.Part): ApiResponse<MemosOutput<Resource>>
+
+    @DELETE("/api/resource/{id}")
+    suspend fun deleteResource(@Path("id") resourceId: Long): ApiResponse<Unit>
 }

@@ -60,4 +60,10 @@ class MemoInputViewModel @Inject constructor(
             uploadResources.add(data)
         }
     }
+
+    suspend fun deleteResource(resourceId: Long): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+        resourceRepository.deleteResource(resourceId).suspendOnSuccess {
+            uploadResources.removeIf { it.id == resourceId }
+        }
+    }
 }
