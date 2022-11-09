@@ -8,7 +8,14 @@
 
 ## Installation
 
-Download and install the APK package from [Release](https://github.com/mudkipme/MoeMemosAndroid/releases).
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/me.mudkip.moememos/)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     alt="Get it on Google Play"
+     height="80">](https://play.google.com/store/apps/details?id=me.mudkip.moememos)
+
+Or download and install the APK package from the [Releases section](https://github.com/mudkipme/MoeMemosAndroid/releases/latest).
 
 ## Features
 
