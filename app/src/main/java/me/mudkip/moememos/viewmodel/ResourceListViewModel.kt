@@ -21,7 +21,7 @@ class ResourceListViewModel @Inject constructor(
     suspend fun loadResources() = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
         resourceRepository.loadResources().suspendOnSuccess {
             resources.clear()
-            resources.addAll(data)
+            resources.addAll(data.filter { it.type.startsWith("image/") })
         }
     }
 }
