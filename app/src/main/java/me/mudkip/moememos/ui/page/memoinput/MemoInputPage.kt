@@ -31,6 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.ext.suspendOnErrorMessage
+import me.mudkip.moememos.ui.component.Attachment
 import me.mudkip.moememos.ui.component.InputImage
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.viewmodel.LocalMemos
@@ -196,7 +197,11 @@ fun MemoInputPage(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(viewModel.uploadResources, { it.id }) { resource ->
-                        InputImage(resource = resource, inputViewModel = viewModel)
+                        if (resource.type.startsWith("image/")) {
+                            InputImage(resource = resource, inputViewModel = viewModel)
+                        } else {
+                            Attachment(resource = resource)
+                        }
                     }
                 }
             }
