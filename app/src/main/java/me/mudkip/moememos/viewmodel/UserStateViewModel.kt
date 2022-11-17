@@ -1,5 +1,6 @@
 package me.mudkip.moememos.viewmodel
 
+import android.net.Uri
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.SignInInput
+import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
 import javax.inject.Inject
@@ -33,9 +35,29 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun login(host: String, email: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
         try {
-            val resp = memosApiService.createClient(host).signIn(SignInInput(email, password)).mapSuccess { data }
+            val resp = memosApiService.createClient(host, null).signIn(SignInInput(email, password)).mapSuccess { data }
             if (resp.isSuccess) {
-                memosApiService.update(host)
+                memosApiService.update(host, null)
+                currentUser = resp.getOrNull()
+            }
+            resp
+        } catch (e: Throwable) {
+            ApiResponse.error(e)
+        }
+    }
+
+    suspend fun login(memosOpenApi: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+        try {
+            val uri = Uri.parse(memosOpenApi)
+            val openId = uri.getQueryParameter("openId")
+            if (openId == null || openId.isEmpty()) {
+                throw MoeMemosException.invalidOpenAPI
+            }
+
+            val host = uri.buildUpon().path("/").clearQuery().fragment("").build().toString()
+            val resp = memosApiService.createClient(host, openId).me().mapSuccess { data }
+            if (resp.isSuccess) {
+                memosApiService.update(host, openId)
                 currentUser = resp.getOrNull()
             }
             resp
@@ -46,6 +68,9 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun logout() = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
         memosApiService.call { it.logout() }
+            .suspendOnSuccess {
+                memosApiService.update(host, null)
+            }
     }
 }
 

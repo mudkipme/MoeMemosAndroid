@@ -48,7 +48,7 @@ fun MemoInputPage(
     val snackbarState = remember { SnackbarHostState() }
     val navController = LocalRootNavController.current
     val memosViewModel = LocalMemos.current
-    val memo = remember { memosViewModel.memos.find { it.id == memoId } }
+    val memo = remember { memosViewModel.memos.toList().find { it.id == memoId } }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(memo?.content ?: "", TextRange(memo?.content?.length ?: 0)))
     }
@@ -111,7 +111,7 @@ fun MemoInputPage(
         },
         bottomBar = {
             BottomAppBar {
-                if (memosViewModel.tags.isEmpty()) {
+                if (memosViewModel.tags.toList().isEmpty()) {
                     IconButton(onClick = {
                         text = text.copy(
                             text.text.replaceRange(text.selection.min, text.selection.max, "#"),
@@ -127,7 +127,7 @@ fun MemoInputPage(
                             onDismissRequest = { tagMenuExpanded = false },
                             properties = PopupProperties(focusable = false)
                         ) {
-                            memosViewModel.tags.forEach { tag ->
+                            memosViewModel.tags.toList().forEach { tag ->
                                 DropdownMenuItem(
                                     text = { Text(tag) },
                                     onClick = {
@@ -196,7 +196,7 @@ fun MemoInputPage(
                         .padding(start = 15.dp, end = 15.dp, bottom = 15.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(viewModel.uploadResources, { it.id }) { resource ->
+                    items(viewModel.uploadResources.toList(), { it.id }) { resource ->
                         if (resource.type.startsWith("image/")) {
                             InputImage(resource = resource, inputViewModel = viewModel)
                         } else {

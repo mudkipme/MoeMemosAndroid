@@ -9,7 +9,6 @@ import com.squareup.moshi.adapters.EnumJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -36,28 +35,47 @@ class MemosApiService @Inject constructor(
 
     init {
         runBlocking {
-            context.dataStore.data.map { it[DataStoreKeys.Host.key] }.first()?.let {
-                memosApi = createClient(it)
-                host = it
+            context.dataStore.data.first().let {
+                val host = it[DataStoreKeys.Host.key]
+                val openId = it[DataStoreKeys.OpenId.key]
+                if (host != null && host.isNotEmpty()) {
+                    memosApi = createClient(host, openId)
+                    this@MemosApiService.host = host
+                }
             }
         }
     }
 
-    suspend fun update(host: String) {
+    suspend fun update(host: String, openId: String?) {
         context.dataStore.edit {
             it[DataStoreKeys.Host.key] = host
+            if (openId != null && openId.isNotEmpty()) {
+                it[DataStoreKeys.OpenId.key] = openId
+            } else {
+                it.remove(DataStoreKeys.OpenId.key)
+            }
         }
 
         mutex.withLock {
-            memosApi = createClient(host)
+            memosApi = createClient(host, openId)
             this.host = host
         }
     }
 
-    fun createClient(host: String): MemosApi {
+    fun createClient(host: String, openId: String?): MemosApi {
+        var client = okHttpClient
+        if (openId != null && openId.isNotEmpty()) {
+            client = client.newBuilder().addNetworkInterceptor { chain ->
+                var request = chain.request()
+                val url = request.url.newBuilder().addQueryParameter("openId", openId).build()
+                request = request.newBuilder().url(url).build()
+                chain.proceed(request)
+            }.build()
+        }
+
         return Retrofit.Builder()
             .baseUrl(host)
-            .client(okHttpClient)
+            .client(client)
             .addConverterFactory(MoshiConverterFactory.create(
                 Moshi.Builder()
                     .add(MemosUserSettingKey::class.java, EnumJsonAdapter.create(MemosUserSettingKey::class.java)

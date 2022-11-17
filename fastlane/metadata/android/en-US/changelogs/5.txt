@@ -1,0 +1,5 @@
+What's new in this version:
+
+- Memo attachments other than pictures can also be displayed and opened.
+- A new way to log in: Sign in with Open API. It will keep your login status even if the server is restarted.
+- Bug fixes.
