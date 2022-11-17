@@ -26,7 +26,7 @@ suspend inline fun <T> ApiResponse<T>.suspendOnErrorMessage(crossinline block: s
     }
 
     if (this is ApiResponse.Failure.Exception<T>) {
-        block(this.message())
+        block(this.exception.localizedMessage ?: this.message())
     }
 
     return this

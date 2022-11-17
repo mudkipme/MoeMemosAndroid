@@ -146,7 +146,7 @@ fun SideDrawer(
                 Text("Tags", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(20.dp))
             }
 
-            memosViewModel.tags.forEach { tag ->
+            memosViewModel.tags.toList().forEach { tag ->
                 item {
                     NavigationDrawerItem(
                         label = { Text(tag) },
