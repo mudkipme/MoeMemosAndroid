@@ -5,8 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.repository.ResourceRepository
 import javax.inject.Inject
@@ -18,7 +17,7 @@ class ResourceListViewModel @Inject constructor(
     var resources = mutableStateListOf<Resource>()
         private set
 
-    suspend fun loadResources() = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    fun loadResources() = viewModelScope.launch {
         resourceRepository.loadResources().suspendOnSuccess {
             resources.clear()
             resources.addAll(data.filter { it.type.startsWith("image/") })

@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
@@ -23,7 +23,7 @@ class ArchivedMemoListViewModel @Inject constructor(
     var errorMessage: String? by mutableStateOf(null)
         private set
 
-    suspend fun loadMemos() = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    fun loadMemos() = viewModelScope.launch {
         memoRepository.loadMemos(rowStatus = MemosRowStatus.ARCHIVED).suspendOnSuccess {
             memos.clear()
             memos.addAll(data)
@@ -33,13 +33,13 @@ class ArchivedMemoListViewModel @Inject constructor(
         }
     }
 
-    suspend fun restoreMemo(memoId: Long) = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    suspend fun restoreMemo(memoId: Long) = withContext(viewModelScope.coroutineContext) {
         memoRepository.restoreMemo(memoId).suspendOnSuccess {
             memos.removeIf { it.id == memoId }
         }
     }
 
-    suspend fun deleteMemo(memoId: Long) = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    suspend fun deleteMemo(memoId: Long) = withContext(viewModelScope.coroutineContext) {
         memoRepository.deleteMemo(memoId).suspendOnSuccess {
             memos.removeIf { it.id == memoId }
         }

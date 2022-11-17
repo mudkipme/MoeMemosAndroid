@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.model.DailyUsageStat
 import me.mudkip.moememos.data.model.Memo
@@ -41,13 +41,14 @@ class MemosViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    suspend fun refresh() {
+    fun refresh() {
         refreshing = true
-        loadMemos()
-        refreshing = false
+        loadMemos().invokeOnCompletion {
+            refreshing = false
+        }
     }
 
-    suspend fun loadMemos() = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    fun loadMemos() = viewModelScope.launch {
         memoRepository.loadMemos(rowStatus = MemosRowStatus.NORMAL).suspendOnSuccess {
             memos.clear()
             memos.addAll(data)
@@ -57,20 +58,20 @@ class MemosViewModel @Inject constructor(
         }
     }
 
-    suspend fun loadTags() = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    fun loadTags() = viewModelScope.launch {
         memoRepository.getTags().suspendOnSuccess {
             tags.clear()
             tags.addAll(data)
         }
     }
 
-    suspend fun updateMemoPinned(memoId: Long, pinned: Boolean) = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    suspend fun updateMemoPinned(memoId: Long, pinned: Boolean) = withContext(viewModelScope.coroutineContext) {
         memoRepository.updatePinned(memoId, pinned).suspendOnSuccess {
             updateMemo(data)
         }
     }
 
-    suspend fun archiveMemo(memoId: Long) = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    suspend fun archiveMemo(memoId: Long) = withContext(viewModelScope.coroutineContext) {
         memoRepository.archiveMemo(memoId).suspendOnSuccess {
             memos.removeIf { it.id == memoId }
         }
