@@ -9,8 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.model.Memo
@@ -34,11 +34,11 @@ class MemoInputViewModel @Inject constructor(
     val draft = application.applicationContext.dataStore.data.map { it[DataStoreKeys.Draft.key] }
     var uploadResources = mutableStateListOf<Resource>()
 
-    suspend fun createMemo(content: String): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    suspend fun createMemo(content: String): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
         memoRepository.createMemo(content, uploadResources.map { it.id })
     }
 
-    suspend fun editMemo(memoId: Long, content: String): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    suspend fun editMemo(memoId: Long, content: String): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
         memoRepository.editMemo(memoId, content, uploadResources.map { it.id })
     }
 
@@ -48,7 +48,7 @@ class MemoInputViewModel @Inject constructor(
         }
     }
 
-    suspend fun upload(bitmap: Bitmap): ApiResponse<Resource> = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    suspend fun upload(bitmap: Bitmap): ApiResponse<Resource> = withContext(viewModelScope.coroutineContext) {
         val resizedBitmap = if (bitmap.width > 1536 || bitmap.height > 1536) {
             bitmap.scaleTo(1536, 1536)
         } else { bitmap }
@@ -61,7 +61,7 @@ class MemoInputViewModel @Inject constructor(
         }
     }
 
-    suspend fun deleteResource(resourceId: Long): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+    fun deleteResource(resourceId: Long) = viewModelScope.launch {
         resourceRepository.deleteResource(resourceId).suspendOnSuccess {
             uploadResources.removeIf { it.id == resourceId }
         }
