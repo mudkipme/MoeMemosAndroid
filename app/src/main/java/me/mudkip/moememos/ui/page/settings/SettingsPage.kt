@@ -54,11 +54,11 @@ fun SettingsPage(
                         modifier = Modifier.fillMaxWidth().padding(15.dp)
                     ) {
                         Column(Modifier.padding(15.dp)) {
-                            Text(user.name,
+                            Text(user.displayName,
                                 style = MaterialTheme.typography.headlineSmall
                             )
-                            if (user.name != user.email) {
-                                Text(user.email,
+                            if (user.displayName != user.displayEmail && user.displayEmail.isNotEmpty()) {
+                                Text(user.displayEmail,
                                     style = MaterialTheme.typography.titleSmall,
                                     color = MaterialTheme.colorScheme.outline
                                 )

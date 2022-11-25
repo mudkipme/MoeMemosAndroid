@@ -215,7 +215,7 @@ fun LoginPage(
                                 contentDescription = "Email"
                             )
                         },
-                        label = { Text("Email") },
+                        label = { Text("Username") },
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.None,
                             autoCorrect = false,
