@@ -1,0 +1,3 @@
+What's new in this version:
+- Take photos and attach to memos.
+- Fix compatibility with Memos 0.8.0.

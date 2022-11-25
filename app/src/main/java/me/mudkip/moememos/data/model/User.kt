@@ -32,12 +32,17 @@ data class MemosUserSetting(
 @Keep
 data class User(
     val createdTs: Long,
-    val email: String,
+    val email: String?,
     val id: Long,
-    val name: String,
+    val name: String?,
     val openId: String,
     val role: MemosRole = MemosRole.USER,
     val rowStatus: MemosRowStatus = MemosRowStatus.NORMAL,
     val updatedTs: Long,
-    val userSettingList: List<MemosUserSetting>? = null
-)
+    val userSettingList: List<MemosUserSetting>? = null,
+    val nickname: String?,
+    val username: String?,
+) {
+    val displayEmail get() = email ?: username ?: ""
+    val displayName get() = nickname ?: name ?: ""
+}

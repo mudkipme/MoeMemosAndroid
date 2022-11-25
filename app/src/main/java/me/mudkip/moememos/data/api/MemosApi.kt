@@ -14,6 +14,7 @@ data class MemosOutput<T>(
 @Keep
 data class SignInInput(
     val email: String,
+    var username: String,
     val password: String
 )
 
