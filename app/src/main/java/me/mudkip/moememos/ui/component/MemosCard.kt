@@ -56,7 +56,7 @@ fun MemosCard(
                 }
             }
             Column(modifier = Modifier.padding(end = 15.dp)) {
-                Text(memo.content,
+                Markdown(memo.content,
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
 
@@ -65,7 +65,9 @@ fun MemosCard(
                         AsyncImage(
                             model = resource.uri(LocalUserState.current.host).toString(),
                             contentDescription = null,
-                            modifier = Modifier.heightIn(max = 400.dp).widthIn(min = 100.dp)
+                            modifier = Modifier
+                                .heightIn(max = 400.dp)
+                                .widthIn(min = 100.dp)
                                 .padding(bottom = 10.dp)
                                 .clip(RoundedCornerShape(8.dp)),
                             contentScale = ContentScale.Crop
