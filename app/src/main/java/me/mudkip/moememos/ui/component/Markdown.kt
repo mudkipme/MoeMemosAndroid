@@ -3,6 +3,7 @@ package me.mudkip.moememos.ui.component
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ fun Markdown(
     imageContent: @Composable (url: String) -> Unit,
 ) {
     val linkColor = MaterialTheme.colorScheme.primary
+    val bulletColor = MaterialTheme.colorScheme.tertiary
     val uriHandler = LocalUriHandler.current
 
     BoxWithConstraints {
@@ -46,7 +48,16 @@ fun Markdown(
                         imageContent(url)
                     }
                 },
-                maxWidth = maxWidth.value
+                onCheckbox = { key, startOffset, endOffset ->
+                    inlineContent[key] = InlineTextContent(
+                        Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.Center)
+                    ) {
+                        val checkboxText = text.substring(startOffset, endOffset)
+                        Checkbox(checked = checkboxText.length > 1 && checkboxText[1] != ' ', onCheckedChange = null)
+                    }
+                },
+                maxWidth = maxWidth.value,
+                bulletColor = bulletColor
             )
 
             Pair(builder.toAnnotatedString(), inlineContent)
