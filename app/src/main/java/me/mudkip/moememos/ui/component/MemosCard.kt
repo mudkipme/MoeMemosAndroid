@@ -32,6 +32,9 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 fun MemosCard(
     memo: Memo
 ) {
+    val memosViewModel = LocalMemos.current
+    val scope = rememberCoroutineScope()
+
     Card(
         modifier = Modifier
             .padding(horizontal = 15.dp, vertical = 10.dp)
@@ -75,6 +78,17 @@ fun MemosCard(
                                 .clip(RoundedCornerShape(8.dp)),
                             contentScale = ContentScale.Crop
                         )
+                    },
+                    checkboxChange = { checked, startOffset, endOffset ->
+                        scope.launch {
+                            var text = memo.content.substring(startOffset, endOffset)
+                            if (checked) {
+                                text = text.replace("[ ]", "[x]")
+                            } else {
+                                text = text.replace("[x]", "[ ]")
+                            }
+                            memosViewModel.editMemo(memo.id, memo.content.replaceRange(startOffset, endOffset, text), memo.resourceList)
+                        }
                     }
                 )
 

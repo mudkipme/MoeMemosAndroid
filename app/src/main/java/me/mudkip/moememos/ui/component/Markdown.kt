@@ -25,6 +25,7 @@ fun Markdown(
     text: String,
     modifier: Modifier = Modifier,
     imageContent: @Composable (url: String) -> Unit,
+    checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit
 ) {
     val linkColor = MaterialTheme.colorScheme.primary
     val bulletColor = MaterialTheme.colorScheme.tertiary
@@ -53,7 +54,9 @@ fun Markdown(
                         Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.Center)
                     ) {
                         val checkboxText = text.substring(startOffset, endOffset)
-                        Checkbox(checked = checkboxText.length > 1 && checkboxText[1] != ' ', onCheckedChange = null)
+                        Checkbox(checked = checkboxText.length > 1 && checkboxText[1] != ' ', onCheckedChange = {
+                            checkboxChange(it, startOffset, endOffset)
+                        })
                     }
                 },
                 maxWidth = maxWidth.value,

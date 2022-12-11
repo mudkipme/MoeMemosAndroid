@@ -21,10 +21,12 @@ fun AnnotatedString.Builder.appendMarkdown(
     depth: Int = 0,
     linkColor: Color,
     onImage: (id: String, link: String) -> Unit,
-    maxWidth: Float
+    onCheckbox: (id: String, startOffset: Int, endOffset: Int) -> Unit,
+    maxWidth: Float,
+    bulletColor: Color,
 ): AnnotatedString.Builder {
     when (node.type) {
-        MarkdownElementTypes.MARKDOWN_FILE, MarkdownElementTypes.PARAGRAPH -> {
+        MarkdownElementTypes.MARKDOWN_FILE, MarkdownElementTypes.PARAGRAPH, MarkdownElementTypes.UNORDERED_LIST, MarkdownElementTypes.ORDERED_LIST -> {
             node.children.forEach { childNode ->
                 appendMarkdown(
                     markdownText = markdownText,
@@ -32,7 +34,9 @@ fun AnnotatedString.Builder.appendMarkdown(
                     depth = depth + 1,
                     linkColor = linkColor,
                     onImage = onImage,
-                    maxWidth = maxWidth
+                    onCheckbox = onCheckbox,
+                    maxWidth = maxWidth,
+                    bulletColor = bulletColor
                 )
             }
         }
@@ -52,7 +56,9 @@ fun AnnotatedString.Builder.appendMarkdown(
                         depth = depth + 1,
                         linkColor = linkColor,
                         onImage = onImage,
-                        maxWidth = maxWidth
+                        onCheckbox = onCheckbox,
+                        maxWidth = maxWidth,
+                        bulletColor = bulletColor
                     )
                 }
             }
@@ -76,7 +82,9 @@ fun AnnotatedString.Builder.appendMarkdown(
                         depth = depth + 1,
                         linkColor = linkColor,
                         onImage = onImage,
-                        maxWidth = maxWidth
+                        onCheckbox = onCheckbox,
+                        maxWidth = maxWidth,
+                        bulletColor = bulletColor
                     )
                 }
             }
@@ -91,7 +99,9 @@ fun AnnotatedString.Builder.appendMarkdown(
                         depth = depth + 1,
                         linkColor = linkColor,
                         onImage = onImage,
-                        maxWidth = maxWidth
+                        onCheckbox = onCheckbox,
+                        maxWidth = maxWidth,
+                        bulletColor = bulletColor
                     )
                 }
             }
@@ -106,7 +116,9 @@ fun AnnotatedString.Builder.appendMarkdown(
                         depth = depth + 1,
                         linkColor = linkColor,
                         onImage = onImage,
-                        maxWidth = maxWidth
+                        onCheckbox = onCheckbox,
+                        maxWidth = maxWidth,
+                        bulletColor = bulletColor
                     )
                 }
             }
@@ -125,7 +137,9 @@ fun AnnotatedString.Builder.appendMarkdown(
                         depth = depth + 1,
                         linkColor = linkColor,
                         onImage = onImage,
-                        maxWidth = maxWidth
+                        onCheckbox = onCheckbox,
+                        maxWidth = maxWidth,
+                        bulletColor = bulletColor
                     )
                 }
             }
@@ -142,6 +156,34 @@ fun AnnotatedString.Builder.appendMarkdown(
             onImage(id, imageUrl)
             withStyle(ParagraphStyle(lineHeight = (maxWidth * 9f / 16f).sp)) {
                 appendInlineContent(id, imageUrl)
+            }
+        }
+
+        MarkdownElementTypes.LIST_ITEM -> {
+            var children = node.children
+            if (node.children.size >= 2 && node.children[1].type == GFMTokenTypes.CHECK_BOX) {
+                val id = UUID.randomUUID().toString()
+                onCheckbox(id, node.children[1].startOffset, node.children[1].endOffset)
+                appendInlineContent(id, node.children[1].getTextInNode(markdownText).toString())
+                append(' ')
+                children = children.drop(2)
+            } else {
+                withStyle(SpanStyle(color = bulletColor, fontWeight = FontWeight.Bold)) {
+                    append(children[0].getTextInNode(markdownText).toString())
+                }
+                children = children.drop(1)
+            }
+            children.forEach { childNode ->
+                appendMarkdown(
+                    markdownText = markdownText,
+                    node = childNode,
+                    depth = depth + 1,
+                    linkColor = linkColor,
+                    onImage = onImage,
+                    onCheckbox = onCheckbox,
+                    maxWidth = maxWidth,
+                    bulletColor = bulletColor
+                )
             }
         }
 
