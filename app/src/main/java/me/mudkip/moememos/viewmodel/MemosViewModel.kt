@@ -3,6 +3,7 @@ package me.mudkip.moememos.viewmodel
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -12,6 +13,7 @@ import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.model.DailyUsageStat
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
+import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.repository.MemoRepository
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import java.time.LocalDate
@@ -67,6 +69,12 @@ class MemosViewModel @Inject constructor(
 
     suspend fun updateMemoPinned(memoId: Long, pinned: Boolean) = withContext(viewModelScope.coroutineContext) {
         memoRepository.updatePinned(memoId, pinned).suspendOnSuccess {
+            updateMemo(data)
+        }
+    }
+
+    suspend fun editMemo(memoId: Long, content: String, resourceList: List<Resource>?): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+        memoRepository.editMemo(memoId, content, resourceList?.map { it.id }).suspendOnSuccess {
             updateMemo(data)
         }
     }

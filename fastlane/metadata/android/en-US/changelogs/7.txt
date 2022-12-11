@@ -1,0 +1,7 @@
+What's new in this version:
+- Add the following Markdown support
+    - Inline bold, italic and monospace styles
+    - URL links
+    - External images and images uploaded before Memos 0.5.0
+    - Unordered and ordered lists
+    - Interactive To-do item (!)
