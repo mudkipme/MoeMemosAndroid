@@ -1,6 +1,7 @@
 package me.mudkip.moememos.ui.component
 
 import android.content.Intent
+import android.net.Uri
 import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -56,8 +57,25 @@ fun MemosCard(
                 }
             }
             Column(modifier = Modifier.padding(end = 15.dp)) {
-                Text(memo.content,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                Markdown(memo.content,
+                    modifier = Modifier.padding(bottom = 10.dp),
+                    imageContent = { url ->
+                        var uri = Uri.parse(url)
+                        if (uri.scheme == null) {
+                            uri = Uri.parse(LocalUserState.current.host).buildUpon()
+                                .path(url).build()
+                        }
+
+                        AsyncImage(
+                            model = uri.toString(),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 )
 
                 memo.resourceList?.forEach { resource ->
@@ -65,7 +83,9 @@ fun MemosCard(
                         AsyncImage(
                             model = resource.uri(LocalUserState.current.host).toString(),
                             contentDescription = null,
-                            modifier = Modifier.heightIn(max = 400.dp).widthIn(min = 100.dp)
+                            modifier = Modifier
+                                .heightIn(max = 400.dp)
+                                .widthIn(min = 100.dp)
                                 .padding(bottom = 10.dp)
                                 .clip(RoundedCornerShape(8.dp)),
                             contentScale = ContentScale.Crop
