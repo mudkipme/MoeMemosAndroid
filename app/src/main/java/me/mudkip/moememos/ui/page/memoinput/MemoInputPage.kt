@@ -34,6 +34,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.MoeMemosFileProvider
+import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Attachment
 import me.mudkip.moememos.ui.component.InputImage
@@ -45,7 +46,8 @@ import me.mudkip.moememos.viewmodel.MemoInputViewModel
 @Composable
 fun MemoInputPage(
     viewModel: MemoInputViewModel = hiltViewModel(),
-    memoId: Long? = null
+    memoId: Long? = null,
+    shareContent: ShareContent? = null
 ) {
     val focusRequester = remember { FocusRequester() }
     val coroutineScope = rememberCoroutineScope()
@@ -229,12 +231,23 @@ fun MemoInputPage(
     }
     
     LaunchedEffect(Unit) {
-        if (memo == null) {
-            viewModel.draft.first()?.let {
-                text = TextFieldValue(it, TextRange(it.length))
+        when {
+            memo != null -> {
+                memo.resourceList?.let { resourceList -> viewModel.uploadResources.addAll(resourceList) }
             }
-        } else {
-            memo.resourceList?.let { resourceList -> viewModel.uploadResources.addAll(resourceList) }
+
+            shareContent != null -> {
+                text = TextFieldValue(shareContent.text, TextRange(shareContent.text.length))
+                for (item in shareContent.images) {
+                    uploadImage(item)
+                }
+            }
+
+            else -> {
+                viewModel.draft.first()?.let {
+                    text = TextFieldValue(it, TextRange(it.length))
+                }
+            }
         }
         delay(300)
         focusRequester.requestFocus()

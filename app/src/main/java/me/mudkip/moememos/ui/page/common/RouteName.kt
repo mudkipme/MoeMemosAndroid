@@ -10,4 +10,5 @@ object RouteName {
     const val TAG = "tag"
     const val SEARCH = "search"
     const val RESOURCE = "resource"
+    const val SHARE = "share"
 }
