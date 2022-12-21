@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumedWindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ fun MemosList(
 
         fullList
     }
+    val lazyListState = rememberLazyListState()
 
     SwipeRefresh(
         indicatorPadding = contentPadding,
@@ -63,7 +65,8 @@ fun MemosList(
     ) {
         LazyColumn(
             modifier = Modifier.consumedWindowInsets(contentPadding),
-            contentPadding = contentPadding
+            contentPadding = contentPadding,
+            state = lazyListState
         ) {
             items(filteredMemos, key = { it.id }) { memo ->
                 MemosCard(memo)
@@ -79,5 +82,11 @@ fun MemosList(
 
     LaunchedEffect(Unit) {
         viewModel.loadMemos()
+    }
+
+    LaunchedEffect(filteredMemos) {
+        if (filteredMemos.isNotEmpty()) {
+            lazyListState.scrollToItem(0)
+        }
     }
 }

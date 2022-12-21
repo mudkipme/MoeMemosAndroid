@@ -255,7 +255,7 @@ fun MemoInputPage(
 
     DisposableEffect(Unit) {
         onDispose {
-            if (memo == null) {
+            if (memo == null && shareContent == null) {
                 viewModel.updateDraft(text.text)
             }
         }
