@@ -1,5 +1,7 @@
 package me.mudkip.moememos.ui.page.common
 
+import android.content.Intent
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -7,15 +9,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.util.Consumer
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.suspendOnNotLogin
 import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
@@ -31,6 +33,8 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 fun Navigation() {
     val navController = rememberAnimatedNavController()
     val userStateViewModel = LocalUserState.current
+    val context = LocalContext.current
+    var shareContent by remember { mutableStateOf<ShareContent?>(null) }
 
     CompositionLocalProvider(LocalRootNavController provides navController) {
         MoeMemosTheme {
@@ -75,6 +79,10 @@ fun Navigation() {
                     MemoInputPage()
                 }
 
+                composable(RouteName.SHARE) {
+                    MemoInputPage(shareContent = shareContent)
+                }
+
                 composable("${RouteName.EDIT}?memoId={id}"
                 ) { entry ->
                     MemoInputPage(memoId = entry.arguments?.getString("id")?.toLong())
@@ -101,6 +109,35 @@ fun Navigation() {
                     }
                 }
             }
+        }
+    }
+
+    fun handleIntent(intent: Intent) {
+        when(intent.action) {
+             Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> {
+                shareContent = ShareContent.parseIntent(intent)
+                navController.navigate(RouteName.SHARE)
+            }
+        }
+    }
+
+    LaunchedEffect(context) {
+        if (context is ComponentActivity && context.intent != null) {
+            handleIntent(context.intent)
+        }
+    }
+
+    DisposableEffect(context) {
+        val activity = context as? ComponentActivity
+
+        val listener = Consumer<Intent> {
+            handleIntent(it)
+        }
+
+        activity?.addOnNewIntentListener(listener)
+
+        onDispose {
+            activity?.removeOnNewIntentListener(listener)
         }
     }
 }
