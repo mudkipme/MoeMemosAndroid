@@ -62,8 +62,8 @@ fun LoginPage(
         }
 
         val resp = when(loginMethod) {
-            LoginMethod.USERNAME_AND_PASSWORD -> userStateViewModel.login(host.text, email.text, password.text)
-            LoginMethod.OPEN_API -> userStateViewModel.login(host.text)
+            LoginMethod.USERNAME_AND_PASSWORD -> userStateViewModel.login(host.text.trim(), email.text.trim(), password.text)
+            LoginMethod.OPEN_API -> userStateViewModel.login(host.text.trim())
         }
 
         resp.suspendOnSuccess {
