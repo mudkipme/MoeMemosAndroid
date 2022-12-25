@@ -5,7 +5,9 @@ Features:
 - Write memos like tweeting to yourself
 - Sync with your own Memos server
 - Material You design with dynamic themes and themed icon
+- Markdown, image, and to-do item support
 - Group memos with tags
-- Pin and archive memos
+- Pin and search memos
 - View your progress with a graph
+- Save texts, images and webpages from share sheet
 - Full privacy protection, no data collection

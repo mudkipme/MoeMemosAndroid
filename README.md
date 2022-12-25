@@ -22,9 +22,11 @@ Or download and install the APK package from the [Releases section](https://gith
 - Write memos like tweeting to yourself
 - Sync with your own ✍️memos server
 - Material You design with dynamic themes and themed icon
+- Markdown, image, and to-do item support
 - Group memos with tags
-- Pin and archive memos
+- Pin and search memos
 - View your progress with a graph
+- Save texts, images and webpages from share sheet
 - Full privacy protection, no data collection
 
 Moe Memos is a third-party client for [✍️memos](https://github.com/usememos/memos) and both projects aren't affiliated with each other.
