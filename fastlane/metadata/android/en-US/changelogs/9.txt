@@ -1,0 +1,2 @@
+What's new in this version:
+- Fixed a compatibility issue with latest Memos server.

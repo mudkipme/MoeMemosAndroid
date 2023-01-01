@@ -34,7 +34,9 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun login(host: String, email: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
-            val resp = memosApiService.createClient(host, null).signIn(SignInInput(email, email, password)).mapSuccess { data }
+            val client = memosApiService.createClient(host, null)
+            client.auth()
+            val resp = client.signIn(SignInInput(email, email, password)).mapSuccess { data }
             if (resp.isSuccess) {
                 memosApiService.update(host, null)
                 currentUser = resp.getOrNull()
