@@ -81,4 +81,7 @@ interface MemosApi {
 
     @DELETE("/api/resource/{id}")
     suspend fun deleteResource(@Path("id") resourceId: Long): ApiResponse<Unit>
+
+    @GET("/auth")
+    suspend fun auth(): ApiResponse<Unit>
 }
