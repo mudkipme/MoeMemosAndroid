@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.consumedWindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -52,6 +50,9 @@ fun MemosList(
         fullList
     }
     val lazyListState = rememberLazyListState()
+    var listTopId: Long? by rememberSaveable {
+        mutableStateOf(null)
+    }
 
     SwipeRefresh(
         indicatorPadding = contentPadding,
@@ -84,9 +85,11 @@ fun MemosList(
         viewModel.loadMemos()
     }
 
-    LaunchedEffect(filteredMemos) {
-        if (filteredMemos.isNotEmpty()) {
+    LaunchedEffect(filteredMemos.firstOrNull()?.id) {
+        if (listTopId != null && filteredMemos.isNotEmpty() && listTopId != filteredMemos.first().id) {
             lazyListState.scrollToItem(0)
         }
+
+        listTopId = filteredMemos.firstOrNull()?.id
     }
 }

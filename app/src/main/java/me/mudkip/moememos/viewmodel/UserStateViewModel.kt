@@ -15,7 +15,6 @@ import me.mudkip.moememos.data.api.SignInInput
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
-import me.mudkip.moememos.ext.suspendOnNotLogin
 import javax.inject.Inject
 
 @HiltViewModel
