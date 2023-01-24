@@ -44,7 +44,7 @@ interface MemosApi {
     @POST("/api/auth/signin")
     suspend fun signIn(@Body body: SignInInput): ApiResponse<MemosOutput<User>>
 
-    @POST("/api/auth/logout")
+    @POST("/api/auth/signout")
     suspend fun logout(): ApiResponse<Unit>
 
     @GET("/api/user/me")

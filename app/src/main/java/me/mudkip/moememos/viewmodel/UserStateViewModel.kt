@@ -15,6 +15,7 @@ import me.mudkip.moememos.data.api.SignInInput
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
+import me.mudkip.moememos.ext.suspendOnNotLogin
 import javax.inject.Inject
 
 @HiltViewModel
@@ -71,6 +72,12 @@ class UserStateViewModel @Inject constructor(
         memosApiService.call { it.logout() }
             .suspendOnSuccess {
                 memosApiService.update(host, null)
+            }
+            .suspendOnError {
+                // compatibility with earlier Memos server
+                if (response.code() == 404) {
+                    memosApiService.update(host, null)
+                }
             }
     }
 }
