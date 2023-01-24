@@ -17,6 +17,7 @@
         tools:targetApi="33">
         <activity
             android:name=".MainActivity"
+            android:launchMode="singleTask"
             android:exported="true"
             android:theme="@style/Theme.MoeMemos">
             <intent-filter>
