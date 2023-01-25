@@ -29,6 +29,9 @@ fun Markdown(
 ) {
     val linkColor = MaterialTheme.colorScheme.primary
     val bulletColor = MaterialTheme.colorScheme.tertiary
+    val headlineLarge = MaterialTheme.typography.headlineLarge
+    val headlineMedium = MaterialTheme.typography.headlineMedium
+    val headlineSmall = MaterialTheme.typography.headlineSmall
     val uriHandler = LocalUriHandler.current
 
     BoxWithConstraints {
@@ -60,7 +63,10 @@ fun Markdown(
                     }
                 },
                 maxWidth = maxWidth.value,
-                bulletColor = bulletColor
+                bulletColor = bulletColor,
+                headlineLarge = headlineLarge,
+                headlineMedium = headlineMedium,
+                headlineSmall = headlineSmall
             )
 
             Pair(builder.toAnnotatedString(), inlineContent)
