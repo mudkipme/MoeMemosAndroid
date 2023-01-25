@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.*
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import me.mudkip.moememos.ext.appendMarkdown
 import org.intellij.markdown.MarkdownElementTypes
@@ -24,8 +25,9 @@ import org.intellij.markdown.parser.MarkdownParser
 fun Markdown(
     text: String,
     modifier: Modifier = Modifier,
-    imageContent: @Composable (url: String) -> Unit,
-    checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit
+    textAlign: TextAlign? = null,
+    imageContent: @Composable (url: String) -> Unit = {},
+    checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit = { _, _, _ -> }
 ) {
     val linkColor = MaterialTheme.colorScheme.primary
     val bulletColor = MaterialTheme.colorScheme.tertiary
@@ -75,6 +77,7 @@ fun Markdown(
         ClickableText(
             text = annotatedString,
             modifier = modifier,
+            textAlign = textAlign,
             inlineContent = inlineContent,
             onClick = {
                 annotatedString.getUrlAnnotations(it, it)
@@ -92,6 +95,7 @@ fun Markdown(
 fun ClickableText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
+    textAlign: TextAlign? = null,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     onClick: (Int) -> Unit
 ) {
@@ -107,6 +111,7 @@ fun ClickableText(
     Text(
         text = text,
         modifier = modifier.then(pressIndicator),
+        textAlign = textAlign,
         inlineContent = inlineContent,
         onTextLayout = {
             layoutResult.value = it
