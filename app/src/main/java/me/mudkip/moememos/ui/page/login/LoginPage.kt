@@ -22,6 +22,7 @@ import androidx.navigation.NavHostController
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.ext.suspendOnErrorMessage
+import me.mudkip.moememos.ui.component.Markdown
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalUserState
 
@@ -148,8 +149,8 @@ fun LoginPage(
                 modifier = Modifier.padding(bottom = 10.dp),
                 style = MaterialTheme.typography.titleLarge
             )
-            Text(
-                "Please input the login information of your \n✍️memos server.",
+            Markdown(
+                "Please input the login information of your \n[✍️memos](https://github.com/usememos/memos) server.",
                 modifier = Modifier.padding(bottom = 20.dp),
                 textAlign = TextAlign.Center
             )
