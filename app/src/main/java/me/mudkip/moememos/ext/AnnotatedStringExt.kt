@@ -24,10 +24,25 @@ fun AnnotatedString.Builder.appendMarkdown(
     onCheckbox: (id: String, startOffset: Int, endOffset: Int) -> Unit,
     maxWidth: Float,
     bulletColor: Color,
+    headlineLarge: TextStyle,
+    headlineMedium: TextStyle,
+    headlineSmall: TextStyle,
 ): AnnotatedString.Builder {
     when (node.type) {
         MarkdownElementTypes.MARKDOWN_FILE, MarkdownElementTypes.PARAGRAPH, MarkdownElementTypes.UNORDERED_LIST, MarkdownElementTypes.ORDERED_LIST -> {
-            node.children.forEach { childNode ->
+            // Remove EOL after a headline
+            val headlineTypes = listOf(
+                MarkdownElementTypes.ATX_1,
+                MarkdownElementTypes.ATX_2,
+                MarkdownElementTypes.ATX_3,
+                MarkdownElementTypes.SETEXT_1,
+                MarkdownElementTypes.SETEXT_2
+            )
+            val children = node.children.filterIndexed { index, childNode ->
+                !(childNode.type == MarkdownTokenTypes.EOL && index > 0 && headlineTypes.contains(node.children[index - 1].type))
+            }
+
+            children.forEach { childNode ->
                 appendMarkdown(
                     markdownText = markdownText,
                     node = childNode,
@@ -36,7 +51,10 @@ fun AnnotatedString.Builder.appendMarkdown(
                     onImage = onImage,
                     onCheckbox = onCheckbox,
                     maxWidth = maxWidth,
-                    bulletColor = bulletColor
+                    bulletColor = bulletColor,
+                    headlineLarge = headlineLarge,
+                    headlineMedium = headlineMedium,
+                    headlineSmall = headlineSmall
                 )
             }
         }
@@ -58,7 +76,10 @@ fun AnnotatedString.Builder.appendMarkdown(
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
-                        bulletColor = bulletColor
+                        bulletColor = bulletColor,
+                        headlineLarge = headlineLarge,
+                        headlineMedium = headlineMedium,
+                        headlineSmall = headlineSmall
                     )
                 }
             }
@@ -84,7 +105,10 @@ fun AnnotatedString.Builder.appendMarkdown(
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
-                        bulletColor = bulletColor
+                        bulletColor = bulletColor,
+                        headlineLarge = headlineLarge,
+                        headlineMedium = headlineMedium,
+                        headlineSmall = headlineSmall
                     )
                 }
             }
@@ -101,7 +125,10 @@ fun AnnotatedString.Builder.appendMarkdown(
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
-                        bulletColor = bulletColor
+                        bulletColor = bulletColor,
+                        headlineLarge = headlineLarge,
+                        headlineMedium = headlineMedium,
+                        headlineSmall = headlineSmall
                     )
                 }
             }
@@ -118,7 +145,10 @@ fun AnnotatedString.Builder.appendMarkdown(
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
-                        bulletColor = bulletColor
+                        bulletColor = bulletColor,
+                        headlineLarge = headlineLarge,
+                        headlineMedium = headlineMedium,
+                        headlineSmall = headlineSmall
                     )
                 }
             }
@@ -139,7 +169,10 @@ fun AnnotatedString.Builder.appendMarkdown(
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
-                        bulletColor = bulletColor
+                        bulletColor = bulletColor,
+                        headlineLarge = headlineLarge,
+                        headlineMedium = headlineMedium,
+                        headlineSmall = headlineSmall
                     )
                 }
             }
@@ -156,6 +189,47 @@ fun AnnotatedString.Builder.appendMarkdown(
             onImage(id, imageUrl)
             withStyle(ParagraphStyle(lineHeight = (maxWidth * 9f / 16f).sp)) {
                 appendInlineContent(id, imageUrl)
+            }
+        }
+
+        MarkdownElementTypes.ATX_1,
+        MarkdownElementTypes.SETEXT_1,
+        MarkdownElementTypes.ATX_2,
+        MarkdownElementTypes.SETEXT_2,
+        MarkdownElementTypes.ATX_3 -> {
+            var content = node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT || it.type == MarkdownTokenTypes.SETEXT_CONTENT }
+
+            val textStyle = when (node.type) {
+                MarkdownElementTypes.ATX_1, MarkdownElementTypes.SETEXT_1 -> headlineLarge
+                MarkdownElementTypes.ATX_2, MarkdownElementTypes.SETEXT_2 -> headlineMedium
+                else -> headlineSmall
+            }
+
+            if (content != null) {
+                var children = content.children
+                if (children.firstOrNull()?.type == MarkdownTokenTypes.WHITE_SPACE) {
+                    children = children.drop(1)
+                }
+
+                withStyle(textStyle.toParagraphStyle()) {
+                    withStyle(textStyle.toSpanStyle()) {
+                        children.forEach {
+                            appendMarkdown(
+                                markdownText = markdownText,
+                                node = it,
+                                depth = depth + 1,
+                                linkColor = linkColor,
+                                onImage = onImage,
+                                onCheckbox = onCheckbox,
+                                maxWidth = maxWidth,
+                                bulletColor = bulletColor,
+                                headlineLarge = headlineLarge,
+                                headlineMedium = headlineMedium,
+                                headlineSmall = headlineSmall
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -182,7 +256,10 @@ fun AnnotatedString.Builder.appendMarkdown(
                     onImage = onImage,
                     onCheckbox = onCheckbox,
                     maxWidth = maxWidth,
-                    bulletColor = bulletColor
+                    bulletColor = bulletColor,
+                    headlineLarge = headlineLarge,
+                    headlineMedium = headlineMedium,
+                    headlineSmall = headlineSmall
                 )
             }
         }
