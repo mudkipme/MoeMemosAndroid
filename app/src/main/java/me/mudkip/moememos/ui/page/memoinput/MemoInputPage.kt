@@ -130,7 +130,7 @@ fun MemoInputPage(
                 continue
             }
 
-            if (currentLine.length <= prefix.length) {
+            if (currentLine.length <= prefix.length || text.selection.min - lastLineBreak <= prefix.length) {
                 break
             }
 
