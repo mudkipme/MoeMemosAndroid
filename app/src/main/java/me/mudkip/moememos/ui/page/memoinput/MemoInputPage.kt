@@ -15,9 +15,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.PhotoCamera
-import androidx.compose.material.icons.outlined.Tag
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,7 +26,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.getTextBeforeSelection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.skydoves.sandwich.suspendOnSuccess
@@ -36,6 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.MoeMemosFileProvider
+import me.mudkip.moememos.data.constant.LIST_ITEM_SYMBOL_LIST
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Attachment
@@ -80,6 +81,41 @@ fun MemoInputPage(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    fun toggleTodoItem() {
+        val contentBefore = text.text.substring(0, text.selection.min)
+        val lastLineBreak = contentBefore.indexOfLast { it == '\n' }
+        val nextLineBreak = text.text.indexOf('\n', lastLineBreak + 1)
+        val currentLine = text.text.substring(
+            lastLineBreak + 1,
+            if (nextLineBreak == -1) text.text.length else nextLineBreak
+        )
+        val contentBeforeCurrentLine = contentBefore.substring(0, lastLineBreak + 1)
+        val contentAfterCurrentLine = if (nextLineBreak == -1) "" else text.text.substring(nextLineBreak)
+
+        for (prefix in LIST_ITEM_SYMBOL_LIST) {
+            if (!currentLine.startsWith(prefix)) {
+                continue
+            }
+
+            if (prefix == "- [ ] ") {
+                text = text.copy(contentBeforeCurrentLine + "- [x] " + currentLine.substring(prefix.length) + contentAfterCurrentLine)
+                return
+            }
+
+            val offset =  "- [ ] ".length - prefix.length
+            text = text.copy(
+                contentBeforeCurrentLine + "- [ ] " + currentLine.substring(prefix.length) + contentAfterCurrentLine,
+                TextRange(text.selection.start + offset, text.selection.end + offset)
+            )
+            return
+        }
+
+        text = text.copy(
+            "$contentBeforeCurrentLine- [ ] $currentLine$contentAfterCurrentLine",
+            TextRange(text.selection.start + "- [ ] ".length, text.selection.end + "- [ ] ".length)
+        )
     }
 
     val pickImage = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
@@ -166,6 +202,12 @@ fun MemoInputPage(
                             Icon(Icons.Outlined.Tag, contentDescription = "Tag")
                         }
                     }
+                }
+
+                IconButton(onClick = {
+                    toggleTodoItem()
+                }) {
+                    Icon(Icons.Outlined.CheckBox, contentDescription = "Add Task")
                 }
 
                 IconButton(onClick = {
