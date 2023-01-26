@@ -15,12 +15,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.PhotoCamera
-import androidx.compose.material.icons.outlined.Tag
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -36,6 +35,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.MoeMemosFileProvider
+import me.mudkip.moememos.data.constant.LIST_ITEM_SYMBOL_LIST
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Attachment
@@ -80,6 +80,69 @@ fun MemoInputPage(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    fun toggleTodoItem() {
+        val contentBefore = text.text.substring(0, text.selection.min)
+        val lastLineBreak = contentBefore.indexOfLast { it == '\n' }
+        val nextLineBreak = text.text.indexOf('\n', lastLineBreak + 1)
+        val currentLine = text.text.substring(
+            lastLineBreak + 1,
+            if (nextLineBreak == -1) text.text.length else nextLineBreak
+        )
+        val contentBeforeCurrentLine = contentBefore.substring(0, lastLineBreak + 1)
+        val contentAfterCurrentLine = if (nextLineBreak == -1) "" else text.text.substring(nextLineBreak)
+
+        for (prefix in LIST_ITEM_SYMBOL_LIST) {
+            if (!currentLine.startsWith(prefix)) {
+                continue
+            }
+
+            if (prefix == "- [ ] ") {
+                text = text.copy(contentBeforeCurrentLine + "- [x] " + currentLine.substring(prefix.length) + contentAfterCurrentLine)
+                return
+            }
+
+            val offset =  "- [ ] ".length - prefix.length
+            text = text.copy(
+                contentBeforeCurrentLine + "- [ ] " + currentLine.substring(prefix.length) + contentAfterCurrentLine,
+                TextRange(text.selection.start + offset, text.selection.end + offset)
+            )
+            return
+        }
+
+        text = text.copy(
+            "$contentBeforeCurrentLine- [ ] $currentLine$contentAfterCurrentLine",
+            TextRange(text.selection.start + "- [ ] ".length, text.selection.end + "- [ ] ".length)
+        )
+    }
+
+    fun handleEnter(): Boolean {
+        val contentBefore = text.text.substring(0, text.selection.min)
+        val lastLineBreak = contentBefore.indexOfLast { it == '\n' }
+        val nextLineBreak = text.text.indexOf('\n', lastLineBreak + 1)
+        val currentLine = text.text.substring(
+            lastLineBreak + 1,
+            if (nextLineBreak == -1) text.text.length else nextLineBreak
+        )
+
+        for (prefix in LIST_ITEM_SYMBOL_LIST) {
+            if (!currentLine.startsWith(prefix)) {
+                continue
+            }
+
+            if (currentLine.length <= prefix.length) {
+                break
+            }
+
+            text = text.copy(
+                text.text.substring(0, text.selection.min) + "\n" + prefix + text.text.substring(text.selection.max),
+                TextRange(text.selection.min + 1 + prefix.length, text.selection.min + 1 + prefix.length)
+            )
+            return true
+        }
+
+        return false
     }
 
     val pickImage = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
@@ -169,6 +232,12 @@ fun MemoInputPage(
                 }
 
                 IconButton(onClick = {
+                    toggleTodoItem()
+                }) {
+                    Icon(Icons.Outlined.CheckBox, contentDescription = "Add Task")
+                }
+
+                IconButton(onClick = {
                     pickImage.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
                 }) {
                     Icon(Icons.Outlined.Image, contentDescription = "Add Image")
@@ -206,9 +275,23 @@ fun MemoInputPage(
                     .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
                     .weight(1f)
                     .focusRequester(focusRequester),
+//                    .onKeyEvent { event ->
+//                        if (event.key == Key.Enter) {
+//                            return@onKeyEvent handleEnter()
+//                        }
+//                        false
+//                    },
                 value = text,
                 label = { Text("Any thoughts…" )},
                 onValueChange = {
+                    // an ugly hack to handle enter event, as `onKeyEvent` modifier only handles hardware keyboard,
+                    // please submit a pull request if there's a native way to handle software key event
+                    if (text.text != it.text && it.selection.start == it.selection.end && it.text.length == text.text.length + 1
+                        && it.selection.start > 0 && it.text[it.selection.start - 1] == '\n') {
+                        if (handleEnter()) {
+                            return@OutlinedTextField
+                        }
+                    }
                     text = it
                 },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
