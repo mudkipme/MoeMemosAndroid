@@ -15,11 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
+import me.mudkip.moememos.ui.component.MemoImage
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.ResourceListViewModel
 
@@ -50,13 +49,11 @@ fun ResourceListPage(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(viewModel.resources, key = { it.id }) { resource ->
-                AsyncImage(
-                    model = resource.uri(LocalUserState.current.host).toString(),
-                    contentDescription = null,
+                MemoImage(
+                    url = resource.uri(LocalUserState.current.host).toString(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Crop
+                        .clip(RoundedCornerShape(8.dp))
                 )
             }
         }

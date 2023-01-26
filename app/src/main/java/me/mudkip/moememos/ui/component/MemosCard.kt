@@ -14,10 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.data.model.Memo
@@ -69,14 +67,12 @@ fun MemosCard(
                                 .path(url).build()
                         }
 
-                        AsyncImage(
-                            model = uri.toString(),
-                            contentDescription = null,
+                        MemoImage(
+                            url = uri.toString(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()
-                                .clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
+                                .clip(RoundedCornerShape(8.dp))
                         )
                     },
                     checkboxChange = { checked, startOffset, endOffset ->
@@ -94,15 +90,13 @@ fun MemosCard(
 
                 memo.resourceList?.forEach { resource ->
                     if (resource.type.startsWith("image/")) {
-                        AsyncImage(
-                            model = resource.uri(LocalUserState.current.host).toString(),
-                            contentDescription = null,
+                        MemoImage(
+                            url = resource.uri(LocalUserState.current.host).toString(),
                             modifier = Modifier
                                 .heightIn(max = 400.dp)
                                 .widthIn(min = 100.dp)
                                 .padding(bottom = 10.dp)
-                                .clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
+                                .clip(RoundedCornerShape(8.dp))
                         )
                     } else {
                         Attachment(resource)
