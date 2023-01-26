@@ -1,0 +1,13 @@
+What's new in this version:
+- Auto capitalize sentences by @tiltshiftfocus
+- Added a button for appending to-do items when editing a memo
+- Improved support for editing Markdown list items and to-do items
+- Added support for rendering Markdown headings in memo list
+- Added support for opening images with external apps
+- Added link to Memos on login screen
+- Fixed signing out with latest Memos server
+- Fixed an issue where multiple instances of Moe Memos may appear in recent menu
+- Fixed an issue where the scroll position of memo list may not be preserved
+
+New Contributors:
+- @tiltshiftfocus made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/24
