@@ -76,7 +76,7 @@ interface MemosApi {
     suspend fun getResources(): ApiResponse<MemosOutput<List<Resource>>>
 
     @Multipart
-    @POST("/api/resource")
+    @POST("/api/resource/blob")
     suspend fun uploadResource(@Part file: MultipartBody.Part): ApiResponse<MemosOutput<Resource>>
 
     @DELETE("/api/resource/{id}")
