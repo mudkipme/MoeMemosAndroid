@@ -47,6 +47,9 @@ interface MemosApi {
     @POST("/api/auth/signout")
     suspend fun logout(): ApiResponse<Unit>
 
+    @POST("/api/auth/logout")
+    suspend fun logoutLegacy(): ApiResponse<Unit>
+
     @GET("/api/user/me")
     suspend fun me(): ApiResponse<MemosOutput<User>>
 
@@ -79,9 +82,16 @@ interface MemosApi {
     @POST("/api/resource/blob")
     suspend fun uploadResource(@Part file: MultipartBody.Part): ApiResponse<MemosOutput<Resource>>
 
+    @Multipart
+    @POST("/api/resource")
+    suspend fun uploadResourceLegacy(@Part file: MultipartBody.Part): ApiResponse<MemosOutput<Resource>>
+
     @DELETE("/api/resource/{id}")
     suspend fun deleteResource(@Path("id") resourceId: Long): ApiResponse<Unit>
 
     @GET("/auth")
     suspend fun auth(): ApiResponse<Unit>
+
+    @GET("/api/status")
+    suspend fun status(): ApiResponse<MemosOutput<Status>>
 }

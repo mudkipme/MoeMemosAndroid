@@ -2,20 +2,24 @@ package me.mudkip.moememos.data.api
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.adapters.ApiResponseCallAdapterFactory
+import com.skydoves.sandwich.suspendOnSuccess
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.EnumJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.MemosUserSettingKey
+import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.ext.DataStoreKeys
 import me.mudkip.moememos.ext.dataStore
+import net.swiftzer.semver.SemVer
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -31,7 +35,17 @@ class MemosApiService @Inject constructor(
     private var memosApi: MemosApi? = null
     var host: String? = null
         private set
+    var status: Status? = null
+        private set
+
     private val mutex = Mutex()
+    private val scope = CoroutineScope(Dispatchers.Default)
+
+    private fun loadStatus() = scope.launch {
+        memosApi?.status()?.suspendOnSuccess {
+            status = data.data
+        }
+    }
 
     init {
         runBlocking {
@@ -44,6 +58,7 @@ class MemosApiService @Inject constructor(
                 }
             }
         }
+        loadStatus()
     }
 
     suspend fun update(host: String, openId: String?) {
@@ -60,6 +75,7 @@ class MemosApiService @Inject constructor(
             memosApi = createClient(host, openId)
             this.host = host
         }
+        loadStatus()
     }
 
     fun createClient(host: String, openId: String?): MemosApi {
@@ -90,5 +106,13 @@ class MemosApiService @Inject constructor(
 
     suspend fun <T>call(block: suspend (MemosApi) -> ApiResponse<T>): ApiResponse<T> {
         return memosApi?.let { block(it) } ?: ApiResponse.error(MoeMemosException.notLogin)
+    }
+
+    fun versionCompare(target: String): Boolean {
+        val version = status?.profile?.version
+
+        return version?.let {
+            SemVer.parse(it) >= SemVer.parse(target)
+        } ?: false
     }
 }

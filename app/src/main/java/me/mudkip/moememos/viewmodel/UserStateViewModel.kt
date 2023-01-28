@@ -9,10 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.SignInInput
 import me.mudkip.moememos.data.constant.MoeMemosException
+import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
 import javax.inject.Inject
@@ -24,6 +26,7 @@ class UserStateViewModel @Inject constructor(
 ) : ViewModel() {
 
     var currentUser: User? by mutableStateOf(null)
+
     val host: String get() = memosApiService.host ?: ""
 
     suspend fun loadCurrentUser(): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
@@ -68,16 +71,16 @@ class UserStateViewModel @Inject constructor(
     }
 
     suspend fun logout() = withContext(viewModelScope.coroutineContext) {
-        memosApiService.call { it.logout() }
-            .suspendOnSuccess {
-                memosApiService.update(host, null)
+        memosApiService.call {
+            if (memosApiService.versionCompare("0.10.0")) {
+                it.logout()
+            } else {
+                it.logoutLegacy()
             }
-            .suspendOnError {
-                // compatibility with earlier Memos server
-                if (response.code() == 404) {
-                    memosApiService.update(host, null)
-                }
-            }
+        }.suspendOnSuccess {
+            memosApiService.update(host, null)
+            currentUser = null
+        }
     }
 }
 
