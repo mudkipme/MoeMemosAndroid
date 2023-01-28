@@ -16,7 +16,12 @@ class ResourceRepository @Inject constructor(private val memosApiService: MemosA
 
     suspend fun uploadResource(resourceData: ByteArray, filename: String, mediaType: MediaType): ApiResponse<Resource> = memosApiService.call { api ->
         val file = MultipartBody.Part.createFormData("file", filename, resourceData.toRequestBody(mediaType))
-        api.uploadResource(file).mapSuccess { data }
+
+        if (memosApiService.versionCompare("0.10.2")) {
+            api.uploadResource(file).mapSuccess { data }
+        } else {
+            api.uploadResourceLegacy(file).mapSuccess { data }
+        }
     }
 
     suspend fun deleteResource(resourceId: Long): ApiResponse<Unit> = memosApiService.call { api ->
