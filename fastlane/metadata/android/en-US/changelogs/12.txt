@@ -1,0 +1,8 @@
+What's new in this version:
+- Fixed image uploading with Memos 0.10.2 by @adapdesign
+- Memos server version is now displayed in settings
+
+New Contributors:
+- @adapdesign made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/34
+
+Memos server versions supported by Moe Memos is now documented in https://memos.moe/memos/
