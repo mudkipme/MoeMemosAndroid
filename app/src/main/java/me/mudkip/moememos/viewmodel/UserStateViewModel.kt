@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.SignInInput
@@ -28,6 +27,7 @@ class UserStateViewModel @Inject constructor(
     var currentUser: User? by mutableStateOf(null)
 
     val host: String get() = memosApiService.host ?: ""
+    val status: Status? get() = memosApiService.status
 
     suspend fun loadCurrentUser(): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         userRepository.getCurrentUser().suspendOnSuccess {

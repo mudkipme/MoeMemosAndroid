@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Source
 import androidx.compose.material.icons.outlined.Web
@@ -29,6 +30,7 @@ fun SettingsPage(
     val userStateViewModel = LocalUserState.current
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
+    val status = userStateViewModel.status
 
     Scaffold(
         modifier = Modifier
@@ -59,6 +61,13 @@ fun SettingsPage(
                             )
                             if (user.displayName != user.displayEmail && user.displayEmail.isNotEmpty()) {
                                 Text(user.displayEmail,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            }
+                            if (status?.profile?.version?.isNotEmpty() == true) {
+                                Text("✍️memos v${status.profile.version}",
+                                    modifier = Modifier.padding(top = 5.dp),
                                     style = MaterialTheme.typography.titleSmall,
                                     color = MaterialTheme.colorScheme.outline
                                 )
@@ -165,6 +174,33 @@ fun SettingsPage(
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             "Acknowledgements",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+
+            item {
+                Surface(onClick = {
+                    uriHandler.openUri("https://github.com/mudkipme/MoeMemosAndroid/issues")
+                }) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(8.dp, 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Outlined.BugReport,
+                            contentDescription = "Report an Issue",
+                            modifier = Modifier.padding(start = 8.dp, end = 16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            "Report an Issue",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
