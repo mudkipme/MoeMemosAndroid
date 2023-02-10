@@ -5,7 +5,7 @@
     <string name="back">返回</string>
     <string name="memos">灵感</string>
     <string name="menu">菜单</string>
-    <string name="search_hint">搜点什么...</string>
+    <string name="search_hint">搜点什么…</string>
     <string name="new_memo">新灵感</string>
     <string name="compose">撰写</string>
     <string name="remove">删除</string>
@@ -38,7 +38,7 @@
     <string name="add_image">添加图片</string>
     <string name="take_photo">拍照</string>
     <string name="post">记下</string>
-    <string name="any_thoughts">任何想法...</string>
+    <string name="any_thoughts">任何想法…</string>
     <string name="input_login_information">请输入您的 [✍️memos](https://github.com/usememos/memos) 服务器的登录信息。</string>
     <string name="day">天</string>
     <string name="username">用户名</string>
@@ -47,10 +47,10 @@
     <string name="user_state_not_found">用户状态丢失</string>
     <string name="cancel">取消</string>
     <string name="confirm">确认</string>
-    <string name="delete_this_memo">确认删除这条 memo 吗？</string>
+    <string name="delete_this_memo">确认删除这条 MEMO 吗？</string>
     <string name="delete">删除</string>
     <string name="restore">恢复</string>
-    <string name="invaild_open_api">不可用的 Open API</string>
+    <string name="invalid_open_api">不可用的 Open API</string>
     <string name="pin">置顶</string>
     <string name="share">分享</string>
     <string name="archive">归档</string>

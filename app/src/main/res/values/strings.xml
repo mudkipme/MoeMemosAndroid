@@ -5,7 +5,7 @@
     <string name="back">Back</string>
     <string name="memos">Memos</string>
     <string name="menu">Menu</string>
-    <string name="search_hint">Search...</string>
+    <string name="search_hint">Search…</string>
     <string name="new_memo">New Memo</string>
     <string name="compose">Compose</string>
     <string name="remove">Remove</string>
@@ -41,7 +41,7 @@
     <string name="add_image">Add Image</string>
     <string name="take_photo">Take Photo</string>
     <string name="post">Post</string>
-    <string name="any_thoughts">Any thoughts...</string>
+    <string name="any_thoughts">Any thoughts…</string>
     <string name="input_login_information">Please input the login information of your  [✍️memos](https://github.com/usememos/memos) server.</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
@@ -55,7 +55,7 @@
     <string name="delete_this_memo">Delete this memo?</string>
     <string name="delete">Delete</string>
     <string name="restore">Restore</string>
-    <string name="invaild_open_api">Invalid Open API</string>
+    <string name="invalid_open_api">Invalid Open API</string>
     <string name="pin">Pin</string>
     <string name="share">Share</string>
     <string name="archive">Archive</string>

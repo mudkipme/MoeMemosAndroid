@@ -11,7 +11,7 @@ class MoeMemosException(string: String) : Exception(string) {
 
     override fun getLocalizedMessage(): String? {
         return when (this) {
-            invalidOpenAPI -> R.string.invaild_open_api.string
+            invalidOpenAPI -> R.string.invalid_open_api.string
             else -> {
                 super.getLocalizedMessage()
             }
