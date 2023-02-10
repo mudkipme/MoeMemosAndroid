@@ -18,6 +18,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.component.MemoImage
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.ResourceListViewModel
@@ -31,12 +33,12 @@ fun ResourceListPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Resources") },
+                title = { Text(text = R.string.resources.string) },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = R.string.back.string)
                     }
                 },
             )

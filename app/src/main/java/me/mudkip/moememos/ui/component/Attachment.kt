@@ -9,7 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalUserState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,6 +28,12 @@ fun Attachment(
             uriHandler.openUri(resource.uri(userStateViewModel.host).toString())
         },
         label = { Text(resource.filename) },
-        leadingIcon = { Icon(Icons.Outlined.Attachment, contentDescription = "Attachment", Modifier.size(AssistChipDefaults.IconSize)) }
+        leadingIcon = {
+            Icon(
+                Icons.Outlined.Attachment,
+                contentDescription = R.string.attachment.string,
+                Modifier.size(AssistChipDefaults.IconSize)
+            )
+        }
     )
 }

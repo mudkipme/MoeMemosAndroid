@@ -18,6 +18,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalUserState
 
@@ -37,12 +39,12 @@ fun SettingsPage(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = "Settings") },
+                title = { Text(text = R.string.settings.string) },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = R.string.back.string)
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -53,7 +55,9 @@ fun SettingsPage(
             userStateViewModel.currentUser?.let { user ->
                 item {
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(15.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(15.dp)
                     ) {
                         Column(Modifier.padding(15.dp)) {
                             Text(user.displayName,
@@ -85,14 +89,16 @@ fun SettingsPage(
                         .padding(20.dp),
                     contentPadding = PaddingValues(vertical = 10.dp)
                 ) {
-                    Text("Sign in",
+                    Text(
+                        R.string.sign_in.string,
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
             }
 
             item {
-                Text("About Moe Memos",
+                Text(
+                    R.string.about.string,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(24.dp, 10.dp),
@@ -113,13 +119,13 @@ fun SettingsPage(
                     ) {
                         Icon(
                             Icons.Outlined.Web,
-                            contentDescription = "Web",
+                            contentDescription = R.string.web.string,
                             modifier = Modifier.padding(start = 8.dp, end = 16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            "Website",
+                            R.string.website.string,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -140,13 +146,13 @@ fun SettingsPage(
                     ) {
                         Icon(
                             Icons.Outlined.Lock,
-                            contentDescription = "Privacy",
+                            contentDescription = R.string.privacy.string,
                             modifier = Modifier.padding(start = 8.dp, end = 16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            "Privacy Policy",
+                            R.string.privacy_policy.string,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -167,13 +173,13 @@ fun SettingsPage(
                     ) {
                         Icon(
                             Icons.Outlined.Source,
-                            contentDescription = "Acknowledgements",
+                            contentDescription = R.string.acknowledgements.string,
                             modifier = Modifier.padding(start = 8.dp, end = 16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            "Acknowledgements",
+                            R.string.acknowledgements.string,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -194,13 +200,13 @@ fun SettingsPage(
                     ) {
                         Icon(
                             Icons.Outlined.BugReport,
-                            contentDescription = "Report an Issue",
+                            contentDescription = R.string.report_an_issue.string,
                             modifier = Modifier.padding(start = 8.dp, end = 16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            "Report an Issue",
+                            R.string.report_an_issue.string,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -230,7 +236,7 @@ fun SettingsPage(
                             .padding(20.dp),
                         contentPadding = PaddingValues(10.dp)
                     ) {
-                        Text("Sign out")
+                        Text(R.string.sign_out.string)
                     }
                 }
             }

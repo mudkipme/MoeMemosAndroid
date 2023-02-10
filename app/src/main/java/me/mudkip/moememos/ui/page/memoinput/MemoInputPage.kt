@@ -34,8 +34,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.MoeMemosFileProvider
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.constant.LIST_ITEM_SYMBOL_LIST
 import me.mudkip.moememos.data.model.ShareContent
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Attachment
 import me.mudkip.moememos.ui.component.InputImage
@@ -177,12 +179,18 @@ fun MemoInputPage(
         modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
-                title = { if (memo == null) { Text("Compose") } else { Text("Edit") } },
+                title = {
+                    if (memo == null) {
+                        Text(R.string.compose.string)
+                    } else {
+                        Text(R.string.edit.string)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(Icons.Filled.Close, contentDescription = "Close")
+                        Icon(Icons.Filled.Close, contentDescription = R.string.close.string)
                     }
                 },
             )
@@ -196,7 +204,7 @@ fun MemoInputPage(
                             TextRange(text.selection.min + 1)
                         )
                     }) {
-                        Icon(Icons.Outlined.Tag, contentDescription = "Tag")
+                        Icon(Icons.Outlined.Tag, contentDescription = R.string.tag.string)
                     }
                 } else {
                     Box {
@@ -225,7 +233,7 @@ fun MemoInputPage(
                             }
                         }
                         IconButton(onClick = { tagMenuExpanded = true }) {
-                            Icon(Icons.Outlined.Tag, contentDescription = "Tag")
+                            Icon(Icons.Outlined.Tag, contentDescription = R.string.tag.string)
                         }
                     }
                 }
@@ -233,13 +241,13 @@ fun MemoInputPage(
                 IconButton(onClick = {
                     toggleTodoItem()
                 }) {
-                    Icon(Icons.Outlined.CheckBox, contentDescription = "Add Task")
+                    Icon(Icons.Outlined.CheckBox, contentDescription = R.string.add_task.string)
                 }
 
                 IconButton(onClick = {
                     pickImage.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
                 }) {
-                    Icon(Icons.Outlined.Image, contentDescription = "Add Image")
+                    Icon(Icons.Outlined.Image, contentDescription = R.string.add_image.string)
                 }
 
                 IconButton(onClick = {
@@ -247,7 +255,10 @@ fun MemoInputPage(
                     photoImageUri = uri
                     takePhoto.launch(uri)
                 }) {
-                    Icon(Icons.Outlined.PhotoCamera, contentDescription = "Take Photo")
+                    Icon(
+                        Icons.Outlined.PhotoCamera,
+                        contentDescription = R.string.take_photo.string
+                    )
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -256,7 +267,7 @@ fun MemoInputPage(
                     enabled = text.text.isNotEmpty(),
                     onClick = { submit() }
                 ) {
-                    Icon(Icons.Filled.Send, contentDescription = "Post")
+                    Icon(Icons.Filled.Send, contentDescription = R.string.post.string)
                 }
             }
         },
@@ -281,12 +292,13 @@ fun MemoInputPage(
 //                        false
 //                    },
                 value = text,
-                label = { Text("Any thoughts…" )},
+                label = { Text(R.string.any_thoughts.string) },
                 onValueChange = {
                     // an ugly hack to handle enter event, as `onKeyEvent` modifier only handles hardware keyboard,
                     // please submit a pull request if there's a native way to handle software key event
                     if (text.text != it.text && it.selection.start == it.selection.end && it.text.length == text.text.length + 1
-                        && it.selection.start > 0 && it.text[it.selection.start - 1] == '\n') {
+                        && it.selection.start > 0 && it.text[it.selection.start - 1] == '\n'
+                    ) {
                         if (handleEnter()) {
                             return@OutlinedTextField
                         }

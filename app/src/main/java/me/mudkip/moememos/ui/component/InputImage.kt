@@ -20,7 +20,9 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
 
@@ -51,7 +53,7 @@ fun InputImage(
             properties = PopupProperties(focusable = false)
         ) {
             DropdownMenuItem(
-                text = { Text("Remove") },
+                text = { Text(R.string.remove.string) },
                 onClick = {
                     scope.launch {
                         inputViewModel.deleteResource(resource.id)

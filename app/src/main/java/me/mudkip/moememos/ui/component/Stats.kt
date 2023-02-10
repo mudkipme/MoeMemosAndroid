@@ -8,6 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import java.time.LocalDate
@@ -33,28 +35,34 @@ fun Stats() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(memosViewModel.memos.count().toString(),
+            Text(
+                memosViewModel.memos.count().toString(),
                 style = MaterialTheme.typography.headlineSmall
             )
-            Text("Memo".uppercase(),
+            Text(
+                R.string.memo.string.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.outline
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(memosViewModel.tags.count().toString(),
+            Text(
+                memosViewModel.tags.count().toString(),
                 style = MaterialTheme.typography.headlineSmall
             )
-            Text("Tag".uppercase(),
+            Text(
+                R.string.tag.string.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.outline
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(days.toString(),
+            Text(
+                days.toString(),
                 style = MaterialTheme.typography.headlineSmall
             )
-            Text("Day".uppercase(),
+            Text(
+                R.string.day.string.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.outline
             )

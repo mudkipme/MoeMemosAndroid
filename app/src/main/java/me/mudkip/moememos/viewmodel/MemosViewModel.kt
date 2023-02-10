@@ -15,6 +15,7 @@ import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.repository.MemoRepository
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -106,4 +107,5 @@ class MemosViewModel @Inject constructor(
     }
 }
 
-val LocalMemos = compositionLocalOf<MemosViewModel> { error("Memos view model not found") }
+val LocalMemos =
+    compositionLocalOf<MemosViewModel> { error(me.mudkip.moememos.R.string.memos_view_model_not_found.string) }

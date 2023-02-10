@@ -1,5 +1,8 @@
 package me.mudkip.moememos.data.constant
 
+import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.string
+
 class MoeMemosException(string: String) : Exception(string) {
     companion object {
         val notLogin = MoeMemosException("NOT_LOGIN")
@@ -8,7 +11,7 @@ class MoeMemosException(string: String) : Exception(string) {
 
     override fun getLocalizedMessage(): String? {
         return when (this) {
-            invalidOpenAPI -> "Invalid Open API"
+            invalidOpenAPI -> R.string.invaild_open_api.string
             else -> {
                 super.getLocalizedMessage()
             }

@@ -8,6 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 
@@ -22,17 +24,17 @@ fun MemosHomePage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Memos") },
+                title = { Text(text = R.string.memos.string) },
                 navigationIcon = {
                     IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                        Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
                     }
                 },
                 actions = {
                     IconButton(onClick = {
                         rootNavController.navigate(RouteName.SEARCH)
                     }) {
-                        Icon(Icons.Filled.Search, contentDescription = "Search")
+                        Icon(Icons.Filled.Search, contentDescription = R.string.search.string)
                     }
                 }
             )
@@ -43,8 +45,8 @@ fun MemosHomePage(
                 onClick = {
                     rootNavController.navigate(RouteName.INPUT)
                 },
-                text = { Text("New Memo") },
-                icon = { Icon(Icons.Filled.Add, contentDescription = "Compose") }
+                text = { Text(R.string.new_memo.string) },
+                icon = { Icon(Icons.Filled.Add, contentDescription = R.string.compose.string) }
             )
         },
 

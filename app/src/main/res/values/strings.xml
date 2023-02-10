@@ -1,4 +1,62 @@
 <resources>
     <string name="app_name">MoeMemos</string>
-    <string name="default_card_content">It is what you do with the gift of life that determines who you are.\n\n    — Mewtwo</string>
+    <string name="default_card_content" translatable="false">It is what you do with the gift of life that determines who you are.      — Mewtwo</string>
+    <string name="search">Search</string>
+    <string name="back">Back</string>
+    <string name="memos">Memos</string>
+    <string name="menu">Menu</string>
+    <string name="search_hint">Search...</string>
+    <string name="new_memo">New Memo</string>
+    <string name="compose">Compose</string>
+    <string name="remove">Remove</string>
+    <string name="resources">Resources</string>
+    <string name="archived">Archived</string>
+    <string name="settings">Settings</string>
+    <string name="tags">Tags</string>
+    <string name="memo">Memo</string>
+    <string name="tag">Tag</string>
+    <string name="day">Day</string>
+    <string name="fill_login_form">Please fill the login form.</string>
+    <string name="acknowledgements">Acknowledgements</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="privacy">Privacy</string>
+    <string name="website">Website</string>
+    <string name="web">Web</string>
+    <string name="about">About Moe Memos</string>
+    <string name="sign_in">Sign in</string>
+    <string name="attachment">Attachment</string>
+    <string name="moe_memos" translatable="false">Moe Memos</string>
+    <string name="selected">Selected</string>
+    <string name="username_and_password">Username and password</string>
+    <string name="report_an_issue">Report an Issue</string>
+    <string name="unpin">Unpin</string>
+    <string name="sign_out">Sign out</string>
+    <string name="sign_in_method">Sign in method</string>
+    <string name="address">Address</string>
+    <string name="host">Host</string>
+    <string name="open_api" translatable="false">Open API</string>
+    <string name="edit">Edit</string>
+    <string name="close">Close</string>
+    <string name="add_task">Add Task</string>
+    <string name="add_image">Add Image</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="post">Post</string>
+    <string name="any_thoughts">Any thoughts...</string>
+    <string name="input_login_information">Please input the login information of your  [✍️memos](https://github.com/usememos/memos) server.</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="user_state_not_found">User state not found</string>
+    <string name="memos_view_model_not_found" translatable="false">Memos view model not found</string>
+    <string name="archived_memo_list_view_model_not_found" translatable="false">Archived memo list view model not found</string>
+    <string name="nav_host_controller_not_found" translatable="false">nav host controller not found</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="delete_this_memo">Delete this memo?</string>
+    <string name="delete">Delete</string>
+    <string name="restore">Restore</string>
+    <string name="invaild_open_api">Invalid Open API</string>
+    <string name="pin">Pin</string>
+    <string name="share">Share</string>
+    <string name="archive">Archive</string>
 </resources>

@@ -6,6 +6,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.string
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -17,10 +19,10 @@ fun ArchivedMemoPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Archived") },
+                title = { Text(text = R.string.archived.string) },
                 navigationIcon = {
                     IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                        Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
                     }
                 }
             )

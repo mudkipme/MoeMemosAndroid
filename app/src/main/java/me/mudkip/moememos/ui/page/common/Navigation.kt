@@ -18,6 +18,7 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import me.mudkip.moememos.data.model.ShareContent
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnNotLogin
 import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
@@ -142,4 +143,5 @@ fun Navigation() {
     }
 }
 
-val LocalRootNavController = compositionLocalOf<NavHostController> { error("nav host controller not found") }
+val LocalRootNavController =
+    compositionLocalOf<NavHostController> { error(me.mudkip.moememos.R.string.nav_host_controller_not_found.string) }
