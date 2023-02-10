@@ -13,6 +13,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,11 +39,14 @@ fun SearchPage() {
                         value = searchText,
                         onValueChange = { searchText = it },
                         singleLine = true,
-                        placeholder = { Text("Search…") },
+                        placeholder = { Text(R.string.search.string) },
                         shape = ShapeDefaults.ExtraLarge,
                         leadingIcon = {
                             IconButton(onClick = { rootNavController.popBackStack() }) {
-                                Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+                                Icon(
+                                    Icons.Outlined.ArrowBack,
+                                    contentDescription = R.string.back.string
+                                )
                             }
                         }
                     )

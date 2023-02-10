@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
 import me.mudkip.moememos.data.repository.MemoRepository
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import javax.inject.Inject
 
@@ -46,4 +47,5 @@ class ArchivedMemoListViewModel @Inject constructor(
     }
 }
 
-val LocalArchivedMemos = compositionLocalOf<ArchivedMemoListViewModel> { error("Archived memo list view model not found") }
+val LocalArchivedMemos =
+    compositionLocalOf<ArchivedMemoListViewModel> { error(me.mudkip.moememos.R.string.archived_memo_list_view_model_not_found.string) }

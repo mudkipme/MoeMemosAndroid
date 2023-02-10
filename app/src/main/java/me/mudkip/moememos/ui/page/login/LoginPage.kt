@@ -21,6 +21,8 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavHostController
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Markdown
 import me.mudkip.moememos.ui.page.common.RouteName
@@ -58,7 +60,7 @@ fun LoginPage(
 
     fun login() = coroutineScope.launch {
         if (host.text.isBlank() || (loginMethod == LoginMethod.USERNAME_AND_PASSWORD && (email.text.isBlank() || password.text.isEmpty()))) {
-            snackbarState.showSnackbar("Please fill the login form.")
+            snackbarState.showSnackbar(R.string.fill_login_form.string)
             return@launch
         }
 
@@ -95,32 +97,38 @@ fun LoginPage(
                             properties = PopupProperties(focusable = false)
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Username and password") },
+                                text = { Text(R.string.username_and_password.string) },
                                 onClick = {
                                     loginMethod = LoginMethod.USERNAME_AND_PASSWORD
                                     loginMethodMenuExpanded = false
                                 },
                                 trailingIcon = {
                                     if (loginMethod == LoginMethod.USERNAME_AND_PASSWORD) {
-                                        Icon(Icons.Outlined.Check, contentDescription = "Selected")
+                                        Icon(
+                                            Icons.Outlined.Check,
+                                            contentDescription = R.string.selected.string
+                                        )
                                     }
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Open API") },
+                                text = { Text(R.string.open_api.string) },
                                 onClick = {
                                     loginMethod = LoginMethod.OPEN_API
                                     loginMethodMenuExpanded = false
                                 },
                                 trailingIcon = {
                                     if (loginMethod == LoginMethod.OPEN_API) {
-                                        Icon(Icons.Outlined.Check, contentDescription = "Selected")
+                                        Icon(
+                                            Icons.Outlined.Check,
+                                            contentDescription = R.string.selected.string
+                                        )
                                     }
                                 }
                             )
                         }
                         TextButton(onClick = { loginMethodMenuExpanded = true }) {
-                            Text("Sign in method")
+                            Text(R.string.sign_in_method.string)
                         }
                     }
                 },
@@ -129,8 +137,13 @@ fun LoginPage(
                         onClick = { login() },
                         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                        text = { Text("Sign in") },
-                        icon = { Icon(Icons.Outlined.Login, contentDescription = "Sign in") }
+                        text = { Text(R.string.sign_in.string) },
+                        icon = {
+                            Icon(
+                                Icons.Outlined.Login,
+                                contentDescription = R.string.sign_in.string
+                            )
+                        }
                     )
                 }
             )
@@ -145,12 +158,12 @@ fun LoginPage(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                "Moe Memos",
+                R.string.moe_memos.string,
                 modifier = Modifier.padding(bottom = 10.dp),
                 style = MaterialTheme.typography.titleLarge
             )
             Markdown(
-                "Please input the login information of your \n[✍️memos](https://github.com/usememos/memos) server.",
+                R.string.input_login_information.string,
                 modifier = Modifier.padding(bottom = 20.dp),
                 textAlign = TextAlign.Center
             )
@@ -177,14 +190,14 @@ fun LoginPage(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.Computer,
-                            contentDescription = "Address"
+                            contentDescription = R.string.address.string
                         )
                     },
                     label = {
                         if (loginMethod == LoginMethod.USERNAME_AND_PASSWORD) {
-                            Text("Host")
+                            Text(R.string.host.string)
                         } else {
-                            Text("Open API")
+                            Text(R.string.open_api.string)
                         }
                     },
                     keyboardOptions = KeyboardOptions(
@@ -213,10 +226,10 @@ fun LoginPage(
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Outlined.Email,
-                                contentDescription = "Email"
+                                contentDescription = R.string.email.string
                             )
                         },
-                        label = { Text("Username") },
+                        label = { Text(R.string.username.string) },
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.None,
                             autoCorrect = false,
@@ -242,10 +255,10 @@ fun LoginPage(
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Outlined.Password,
-                                contentDescription = "Password"
+                                contentDescription = R.string.password.string
                             )
                         },
-                        label = { Text("Password") },
+                        label = { Text(R.string.password.string) },
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.None,
                             autoCorrect = false,

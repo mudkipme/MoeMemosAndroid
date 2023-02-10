@@ -18,8 +18,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalArchivedMemos
@@ -126,7 +128,7 @@ fun MemosCardActionButton(
         DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
             if (memo.pinned) {
                 DropdownMenuItem(
-                    text = { Text("Unpin") },
+                    text = { Text(R.string.unpin.string) },
                     onClick = {
                         scope.launch {
                             memosViewModel.updateMemoPinned(memo.id, false).suspendOnSuccess {
@@ -142,7 +144,7 @@ fun MemosCardActionButton(
                     })
             } else {
                 DropdownMenuItem(
-                    text = { Text("Pin") },
+                    text = { Text(R.string.pin.string) },
                     onClick = {
                         scope.launch {
                             memosViewModel.updateMemoPinned(memo.id, true).suspendOnSuccess {
@@ -158,7 +160,7 @@ fun MemosCardActionButton(
                     })
             }
             DropdownMenuItem(
-                text = { Text("Edit") },
+                text = { Text(R.string.edit.string) },
                 onClick = {
                     rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.id}")
                 },
@@ -169,7 +171,7 @@ fun MemosCardActionButton(
                     )
                 })
             DropdownMenuItem(
-                text = { Text("Share") },
+                text = { Text(R.string.share.string) },
                 onClick = {
                     val sendIntent = Intent().apply {
                         action = Intent.ACTION_SEND
@@ -186,7 +188,7 @@ fun MemosCardActionButton(
                     )
                 })
             DropdownMenuItem(
-                text = { Text("Archive") },
+                text = { Text(R.string.archive.string) },
                 onClick = {
                     scope.launch {
                         memosViewModel.archiveMemo(memo.id).suspendOnSuccess {
@@ -226,7 +228,7 @@ fun ArchivedMemosCardActionButton(
         }
         DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
             DropdownMenuItem(
-                text = { Text("Restore") },
+                text = { Text(R.string.restore.string) },
                 onClick = {
                     scope.launch {
                         archivedMemoListViewModel.restoreMemo(memo.id).suspendOnSuccess {
@@ -242,7 +244,7 @@ fun ArchivedMemosCardActionButton(
                     )
                 })
             DropdownMenuItem(
-                text = { Text("Delete") },
+                text = { Text(R.string.delete.string) },
                 onClick = {
                     showDeleteDialog = true
                     menuExpanded = false
@@ -263,7 +265,7 @@ fun ArchivedMemosCardActionButton(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete this memo?") },
+            title = { Text(R.string.delete_this_memo.string) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -278,7 +280,7 @@ fun ArchivedMemosCardActionButton(
                         containerColor = MaterialTheme.colorScheme.errorContainer
                     )
                 ) {
-                    Text("Confirm")
+                    Text(R.string.confirm.string)
                 }
             },
             dismissButton = {
@@ -287,7 +289,7 @@ fun ArchivedMemosCardActionButton(
                         showDeleteDialog = false
                     }
                 ) {
-                    Text("Cancel")
+                    Text(R.string.cancel.string)
                 }
             }
         )

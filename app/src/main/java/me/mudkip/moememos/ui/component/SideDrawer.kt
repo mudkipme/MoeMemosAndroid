@@ -12,6 +12,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
@@ -70,14 +72,14 @@ fun SideDrawer(
             
             item {
                 Text(
-                    "Moe Memos",
+                    R.string.moe_memos.string,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(20.dp)
                 )
             }
             item {
                 NavigationDrawerItem(
-                    label = { Text("Memos") },
+                    label = { Text(R.string.memos.string) },
                     icon = { Icon(Icons.Outlined.GridView, contentDescription = null) },
                     selected = memosNavController.currentDestination?.route == RouteName.MEMOS,
                     onClick = {
@@ -94,7 +96,7 @@ fun SideDrawer(
             }
             item {
                 NavigationDrawerItem(
-                    label = { Text("Resources") },
+                    label = { Text(R.string.resources.string) },
                     icon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
                     selected = false,
                     onClick = {
@@ -108,7 +110,7 @@ fun SideDrawer(
             }
             item {
                 NavigationDrawerItem(
-                    label = { Text("Archived") },
+                    label = { Text(R.string.archived.string) },
                     icon = { Icon(Icons.Outlined.Inventory2, contentDescription = null) },
                     selected = memosNavController.currentDestination?.route == RouteName.ARCHIVED,
                     onClick = {
@@ -125,7 +127,7 @@ fun SideDrawer(
             }
             item {
                 NavigationDrawerItem(
-                    label = { Text("Settings") },
+                    label = { Text(R.string.settings.string) },
                     icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
                     selected = false,
                     onClick = {
@@ -143,7 +145,11 @@ fun SideDrawer(
             }
 
             item {
-                Text("Tags", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(20.dp))
+                Text(
+                    R.string.tags.string,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(20.dp)
+                )
             }
 
             memosViewModel.tags.toList().forEach { tag ->

@@ -10,12 +10,14 @@ import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.withContext
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.SignInInput
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
+import me.mudkip.moememos.ext.string
 import javax.inject.Inject
 
 @HiltViewModel
@@ -84,4 +86,5 @@ class UserStateViewModel @Inject constructor(
     }
 }
 
-val LocalUserState = compositionLocalOf<UserStateViewModel> { error("User state not found") }
+val LocalUserState =
+    compositionLocalOf<UserStateViewModel> { error(R.string.user_state_not_found.string) }
