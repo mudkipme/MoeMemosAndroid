@@ -1,0 +1,5 @@
+What's new in this version:
+- Simplified and Traditional Chinese language support by @ThankRain
+
+New Contributors:
+- @ThankRain made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/39

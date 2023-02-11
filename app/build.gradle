@@ -13,8 +13,8 @@ android {
         applicationId "me.mudkip.moememos"
         minSdk 26
         targetSdk 33
-        versionCode 12
-        versionName "0.5.2"
+        versionCode 13
+        versionName "0.5.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -78,7 +78,6 @@ dependencies {
     implementation "org.jetbrains:markdown:0.3.6"
 
     implementation "com.google.dagger:hilt-android:2.44.2"
-    implementation 'androidx.core:core-ktx:+'
     kapt "com.google.dagger:hilt-compiler:2.44.2"
     implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
 
