@@ -63,24 +63,25 @@ fun AnnotatedString.Builder.appendMarkdown(
             val linkDestination =
                 node.children.findLast { it.type == MarkdownElementTypes.LINK_DESTINATION }
                     ?: return this
-            val linkText = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!
-                .children[1]
+            val linkText = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }?.children
 
             withAnnotation(UrlAnnotation(linkDestination.getTextInNode(markdownText).toString())) {
                 withStyle(SpanStyle(linkColor)) {
-                    appendMarkdown(
-                        markdownText = markdownText,
-                        node = linkText,
-                        depth = depth + 1,
-                        linkColor = linkColor,
-                        onImage = onImage,
-                        onCheckbox = onCheckbox,
-                        maxWidth = maxWidth,
-                        bulletColor = bulletColor,
-                        headlineLarge = headlineLarge,
-                        headlineMedium = headlineMedium,
-                        headlineSmall = headlineSmall
-                    )
+                    linkText?.filterIndexed { index, _ -> index != 0 && index != linkText.size - 1 }?.forEach { childNode ->
+                        appendMarkdown(
+                            markdownText = markdownText,
+                            node = childNode,
+                            depth = depth + 1,
+                            linkColor = linkColor,
+                            onImage = onImage,
+                            onCheckbox = onCheckbox,
+                            maxWidth = maxWidth,
+                            bulletColor = bulletColor,
+                            headlineLarge = headlineLarge,
+                            headlineMedium = headlineMedium,
+                            headlineSmall = headlineSmall
+                        )
+                    } ?: Unit
                 }
             }
         }
