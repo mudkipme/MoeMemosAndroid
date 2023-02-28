@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.page.memoinput
 
+import android.content.ActivityNotFoundException
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -251,9 +252,15 @@ fun MemoInputPage(
                 }
 
                 IconButton(onClick = {
-                    val uri = MoeMemosFileProvider.getImageUri(context)
-                    photoImageUri = uri
-                    takePhoto.launch(uri)
+                    try {
+                        val uri = MoeMemosFileProvider.getImageUri(context)
+                        photoImageUri = uri
+                        takePhoto.launch(uri)
+                    } catch (e: ActivityNotFoundException) {
+                        coroutineScope.launch {
+                            snackbarState.showSnackbar(e.localizedMessage ?: "Unable to take picture.")
+                        }
+                    }
                 }) {
                     Icon(
                         Icons.Outlined.PhotoCamera,
