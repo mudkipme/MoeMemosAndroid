@@ -42,6 +42,10 @@ class MemoInputViewModel @Inject constructor(
         memoRepository.editMemo(memoId, content, uploadResources.map { it.id })
     }
 
+    suspend fun updateTag(content: String): ApiResponse<String> = withContext(viewModelScope.coroutineContext) {
+        memoRepository.updateTag(content)
+    }
+
     fun updateDraft(content: String) = runBlocking {
         application.applicationContext.dataStore.edit {
             it[DataStoreKeys.Draft.key] = content
