@@ -31,6 +31,11 @@ data class UpdateMemoOrganizerInput(
 )
 
 @Keep
+data class UpdateTagInput(
+    val name: String
+)
+
+@Keep
 data class PatchMemoInput(
     val id: Long,
     val createdTs: Long? = null,
@@ -65,6 +70,9 @@ interface MemosApi {
 
     @GET("/api/tag")
     suspend fun getTags(@Query("creatorId") creatorId: Long? = null): ApiResponse<MemosOutput<List<String>>>
+
+    @POST("/api/tag")
+    suspend fun updateTag(@Body body: UpdateTagInput): ApiResponse<MemosOutput<String>>
 
     @POST("/api/memo/{id}/organizer")
     suspend fun updateMemoOrganizer(@Path("id") memoId: Long, @Body body: UpdateMemoOrganizerInput): ApiResponse<MemosOutput<Memo>>

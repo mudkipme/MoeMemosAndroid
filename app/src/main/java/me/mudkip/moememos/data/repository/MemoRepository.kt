@@ -6,6 +6,7 @@ import me.mudkip.moememos.data.api.CreateMemoInput
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.PatchMemoInput
 import me.mudkip.moememos.data.api.UpdateMemoOrganizerInput
+import me.mudkip.moememos.data.api.UpdateTagInput
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
 import javax.inject.Inject
@@ -21,6 +22,10 @@ class MemoRepository @Inject constructor(private val memosApiService: MemosApiSe
 
     suspend fun getTags(): ApiResponse<List<String>> = memosApiService.call { api ->
         api.getTags().mapSuccess { data }
+    }
+
+    suspend fun updateTag(name: String): ApiResponse<String> = memosApiService.call { api ->
+        api.updateTag(UpdateTagInput(name)).mapSuccess { data }
     }
 
     suspend fun updatePinned(memoId: Long, pinned: Boolean): ApiResponse<Memo> = memosApiService.call { api ->
