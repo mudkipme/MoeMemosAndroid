@@ -43,8 +43,10 @@ import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Attachment
 import me.mudkip.moememos.ui.component.InputImage
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
+import me.mudkip.moememos.util.extractCustomTags
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -158,6 +160,11 @@ fun MemoInputPage(
     }
 
     fun submit() = coroutineScope.launch {
+        val tags = extractCustomTags(text.text)
+        for (tag in tags) {
+            viewModel.updateTag(tag).suspendOnErrorMessage { message -> Timber.e(message) }
+        }
+
         memo?.let {
             viewModel.editMemo(memo.id, text.text).suspendOnSuccess {
                 navController.popBackStack()
