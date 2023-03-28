@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
@@ -37,14 +38,18 @@ import kotlinx.coroutines.launch
 import me.mudkip.moememos.MoeMemosFileProvider
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.constant.LIST_ITEM_SYMBOL_LIST
+import me.mudkip.moememos.data.model.MemosVisibility
 import me.mudkip.moememos.data.model.ShareContent
+import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
+import me.mudkip.moememos.ext.titleResource
 import me.mudkip.moememos.ui.component.Attachment
 import me.mudkip.moememos.ui.component.InputImage
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.util.extractCustomTags
 import me.mudkip.moememos.viewmodel.LocalMemos
+import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
 import timber.log.Timber
 
@@ -64,10 +69,13 @@ fun MemoInputPage(
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(memo?.content ?: "", TextRange(memo?.content?.length ?: 0)))
     }
+    var visibilityMenuExpanded by remember { mutableStateOf(false) }
     var tagMenuExpanded by remember { mutableStateOf(false) }
     var photoImageUri by remember { mutableStateOf<Uri?>(null) }
 
     val context = LocalContext.current
+    val defaultVisibility = LocalUserState.current.currentUser?.memoVisibility ?: MemosVisibility.PRIVATE
+    var currentVisibility by remember { mutableStateOf(defaultVisibility) }
 
     fun uploadImage(uri: Uri) = coroutineScope.launch {
         try {
@@ -166,7 +174,7 @@ fun MemoInputPage(
         }
 
         memo?.let {
-            viewModel.editMemo(memo.id, text.text).suspendOnSuccess {
+            viewModel.editMemo(memo.id, text.text, currentVisibility).suspendOnSuccess {
                 navController.popBackStack()
             }.suspendOnErrorMessage { message ->
                 snackbarState.showSnackbar(message)
@@ -174,7 +182,7 @@ fun MemoInputPage(
             return@launch
         }
 
-        viewModel.createMemo(text.text).suspendOnSuccess {
+        viewModel.createMemo(text.text, currentVisibility).suspendOnSuccess {
             text = TextFieldValue("")
             viewModel.updateDraft("")
             navController.popBackStack()
@@ -215,6 +223,39 @@ fun MemoInputPage(
                         Icon(Icons.Outlined.Tag, contentDescription = R.string.tag.string)
                     }
                 } else {
+
+                    Box {
+                        DropdownMenu(
+                            expanded = visibilityMenuExpanded,
+                            onDismissRequest = { visibilityMenuExpanded = false },
+                            properties = PopupProperties(focusable = false)
+                        ) {
+                            enumValues<MemosVisibility>().forEach { visibility ->
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(visibility.titleResource)) },
+                                    onClick = {
+                                        currentVisibility = visibility
+                                        visibilityMenuExpanded = false
+                                    },
+                                    leadingIcon = {
+                                        Icon(visibility.icon, contentDescription = stringResource(visibility.titleResource))
+                                    },
+                                    trailingIcon = {
+                                        if (currentVisibility == visibility) {
+                                            Icon(Icons.Outlined.Check, contentDescription = null)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        IconButton(onClick = { visibilityMenuExpanded = !visibilityMenuExpanded }) {
+                            Icon(
+                                currentVisibility.icon,
+                                contentDescription = stringResource(currentVisibility.titleResource)
+                            )
+                        }
+                    }
+
                     Box {
                         DropdownMenu(
                             expanded = tagMenuExpanded,
@@ -240,7 +281,7 @@ fun MemoInputPage(
                                     })
                             }
                         }
-                        IconButton(onClick = { tagMenuExpanded = true }) {
+                        IconButton(onClick = { tagMenuExpanded = !tagMenuExpanded }) {
                             Icon(Icons.Outlined.Tag, contentDescription = R.string.tag.string)
                         }
                     }

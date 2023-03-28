@@ -54,4 +54,7 @@
     <string name="pin">置頂</string>
     <string name="share">分享</string>
     <string name="archive">歸檔</string>
+    <string name="memo_visibility_public">訪客可見</string>
+    <string name="memo_visibility_protected">本地使用者可見</string>
+    <string name="memo_visibility_private">僅自己可見</string>
 </resources>

@@ -48,7 +48,7 @@ fun ResourceListPage(
             columns = StaggeredGridCells.Fixed(2),
             modifier = Modifier.padding(innerPadding),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalItemSpacing = 10.dp
         ) {
             items(viewModel.resources, key = { it.id }) { resource ->
                 MemoImage(

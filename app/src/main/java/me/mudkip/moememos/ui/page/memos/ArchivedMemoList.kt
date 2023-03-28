@@ -2,7 +2,7 @@ package me.mudkip.moememos.ui.page.memos
 
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -22,7 +22,7 @@ fun ArchivedMemoList(
 ) {
     CompositionLocalProvider(LocalArchivedMemos provides viewModel) {
         LazyColumn(
-            modifier = Modifier.consumedWindowInsets(contentPadding),
+            modifier = Modifier.consumeWindowInsets(contentPadding),
             contentPadding = contentPadding
         ) {
             items(viewModel.memos, key = { it.id }) { memo ->
