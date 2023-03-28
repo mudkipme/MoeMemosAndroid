@@ -3,7 +3,7 @@ buildscript {
         // https://developer.android.com/jetpack/androidx/releases/compose-ui
         compose_version = '1.4.0'
         // https://github.com/google/accompanist/releases
-        accompanist = '0.27.0'
+        accompanist = '0.30.0'
         // https://developer.android.com/jetpack/androidx/releases/compose-material3
         material3 = '1.1.0-beta01'
         // https://square.github.io/okhttp/changelogs/changelog/

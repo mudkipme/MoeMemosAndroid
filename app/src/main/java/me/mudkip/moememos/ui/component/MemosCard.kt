@@ -15,13 +15,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
+import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.string
+import me.mudkip.moememos.ext.titleResource
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalArchivedMemos
@@ -46,13 +49,21 @@ fun MemosCard(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(DateUtils.getRelativeTimeSpanString(memo.createdTs * 1000, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )
+                if (LocalUserState.current.currentUser?.memoVisibility != memo.visibility) {
+                    Icon(
+                        memo.visibility.icon,
+                        contentDescription = stringResource(memo.visibility.titleResource),
+                        modifier = Modifier.padding(start = 5.dp).size(20.dp),
+                        tint = MaterialTheme.colorScheme.outline
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
                 if (memo.rowStatus == MemosRowStatus.ARCHIVED) {
                     ArchivedMemosCardActionButton(memo)
                 } else {

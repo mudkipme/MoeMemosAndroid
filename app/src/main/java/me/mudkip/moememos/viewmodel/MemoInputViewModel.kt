@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.model.MemosVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.repository.MemoRepository
 import me.mudkip.moememos.data.repository.ResourceRepository
@@ -34,12 +35,12 @@ class MemoInputViewModel @Inject constructor(
     val draft = application.applicationContext.dataStore.data.map { it[DataStoreKeys.Draft.key] }
     var uploadResources = mutableStateListOf<Resource>()
 
-    suspend fun createMemo(content: String): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
-        memoRepository.createMemo(content, uploadResources.map { it.id })
+    suspend fun createMemo(content: String, visibility: MemosVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+        memoRepository.createMemo(content, uploadResources.map { it.id }, visibility)
     }
 
-    suspend fun editMemo(memoId: Long, content: String): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
-        memoRepository.editMemo(memoId, content, uploadResources.map { it.id })
+    suspend fun editMemo(memoId: Long, content: String, visibility: MemosVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+        memoRepository.editMemo(memoId, content, uploadResources.map { it.id }, visibility)
     }
 
     suspend fun updateTag(content: String): ApiResponse<String> = withContext(viewModelScope.coroutineContext) {

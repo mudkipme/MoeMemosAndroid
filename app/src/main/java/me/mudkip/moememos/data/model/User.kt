@@ -45,4 +45,12 @@ data class User(
 ) {
     val displayEmail get() = email ?: username ?: ""
     val displayName get() = nickname ?: name ?: ""
+
+    val memoVisibility: MemosVisibility get() = userSettingList?.find { it.key == MemosUserSettingKey.MEMO_VISIBILITY }?.let {
+        try {
+            MemosVisibility.valueOf(it.value)
+        } catch (_: IllegalArgumentException) {
+            MemosVisibility.PRIVATE
+        }
+    } ?: MemosVisibility.PRIVATE
 }
