@@ -10,7 +10,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import me.mudkip.moememos.ui.component.MemosCard
+import me.mudkip.moememos.ui.component.ArchivedMemoCard
 import me.mudkip.moememos.viewmodel.ArchivedMemoListViewModel
 import me.mudkip.moememos.viewmodel.LocalArchivedMemos
 
@@ -26,7 +26,7 @@ fun ArchivedMemoList(
             contentPadding = contentPadding
         ) {
             items(viewModel.memos, key = { it.id }) { memo ->
-                MemosCard(memo)
+                ArchivedMemoCard(memo)
             }
         }
     }

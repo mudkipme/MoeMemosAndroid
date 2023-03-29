@@ -1,11 +1,9 @@
 package me.mudkip.moememos.ui.component
 
 import android.content.Intent
-import android.net.Uri
 import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.*
@@ -13,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -27,7 +24,6 @@ import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
-import me.mudkip.moememos.viewmodel.LocalArchivedMemos
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 
@@ -59,63 +55,27 @@ fun MemosCard(
                     Icon(
                         memo.visibility.icon,
                         contentDescription = stringResource(memo.visibility.titleResource),
-                        modifier = Modifier.padding(start = 5.dp).size(20.dp),
+                        modifier = Modifier
+                            .padding(start = 5.dp)
+                            .size(20.dp),
                         tint = MaterialTheme.colorScheme.outline
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                if (memo.rowStatus == MemosRowStatus.ARCHIVED) {
-                    ArchivedMemosCardActionButton(memo)
-                } else {
-                    MemosCardActionButton(memo)
-                }
+                MemosCardActionButton(memo)
             }
-            Column(modifier = Modifier.padding(end = 15.dp)) {
-                Markdown(memo.content,
-                    modifier = Modifier.padding(bottom = 10.dp),
-                    imageContent = { url ->
-                        var uri = Uri.parse(url)
-                        if (uri.scheme == null) {
-                            uri = Uri.parse(LocalUserState.current.host).buildUpon()
-                                .path(url).build()
-                        }
 
-                        MemoImage(
-                            url = uri.toString(),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(8.dp))
-                        )
-                    },
-                    checkboxChange = { checked, startOffset, endOffset ->
-                        scope.launch {
-                            var text = memo.content.substring(startOffset, endOffset)
-                            if (checked) {
-                                text = text.replace("[ ]", "[x]")
-                            } else {
-                                text = text.replace("[x]", "[ ]")
-                            }
-                            memosViewModel.editMemo(memo.id, memo.content.replaceRange(startOffset, endOffset, text), memo.resourceList)
-                        }
-                    }
-                )
-
-                memo.resourceList?.forEach { resource ->
-                    if (resource.type.startsWith("image/")) {
-                        MemoImage(
-                            url = resource.uri(LocalUserState.current.host).toString(),
-                            modifier = Modifier
-                                .heightIn(max = 400.dp)
-                                .widthIn(min = 100.dp)
-                                .padding(bottom = 10.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                        )
+            MemoContent(memo, checkboxChange = { checked, startOffset, endOffset ->
+                scope.launch {
+                    var text = memo.content.substring(startOffset, endOffset)
+                    text = if (checked) {
+                        text.replace("[ ]", "[x]")
                     } else {
-                        Attachment(resource)
+                        text.replace("[x]", "[ ]")
                     }
+                    memosViewModel.editMemo(memo.id, memo.content.replaceRange(startOffset, endOffset, text), memo.resourceList)
                 }
-            }
+            })
         }
     }
 }
@@ -218,91 +178,5 @@ fun MemosCardActionButton(
                     )
                 })
         }
-    }
-}
-
-@Composable
-fun ArchivedMemosCardActionButton(
-    memo: Memo
-) {
-    var menuExpanded by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-    val archivedMemoListViewModel = LocalArchivedMemos.current
-    val memosViewModel = LocalMemos.current
-    var showDeleteDialog by remember { mutableStateOf(false) }
-
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .wrapContentSize(Alignment.TopEnd)) {
-        IconButton(onClick = { menuExpanded = true }) {
-            Icon(Icons.Filled.MoreVert, contentDescription = null)
-        }
-        DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
-            DropdownMenuItem(
-                text = { Text(R.string.restore.string) },
-                onClick = {
-                    scope.launch {
-                        archivedMemoListViewModel.restoreMemo(memo.id).suspendOnSuccess {
-                            menuExpanded = false
-                            memosViewModel.loadMemos()
-                        }
-                    }
-                },
-                leadingIcon = {
-                    Icon(
-                        Icons.Outlined.Restore,
-                        contentDescription = null
-                    )
-                })
-            DropdownMenuItem(
-                text = { Text(R.string.delete.string) },
-                onClick = {
-                    showDeleteDialog = true
-                    menuExpanded = false
-                },
-                colors = MenuDefaults.itemColors(
-                    textColor = MaterialTheme.colorScheme.error,
-                    leadingIconColor = MaterialTheme.colorScheme.error,
-                ),
-                leadingIcon = {
-                    Icon(
-                        Icons.Outlined.Delete,
-                        contentDescription = null
-                    )
-                })
-        }
-    }
-    
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(R.string.delete_this_memo.string) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        scope.launch {
-                            archivedMemoListViewModel.deleteMemo(memo.id).suspendOnSuccess {
-                                showDeleteDialog = false
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.error,
-                        containerColor = MaterialTheme.colorScheme.errorContainer
-                    )
-                ) {
-                    Text(R.string.confirm.string)
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                    }
-                ) {
-                    Text(R.string.cancel.string)
-                }
-            }
-        )
     }
 }
