@@ -102,4 +102,13 @@ interface MemosApi {
 
     @GET("/api/status")
     suspend fun status(): ApiResponse<MemosOutput<Status>>
+
+    @GET("/api/memo/all")
+    suspend fun listAllMemo(
+        @Query("pinned") pinned: Boolean? = null,
+        @Query("tag") tag: String? = null,
+        @Query("visibility") visibility: MemosVisibility? = null,
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null
+    ): ApiResponse<MemosOutput<List<Memo>>>
 }

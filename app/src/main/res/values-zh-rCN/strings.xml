@@ -57,4 +57,5 @@
     <string name="memo_visibility_public">访客可见</string>
     <string name="memo_visibility_protected">本地用户可见</string>
     <string name="memo_visibility_private">仅自己可见</string>
+    <string name="explore">探索</string>
 </resources>
