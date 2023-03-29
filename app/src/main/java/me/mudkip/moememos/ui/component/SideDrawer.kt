@@ -19,7 +19,6 @@ import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
 import java.net.URLEncoder
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SideDrawer(
     memosNavController: NavHostController,
@@ -85,6 +84,23 @@ fun SideDrawer(
                     onClick = {
                         scope.launch {
                             memosNavController.navigate(RouteName.MEMOS) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                            drawerState.close()
+                        }
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+            }
+            item {
+                NavigationDrawerItem(
+                    label = { Text(R.string.explore.string) },
+                    icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+                    selected = memosNavController.currentDestination?.route == RouteName.EXPLORE,
+                    onClick = {
+                        scope.launch {
+                            memosNavController.navigate(RouteName.EXPLORE) {
                                 launchSingleTop = true
                                 restoreState = true
                             }

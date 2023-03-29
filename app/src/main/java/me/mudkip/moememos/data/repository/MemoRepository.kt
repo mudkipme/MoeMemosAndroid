@@ -44,4 +44,14 @@ class MemoRepository @Inject constructor(private val memosApiService: MemosApiSe
     suspend fun editMemo(memoId: Long, content: String, resourceIdList: List<Long>? = null, visibility: MemosVisibility = MemosVisibility.PRIVATE): ApiResponse<Memo> = memosApiService.call { api ->
         api.patchMemo(memoId, PatchMemoInput(id = memoId, content = content, resourceIdList = resourceIdList, visibility = visibility)).mapSuccess { data }
     }
+
+    suspend fun listAllMemo(limit: Int? = null, offset: Int? = null, pinned: Boolean? = null, tag: String? = null, visibility: MemosVisibility? = null): ApiResponse<List<Memo>> = memosApiService.call { api ->
+        api.listAllMemo(
+            limit = limit,
+            offset = offset,
+            pinned = pinned,
+            tag = tag,
+            visibility = visibility
+        ).mapSuccess { data }
+    }
 }

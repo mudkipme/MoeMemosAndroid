@@ -27,6 +27,7 @@ data class Memo(
     val id: Long,
     val createdTs: Long,
     val creatorId: Long,
+    val creatorName: String? = null,
     var content: String,
     var pinned: Boolean,
     val rowStatus: MemosRowStatus = MemosRowStatus.NORMAL,
