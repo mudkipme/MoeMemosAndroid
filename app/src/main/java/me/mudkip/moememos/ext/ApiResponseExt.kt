@@ -7,26 +7,30 @@ import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.ErrorMessage
 import timber.log.Timber
 
-suspend inline fun <T> ApiResponse<T>.suspendOnErrorMessage(crossinline block: suspend (message: String) -> Unit): ApiResponse<T> {
+fun <T> ApiResponse<T>.getErrorMessage(): String {
     if (this is ApiResponse.Failure.Error<T>) {
         try {
             val errorMessage: ErrorMessage? = this.deserializeErrorBody()
             if (errorMessage != null) {
-                block(errorMessage.message)
-                return this
+                return errorMessage.message
             }
         } catch (e: Throwable) {
             Timber.d(e)
         }
-        response.errorBody()?.string()?.let {
-            block(it)
-            return this
-        }
-        block(this.message())
+        return response.errorBody()?.string() ?: this.message()
     }
 
     if (this is ApiResponse.Failure.Exception<T>) {
-        block(this.exception.localizedMessage ?: this.message())
+        return this.exception.localizedMessage ?: this.message()
+    }
+    return ""
+}
+
+suspend inline fun <T> ApiResponse<T>.suspendOnErrorMessage(crossinline block: suspend (message: String) -> Unit): ApiResponse<T> {
+    if (this is ApiResponse.Failure.Error<T>) {
+        block(getErrorMessage())
+    } else if (this is ApiResponse.Failure.Exception<T>) {
+        block(getErrorMessage())
     }
 
     return this
