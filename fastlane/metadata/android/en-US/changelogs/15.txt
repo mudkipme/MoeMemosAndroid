@@ -1,0 +1,7 @@
+What's new in this version:
+- Memo Visibility: It's possible to create memos visible to other members or guests of your Memos server.
+- Explore: View other members' shared memos on the same Memos server.
+- Supported adding new tags when saving memos on newer Memos versions.
+
+New Contributors:
+- @qrzbing made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/55
