@@ -12,11 +12,17 @@ data class Resource(
     val size: Long,
     val type: String,
     val updatedTs: Long,
-    val externalLink: String?
+    val externalLink: String?,
+    val publicId: String?
 ) {
     fun uri(host: String): Uri {
         if (externalLink != null && externalLink.isNotEmpty()) {
             return Uri.parse(externalLink)
+        }
+        if (publicId != null && publicId.isNotEmpty()) {
+            return Uri.parse(host)
+                .buildUpon().appendPath("o").appendPath("r")
+                .appendPath(id.toString()).appendPath(publicId).build()
         }
         return Uri.parse(host)
             .buildUpon().appendPath("o").appendPath("r")
