@@ -1,0 +1,2 @@
+What's new in this version:
+- Fixed compatibility with Memos 0.12.0.
