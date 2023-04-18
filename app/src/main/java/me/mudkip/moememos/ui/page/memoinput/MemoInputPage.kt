@@ -213,6 +213,38 @@ fun MemoInputPage(
         },
         bottomBar = {
             BottomAppBar {
+                Box {
+                    DropdownMenu(
+                        expanded = visibilityMenuExpanded,
+                        onDismissRequest = { visibilityMenuExpanded = false },
+                        properties = PopupProperties(focusable = false)
+                    ) {
+                        enumValues<MemosVisibility>().forEach { visibility ->
+                            DropdownMenuItem(
+                                text = { Text(stringResource(visibility.titleResource)) },
+                                onClick = {
+                                    currentVisibility = visibility
+                                    visibilityMenuExpanded = false
+                                },
+                                leadingIcon = {
+                                    Icon(visibility.icon, contentDescription = stringResource(visibility.titleResource))
+                                },
+                                trailingIcon = {
+                                    if (currentVisibility == visibility) {
+                                        Icon(Icons.Outlined.Check, contentDescription = null)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    IconButton(onClick = { visibilityMenuExpanded = !visibilityMenuExpanded }) {
+                        Icon(
+                            currentVisibility.icon,
+                            contentDescription = stringResource(currentVisibility.titleResource)
+                        )
+                    }
+                }
+
                 if (memosViewModel.tags.toList().isEmpty()) {
                     IconButton(onClick = {
                         text = text.copy(
@@ -223,39 +255,6 @@ fun MemoInputPage(
                         Icon(Icons.Outlined.Tag, contentDescription = R.string.tag.string)
                     }
                 } else {
-
-                    Box {
-                        DropdownMenu(
-                            expanded = visibilityMenuExpanded,
-                            onDismissRequest = { visibilityMenuExpanded = false },
-                            properties = PopupProperties(focusable = false)
-                        ) {
-                            enumValues<MemosVisibility>().forEach { visibility ->
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(visibility.titleResource)) },
-                                    onClick = {
-                                        currentVisibility = visibility
-                                        visibilityMenuExpanded = false
-                                    },
-                                    leadingIcon = {
-                                        Icon(visibility.icon, contentDescription = stringResource(visibility.titleResource))
-                                    },
-                                    trailingIcon = {
-                                        if (currentVisibility == visibility) {
-                                            Icon(Icons.Outlined.Check, contentDescription = null)
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        IconButton(onClick = { visibilityMenuExpanded = !visibilityMenuExpanded }) {
-                            Icon(
-                                currentVisibility.icon,
-                                contentDescription = stringResource(currentVisibility.titleResource)
-                            )
-                        }
-                    }
-
                     Box {
                         DropdownMenu(
                             expanded = tagMenuExpanded,
