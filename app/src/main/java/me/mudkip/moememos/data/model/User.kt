@@ -16,7 +16,7 @@ enum class MemosRole {
 enum class MemosUserSettingKey {
     @field:Json(name = "locale")
     LOCALE,
-    @field:Json(name = "memoVisibility")
+    @field:Json(name = "memo-visibility")
     MEMO_VISIBILITY,
     @field:Json(name = "editorFontStyle")
     EDITOR_FONT_STYLE,
