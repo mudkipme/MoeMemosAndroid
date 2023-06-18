@@ -18,4 +18,8 @@ class MoeMemosFileProvider: FileProvider(
             return getUriForFile(context, authority, file)
         }
     }
+
+    override fun getType(uri: Uri): String? {
+        return "image/jpeg"
+    }
 }
