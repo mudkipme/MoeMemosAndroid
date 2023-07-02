@@ -23,7 +23,7 @@ import me.mudkip.moememos.ext.dataStore
 import me.mudkip.moememos.ext.scaleTo
 import okhttp3.MediaType.Companion.toMediaType
 import java.io.ByteArrayOutputStream
-import java.util.*
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel

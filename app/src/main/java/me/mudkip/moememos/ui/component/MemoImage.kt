@@ -8,9 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
+import coil.ImageLoader
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
 import coil.imageLoader
+import me.mudkip.moememos.viewmodel.LocalUserState
 import timber.log.Timber
 import java.io.File
 
@@ -22,9 +24,11 @@ fun MemoImage(
 ) {
     var diskCacheFile: File? by remember { mutableStateOf(null) }
     val context = LocalContext.current
+    val userStateViewModel = LocalUserState.current
 
     AsyncImage(
         model = url,
+        imageLoader = ImageLoader.Builder(context).okHttpClient(userStateViewModel.okHttpClient).build(),
         contentDescription = null,
         modifier = modifier.clickable {
             diskCacheFile?.let {
