@@ -18,6 +18,7 @@ import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
 import me.mudkip.moememos.ext.string
+import net.swiftzer.semver.SemVer
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,6 +42,17 @@ class UserStateViewModel @Inject constructor(
         try {
             val client = memosApiService.createClient(host, null)
             client.auth()
+            val status = client.status().getOrNull()
+            if (status != null && SemVer.parse(status.data.profile.version) >= SemVer.parse("0.13.2")) {
+                client.v1SignIn(SignInInput(email, email, password)).getOrThrow()
+                val resp = client.me().mapSuccess { data }
+                if (resp.isSuccess) {
+                    memosApiService.update(host, null)
+                    currentUser = resp.getOrNull()
+                }
+                return@withContext resp
+            }
+
             val resp = client.signIn(SignInInput(email, email, password)).mapSuccess { data }
             if (resp.isSuccess) {
                 memosApiService.update(host, null)
