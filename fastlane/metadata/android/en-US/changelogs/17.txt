@@ -1,0 +1,10 @@
+## What's Changed
+* Resolved the issue of the visibility button not being displayed when there are no tags. by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/67
+* Added support for the default memo visibility setting. by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/71
+* Resolved the issue of not being able to view images on some devices. by @runforprogram in https://github.com/mudkipme/MoeMemosAndroid/pull/82
+* Resolved the compatibility issue with Memos version 0.13.2. by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/86
+
+## New Contributors
+* @runforprogram made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/82
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.6.1...0.6.2
