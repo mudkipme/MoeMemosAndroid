@@ -39,6 +39,8 @@ class MemosApiService @Inject constructor(
         private set
     var status: Status? = null
         private set
+    var client: OkHttpClient = okHttpClient
+        private set
 
     private val mutex = Mutex()
     private val scope = CoroutineScope(Dispatchers.Default)
@@ -55,7 +57,9 @@ class MemosApiService @Inject constructor(
                 val host = it[DataStoreKeys.Host.key]
                 val openId = it[DataStoreKeys.OpenId.key]
                 if (host != null && host.isNotEmpty()) {
-                    memosApi = createClient(host, openId)
+                    val (client, memosApi) = createClient(host, openId)
+                    this@MemosApiService.client = client
+                    this@MemosApiService.memosApi = memosApi
                     this@MemosApiService.host = host
                 }
             }
@@ -74,15 +78,17 @@ class MemosApiService @Inject constructor(
         }
 
         mutex.withLock {
-            memosApi = createClient(host, openId)
+            val (client, memosApi) = createClient(host, openId)
+            this.client = client
+            this.memosApi = memosApi
             this.host = host
         }
         loadStatus()
     }
 
-    fun createClient(host: String, openId: String?): MemosApi {
+    fun createClient(host: String, openId: String?): Pair<OkHttpClient, MemosApi> {
         var client = okHttpClient
-        if (openId != null && openId.isNotEmpty()) {
+        if (!openId.isNullOrEmpty()) {
             client = client.newBuilder().addNetworkInterceptor { chain ->
                 var request = chain.request()
                 val url = request.url.newBuilder().addQueryParameter("openId", openId).build()
@@ -91,7 +97,7 @@ class MemosApiService @Inject constructor(
             }.build()
         }
 
-        return Retrofit.Builder()
+        return client to Retrofit.Builder()
             .baseUrl(host)
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create(

@@ -33,7 +33,7 @@ private enum class LoginMethod {
     OPEN_API
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LoginPage(
     navController: NavHostController

@@ -7,7 +7,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.skydoves.sandwich.*
+import com.skydoves.sandwich.ApiResponse
+import com.skydoves.sandwich.getOrNull
+import com.skydoves.sandwich.getOrThrow
+import com.skydoves.sandwich.isSuccess
+import com.skydoves.sandwich.mapSuccess
+import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.R
@@ -19,6 +24,7 @@ import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
 import me.mudkip.moememos.ext.string
 import net.swiftzer.semver.SemVer
+import okhttp3.OkHttpClient
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +37,7 @@ class UserStateViewModel @Inject constructor(
 
     val host: String get() = memosApiService.host ?: ""
     val status: Status? get() = memosApiService.status
+    val okHttpClient: OkHttpClient get() = memosApiService.client
 
     suspend fun loadCurrentUser(): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         userRepository.getCurrentUser().suspendOnSuccess {
@@ -40,7 +47,7 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun login(host: String, email: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
-            val client = memosApiService.createClient(host, null)
+            val (_, client) = memosApiService.createClient(host, null)
             client.auth()
             val status = client.status().getOrNull()
             if (status != null && SemVer.parse(status.data.profile.version) >= SemVer.parse("0.13.2")) {
@@ -73,7 +80,7 @@ class UserStateViewModel @Inject constructor(
             }
 
             val host = uri.buildUpon().path("/").clearQuery().fragment("").build().toString()
-            val resp = memosApiService.createClient(host, openId).me().mapSuccess { data }
+            val resp = memosApiService.createClient(host, openId).second.me().mapSuccess { data }
             if (resp.isSuccess) {
                 memosApiService.update(host, openId)
                 currentUser = resp.getOrNull()
