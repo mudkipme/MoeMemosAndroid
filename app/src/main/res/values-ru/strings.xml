@@ -6,12 +6,12 @@
     <string name="back">Назад</string>
     <string name="memos">Memos</string>
     <string name="menu">Меню</string>
-    <string name="search_hint">Что искать…</string>
+    <string name="search_hint">Что найти?</string>
     <string name="new_memo">Новая Заметка</string>
-    <string name="compose">Составить</string>
+    <string name="compose">Составить заметку</string>
     <string name="remove">Удалить</string>
     <string name="resources">Ресурсы</string>
-    <string name="archived">Архив</string>
+    <string name="archived">В архиве</string>
     <string name="settings">Настройки</string>
     <string name="tags">Теги</string>
     <string name="memo">Заметка</string>
@@ -39,7 +39,7 @@
     <string name="add_image">Добавить изображение</string>
     <string name="take_photo">Сделать снимок</string>
     <string name="post">Сообщение</string>
-    <string name="any_thoughts">Любые мысли...</string>
+    <string name="any_thoughts">Ваши любые мысли...</string>
     <string name="input_login_information">Пожалуйста, введите регистрационные данные вашего \n[✍️memos](https://github.com/usememos/memos) сервера.</string>
     <string name="day">День</string>
     <string name="username">Имя пользователя</string>
@@ -55,11 +55,11 @@
     <string name="delete">Удалить</string>
     <string name="restore">Восстановить</string>
     <string name="invalid_open_api">Недопустимый Open API</string>
-    <string name="pin">Pin-код</string>
+    <string name="pin">Закрепить</string>
     <string name="share">Поделиться</string>
-    <string name="archive">Архив</string>
+    <string name="archive">Архивировать</string>
     <string name="memo_visibility_public">Видимый для гостей</string>
-    <string name="memo_visibility_protected">Видимый для локальных участников</string>
+    <string name="memo_visibility_protected">Видимый для локальных пользователей</string>
     <string name="memo_visibility_private">Доступно только вам</string>
-    <string name="explore">Исследовать</string>
+    <string name="explore">Больше</string>
 </resources>
