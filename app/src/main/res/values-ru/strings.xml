@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MoeMemos</string>
+    <string name="default_card_content" translatable="false">Именно то, что вы делаете с даром жизни, определяет, кто вы есть. — Мьютво</string>
+    <string name="search">Поиск</string>
+    <string name="back">Назад</string>
+    <string name="memos">Memos</string>
+    <string name="menu">Меню</string>
+    <string name="search_hint">Что искать…</string>
+    <string name="new_memo">Новая Заметка</string>
+    <string name="compose">Составить</string>
+    <string name="remove">Удалить</string>
+    <string name="resources">Ресурсы</string>
+    <string name="archived">Архив</string>
+    <string name="settings">Настройки</string>
+    <string name="tags">Теги</string>
+    <string name="memo">Заметка</string>
+    <string name="tag">Тег</string>
+    <string name="fill_login_form">Пожалуйста, заполните форму входа в систему.</string>
+    <string name="acknowledgements">Подтверждения</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
+    <string name="privacy">Конфиденциальность</string>
+    <string name="website">Веб-сайт</string>
+    <string name="web">Веб</string>
+    <string name="about">О Moe Memos</string>
+    <string name="sign_in">Войти в систему</string>
+    <string name="attachment">Вложение</string>
+    <string name="selected">Выбрано</string>
+    <string name="username_and_password">Имя пользователя и пароль</string>
+    <string name="report_an_issue">Сообщить о проблеме</string>
+    <string name="unpin">Открепить</string>
+    <string name="sign_out">Выйти из аккаунта</string>
+    <string name="sign_in_method">Метод входа в систему</string>
+    <string name="address">Адрес</string>
+    <string name="host">Хост</string>
+    <string name="edit">Редактировать</string>
+    <string name="close">Закрыть</string>
+    <string name="add_task">Добавить задачу</string>
+    <string name="add_image">Добавить изображение</string>
+    <string name="take_photo">Сделать снимок</string>
+    <string name="post">Сообщение</string>
+    <string name="any_thoughts">Любые мысли...</string>
+    <string name="input_login_information">Пожалуйста, введите регистрационные данные вашего \n[✍️memos](https://github.com/usememos/memos) сервера.</string>
+    <string name="day">День</string>
+    <string name="username">Имя пользователя</string>
+    <string name="password">Пароль</string>
+    <string name="email">Емейл</string>
+    <string name="user_state_not_found">Пользователь не найден</string>
+    <string name="memos_view_model_not_found" translatable="false">Модель просмотра заметок не найдена.</string>
+    <string name="archived_memo_list_view_model_not_found" translatable="false">Модель просмотра архивированного списка заметок не найдена</string>
+    <string name="nav_host_controller_not_found" translatable="false">главный навигационный контроллер не найден</string>
+    <string name="cancel">Отмена</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="delete_this_memo">далить эту заметку?</string>
+    <string name="delete">Удалить</string>
+    <string name="restore">Восстановить</string>
+    <string name="invalid_open_api">Недопустимый Open API</string>
+    <string name="pin">Pin-код</string>
+    <string name="share">Поделиться</string>
+    <string name="archive">Архив</string>
+    <string name="memo_visibility_public">Видимый для гостей</string>
+    <string name="memo_visibility_protected">Видимый для локальных участников</string>
+    <string name="memo_visibility_private">Доступно только вам</string>
+    <string name="explore">Исследовать</string>
+</resources>
