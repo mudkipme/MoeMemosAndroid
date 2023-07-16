@@ -1,7 +1,6 @@
 package me.mudkip.moememos.data.repository
 
 import com.skydoves.sandwich.ApiResponse
-import com.skydoves.sandwich.mapSuccess
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.model.Resource
 import okhttp3.MediaType
@@ -11,17 +10,12 @@ import javax.inject.Inject
 
 class ResourceRepository @Inject constructor(private val memosApiService: MemosApiService) {
     suspend fun loadResources(): ApiResponse<List<Resource>> = memosApiService.call { api ->
-        api.getResources().mapSuccess { data }
+        api.getResources()
     }
 
     suspend fun uploadResource(resourceData: ByteArray, filename: String, mediaType: MediaType): ApiResponse<Resource> = memosApiService.call { api ->
         val file = MultipartBody.Part.createFormData("file", filename, resourceData.toRequestBody(mediaType))
-
-        if (memosApiService.versionCompare("0.10.2")) {
-            api.uploadResource(file).mapSuccess { data }
-        } else {
-            api.uploadResourceLegacy(file).mapSuccess { data }
-        }
+        api.uploadResource(file)
     }
 
     suspend fun deleteResource(resourceId: Long): ApiResponse<Unit> = memosApiService.call { api ->

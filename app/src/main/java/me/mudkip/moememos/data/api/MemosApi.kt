@@ -7,11 +7,6 @@ import okhttp3.MultipartBody
 import retrofit2.http.*
 
 @Keep
-data class MemosOutput<T>(
-    val data: T
-)
-
-@Keep
 data class SignInInput(
     val email: String,
     var username: String,
@@ -46,72 +41,59 @@ data class PatchMemoInput(
 )
 
 interface MemosApi {
-    @POST("/api/auth/signin")
-    suspend fun signIn(@Body body: SignInInput): ApiResponse<MemosOutput<User>>
-
     @POST("/api/v1/auth/signin")
-    suspend fun v1SignIn(@Body body: SignInInput): ApiResponse<Unit>
+    suspend fun signIn(@Body body: SignInInput): ApiResponse<Unit>
 
-    @POST("/api/auth/signout")
+    @POST("/api/v1/auth/signout")
     suspend fun logout(): ApiResponse<Unit>
 
-    @POST("/api/auth/logout")
-    suspend fun logoutLegacy(): ApiResponse<Unit>
+    @GET("/api/v1/user/me")
+    suspend fun me(): ApiResponse<User>
 
-    @GET("/api/user/me")
-    suspend fun me(): ApiResponse<MemosOutput<User>>
-
-    @GET("/api/memo")
+    @GET("/api/v1/memo")
     suspend fun listMemo(
         @Query("creatorId") creatorId: Long? = null,
         @Query("rowStatus") rowStatus: MemosRowStatus? = null,
         @Query("visibility") visibility: MemosVisibility? = null
-    ): ApiResponse<MemosOutput<List<Memo>>>
+    ): ApiResponse<List<Memo>>
 
-    @POST("/api/memo")
-    suspend fun createMemo(@Body body: CreateMemoInput): ApiResponse<MemosOutput<Memo>>
+    @POST("/api/v1/memo")
+    suspend fun createMemo(@Body body: CreateMemoInput): ApiResponse<Memo>
 
-    @GET("/api/tag")
-    suspend fun getTags(@Query("creatorId") creatorId: Long? = null): ApiResponse<MemosOutput<List<String>>>
+    @GET("/api/v1/tag")
+    suspend fun getTags(@Query("creatorId") creatorId: Long? = null): ApiResponse<List<String>>
 
-    @POST("/api/tag")
-    suspend fun updateTag(@Body body: UpdateTagInput): ApiResponse<MemosOutput<String>>
+    @POST("/api/v1/tag")
+    suspend fun updateTag(@Body body: UpdateTagInput): ApiResponse<String>
 
-    @POST("/api/memo/{id}/organizer")
-    suspend fun updateMemoOrganizer(@Path("id") memoId: Long, @Body body: UpdateMemoOrganizerInput): ApiResponse<MemosOutput<Memo>>
+    @POST("/api/v1/memo/{id}/organizer")
+    suspend fun updateMemoOrganizer(@Path("id") memoId: Long, @Body body: UpdateMemoOrganizerInput): ApiResponse<Memo>
 
-    @PATCH("/api/memo/{id}")
-    suspend fun patchMemo(@Path("id") memoId: Long, @Body body: PatchMemoInput): ApiResponse<MemosOutput<Memo>>
+    @PATCH("/api/v1/memo/{id}")
+    suspend fun patchMemo(@Path("id") memoId: Long, @Body body: PatchMemoInput): ApiResponse<Memo>
 
-    @DELETE("/api/memo/{id}")
+    @DELETE("/api/v1/memo/{id}")
     suspend fun deleteMemo(@Path("id") memoId: Long): ApiResponse<Unit>
 
-    @GET("/api/resource")
-    suspend fun getResources(): ApiResponse<MemosOutput<List<Resource>>>
+    @GET("/api/v1/resource")
+    suspend fun getResources(): ApiResponse<List<Resource>>
 
     @Multipart
-    @POST("/api/resource/blob")
-    suspend fun uploadResource(@Part file: MultipartBody.Part): ApiResponse<MemosOutput<Resource>>
+    @POST("/api/v1/resource/blob")
+    suspend fun uploadResource(@Part file: MultipartBody.Part): ApiResponse<Resource>
 
-    @Multipart
-    @POST("/api/resource")
-    suspend fun uploadResourceLegacy(@Part file: MultipartBody.Part): ApiResponse<MemosOutput<Resource>>
-
-    @DELETE("/api/resource/{id}")
+    @DELETE("/api/v1/resource/{id}")
     suspend fun deleteResource(@Path("id") resourceId: Long): ApiResponse<Unit>
 
-    @GET("/auth")
-    suspend fun auth(): ApiResponse<Unit>
+    @GET("/api/v1/status")
+    suspend fun status(): ApiResponse<Status>
 
-    @GET("/api/status")
-    suspend fun status(): ApiResponse<MemosOutput<Status>>
-
-    @GET("/api/memo/all")
+    @GET("/api/v1/memo/all")
     suspend fun listAllMemo(
         @Query("pinned") pinned: Boolean? = null,
         @Query("tag") tag: String? = null,
         @Query("visibility") visibility: MemosVisibility? = null,
         @Query("limit") limit: Int? = null,
         @Query("offset") offset: Int? = null
-    ): ApiResponse<MemosOutput<List<Memo>>>
+    ): ApiResponse<List<Memo>>
 }

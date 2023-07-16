@@ -47,7 +47,7 @@ class MemosApiService @Inject constructor(
 
     private fun loadStatus() = scope.launch {
         memosApi?.status()?.suspendOnSuccess {
-            status = data.data
+            status = data
         }
     }
 

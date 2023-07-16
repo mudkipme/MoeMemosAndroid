@@ -10,6 +10,5 @@ data class Profile(
 
 @Keep
 data class Status(
-    val host: User,
     val profile: Profile
 )

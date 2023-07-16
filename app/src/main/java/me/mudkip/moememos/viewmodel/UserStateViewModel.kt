@@ -11,7 +11,6 @@ import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.getOrNull
 import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.isSuccess
-import com.skydoves.sandwich.mapSuccess
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.withContext
@@ -23,7 +22,6 @@ import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
 import me.mudkip.moememos.ext.string
-import net.swiftzer.semver.SemVer
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
@@ -48,19 +46,8 @@ class UserStateViewModel @Inject constructor(
     suspend fun login(host: String, email: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
             val (_, client) = memosApiService.createClient(host, null)
-            client.auth()
-            val status = client.status().getOrNull()
-            if (status != null && SemVer.parse(status.data.profile.version) >= SemVer.parse("0.13.2")) {
-                client.v1SignIn(SignInInput(email, email, password)).getOrThrow()
-                val resp = client.me().mapSuccess { data }
-                if (resp.isSuccess) {
-                    memosApiService.update(host, null)
-                    currentUser = resp.getOrNull()
-                }
-                return@withContext resp
-            }
-
-            val resp = client.signIn(SignInInput(email, email, password)).mapSuccess { data }
+            client.signIn(SignInInput(email, email, password)).getOrThrow()
+            val resp = client.me()
             if (resp.isSuccess) {
                 memosApiService.update(host, null)
                 currentUser = resp.getOrNull()
@@ -80,7 +67,7 @@ class UserStateViewModel @Inject constructor(
             }
 
             val host = uri.buildUpon().path("/").clearQuery().fragment("").build().toString()
-            val resp = memosApiService.createClient(host, openId).second.me().mapSuccess { data }
+            val resp = memosApiService.createClient(host, openId).second.me()
             if (resp.isSuccess) {
                 memosApiService.update(host, openId)
                 currentUser = resp.getOrNull()
@@ -93,11 +80,7 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun logout() = withContext(viewModelScope.coroutineContext) {
         memosApiService.call {
-            if (memosApiService.versionCompare("0.10.0")) {
-                it.logout()
-            } else {
-                it.logoutLegacy()
-            }
+            it.logout()
         }.suspendOnSuccess {
             memosApiService.update(host, null)
             currentUser = null
