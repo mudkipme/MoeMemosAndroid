@@ -1,0 +1,10 @@
+**Moe Memos 0.7.0 and later only supports Memos 0.14.0 or later. If you are using Memos 0.13.2 or earlier, please download [Moe Memos 0.6.2](https://github.com/mudkipme/MoeMemosAndroid/releases/tag/0.6.2).**
+
+## What's Changed
+* Added support for Memos 0.14.0 by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/91
+* Added Russian-language support by @reysonk in https://github.com/mudkipme/MoeMemosAndroid/pull/87
+
+## New Contributors
+* @reysonk made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/87
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.6.2...0.7.0
