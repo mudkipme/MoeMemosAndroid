@@ -20,9 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
+import coil.ImageLoader
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
@@ -38,10 +40,13 @@ fun InputImage(
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val userStateViewModel = LocalUserState.current
 
     Box {
         AsyncImage(
             model = resource.uri(LocalUserState.current.host).toString(),
+            imageLoader = ImageLoader.Builder(context).okHttpClient(userStateViewModel.okHttpClient).build(),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxHeight()
