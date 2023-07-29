@@ -1,6 +1,5 @@
 package me.mudkip.moememos.viewmodel
 
-import android.net.Uri
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +16,6 @@ import kotlinx.coroutines.withContext
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.SignInInput
-import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
@@ -43,10 +41,10 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    suspend fun login(host: String, email: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
+    suspend fun login(host: String, username: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
             val (_, client) = memosApiService.createClient(host, null)
-            client.signIn(SignInInput(email, email, password)).getOrThrow()
+            client.signIn(SignInInput(username, username, password)).getOrThrow()
             val resp = client.me()
             if (resp.isSuccess) {
                 memosApiService.update(host, null)
@@ -58,15 +56,8 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    suspend fun login(memosOpenApi: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
+    suspend fun login(host: String, openId: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
-            val uri = Uri.parse(memosOpenApi)
-            val openId = uri.getQueryParameter("openId")
-            if (openId == null || openId.isEmpty()) {
-                throw MoeMemosException.invalidOpenAPI
-            }
-
-            val host = uri.buildUpon().path("/").clearQuery().fragment("").build().toString()
             val resp = memosApiService.createClient(host, openId).second.me()
             if (resp.isSuccess) {
                 memosApiService.update(host, openId)
