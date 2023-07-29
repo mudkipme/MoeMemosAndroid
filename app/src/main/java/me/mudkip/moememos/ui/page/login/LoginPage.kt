@@ -30,7 +30,7 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 
 private enum class LoginMethod {
     USERNAME_AND_PASSWORD,
-    OPEN_API
+    OPEN_ID
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -46,7 +46,7 @@ fun LoginPage(
     var loginMethodMenuExpanded by remember { mutableStateOf(false) }
     var loginMethod by remember { mutableStateOf(LoginMethod.USERNAME_AND_PASSWORD) }
 
-    var email by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+    var username by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())
     }
 
@@ -58,15 +58,19 @@ fun LoginPage(
         mutableStateOf(TextFieldValue(userStateViewModel.host))
     }
 
+    var openId by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue())
+    }
+
     fun login() = coroutineScope.launch {
-        if (host.text.isBlank() || (loginMethod == LoginMethod.USERNAME_AND_PASSWORD && (email.text.isBlank() || password.text.isEmpty()))) {
+        if (host.text.isBlank() || (loginMethod == LoginMethod.USERNAME_AND_PASSWORD && (username.text.isBlank() || password.text.isEmpty())) || (loginMethod == LoginMethod.OPEN_ID && openId.text.isBlank())) {
             snackbarState.showSnackbar(R.string.fill_login_form.string)
             return@launch
         }
 
         val resp = when(loginMethod) {
-            LoginMethod.USERNAME_AND_PASSWORD -> userStateViewModel.login(host.text.trim(), email.text.trim(), password.text)
-            LoginMethod.OPEN_API -> userStateViewModel.login(host.text.trim())
+            LoginMethod.USERNAME_AND_PASSWORD -> userStateViewModel.login(host.text.trim(), username.text.trim(), password.text)
+            LoginMethod.OPEN_ID -> userStateViewModel.login(host.text.trim(), openId.text.trim())
         }
 
         resp.suspendOnSuccess {
@@ -112,13 +116,13 @@ fun LoginPage(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(R.string.open_api.string) },
+                                text = { Text(R.string.open_id.string) },
                                 onClick = {
-                                    loginMethod = LoginMethod.OPEN_API
+                                    loginMethod = LoginMethod.OPEN_ID
                                     loginMethodMenuExpanded = false
                                 },
                                 trailingIcon = {
-                                    if (loginMethod == LoginMethod.OPEN_API) {
+                                    if (loginMethod == LoginMethod.OPEN_ID) {
                                         Icon(
                                             Icons.Outlined.Check,
                                             contentDescription = R.string.selected.string
@@ -186,7 +190,7 @@ fun LoginPage(
                         },
                     value = host,
                     onValueChange = { host = it },
-                    singleLine = loginMethod == LoginMethod.USERNAME_AND_PASSWORD,
+                    singleLine = true,
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.Computer,
@@ -194,19 +198,14 @@ fun LoginPage(
                         )
                     },
                     label = {
-                        if (loginMethod == LoginMethod.USERNAME_AND_PASSWORD) {
-                            Text(R.string.host.string)
-                        } else {
-                            Text(R.string.open_api.string)
-                        }
+                        Text(R.string.host.string)
                     },
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.None,
                         autoCorrect = false,
                         keyboardType = KeyboardType.Uri,
-                        imeAction = if (loginMethod == LoginMethod.OPEN_API) ImeAction.Go else ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(onGo = { login() })
+                        imeAction = ImeAction.Next
+                    )
                 )
 
                 if (loginMethod == LoginMethod.USERNAME_AND_PASSWORD) {
@@ -220,20 +219,20 @@ fun LoginPage(
                                     }
                                 }
                             },
-                        value = email,
-                        onValueChange = { email = it },
+                        value = username,
+                        onValueChange = { username = it },
                         singleLine = true,
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Outlined.Email,
-                                contentDescription = R.string.email.string
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = R.string.username.string
                             )
                         },
                         label = { Text(R.string.username.string) },
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.None,
                             autoCorrect = false,
-                            keyboardType = KeyboardType.Email,
+                            keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Next
                         )
                     )
@@ -263,6 +262,39 @@ fun LoginPage(
                             capitalization = KeyboardCapitalization.None,
                             autoCorrect = false,
                             keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Go
+                        ),
+                        keyboardActions = KeyboardActions(onGo = { login() })
+                    )
+                }
+
+                if (loginMethod == LoginMethod.OPEN_ID) {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusEvent { focusState ->
+                                if (focusState.isFocused) {
+                                    coroutineScope.launch {
+                                        bringIntoViewRequester.bringIntoView()
+                                    }
+                                }
+                            },
+                        value = openId,
+                        onValueChange = { openId = it },
+                        singleLine = true,
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.PermIdentity,
+                                contentDescription = R.string.open_id.string
+                            )
+                        },
+                        label = {
+                            Text(R.string.open_id.string)
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.None,
+                            autoCorrect = false,
+                            keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Go
                         ),
                         keyboardActions = KeyboardActions(onGo = { login() })
