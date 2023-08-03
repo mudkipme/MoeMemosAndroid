@@ -17,7 +17,7 @@
     <string name="memo">Заметка</string>
     <string name="tag">Тег</string>
     <string name="fill_login_form">Пожалуйста, заполните форму входа в систему.</string>
-    <string name="acknowledgements">Подтверждения</string>
+    <string name="acknowledgements">Лицензии</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="privacy">Конфиденциальность</string>
     <string name="website">Веб-сайт</string>
@@ -51,7 +51,7 @@
     <string name="nav_host_controller_not_found" translatable="false">главный навигационный контроллер не найден</string>
     <string name="cancel">Отмена</string>
     <string name="confirm">Подтвердить</string>
-    <string name="delete_this_memo">далить эту заметку?</string>
+    <string name="delete_this_memo">Удалить эту заметку?</string>
     <string name="delete">Удалить</string>
     <string name="restore">Восстановить</string>
     <string name="invalid_open_api">Недопустимый Open API</string>
