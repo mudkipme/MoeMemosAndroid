@@ -25,10 +25,10 @@ fun ExploreMemoCard(
             .fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(start = 15.dp, top = 15.dp, bottom = 15.dp)
+            modifier = Modifier.padding(bottom = 10.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                modifier = Modifier.fillMaxWidth().padding(start = 15.dp, top = 15.dp, bottom = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(

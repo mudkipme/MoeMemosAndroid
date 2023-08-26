@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "me.mudkip.moememos"
@@ -61,7 +61,7 @@ dependencies {
     implementation "androidx.compose.material3:material3:$material3"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.0'
+    implementation 'androidx.activity:activity-compose:1.8.0-alpha06'
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist"
     implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist"
     implementation "androidx.paging:paging-runtime:$paging_version"

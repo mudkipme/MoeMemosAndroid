@@ -39,7 +39,7 @@ fun MemoContent(
 ) {
     var viewContentExpand by rememberSaveable { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(
-//        skipPartiallyExpanded = true
+        skipPartiallyExpanded = true
     )
 
 
@@ -50,7 +50,7 @@ fun MemoContent(
         previewed = _previewed
     }
     Column(
-        modifier = Modifier.padding(start = 15.dp, end = 15.dp, bottom = 5.dp)
+        modifier = Modifier.padding(start = 15.dp, end = 15.dp, bottom = 10.dp)
     ) {
         Markdown(
             text,
@@ -81,8 +81,9 @@ fun MemoContent(
                 trailingIcon = {
                     Icon(
                         Icons.Filled.KeyboardArrowDown,
-                        contentDescription = "Localized description",
+                        contentDescription = "",
                         modifier = Modifier.size(AssistChipDefaults.IconSize),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 },
                 colors = AssistChipDefaults.assistChipColors(

@@ -50,11 +50,9 @@ fun ArchivedMemoCard(
             .padding(horizontal = 15.dp, vertical = 10.dp)
             .fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier.padding(start = 15.dp, bottom = 15.dp)
-        ) {
+        Column {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.padding(start = 15.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -66,7 +64,7 @@ fun ArchivedMemoCard(
                 ArchivedMemosCardActionButton(memo)
             }
 
-            MemoContent(memo)
+            MemoContent(memo, previewMode = true)
         }
     }
 }
