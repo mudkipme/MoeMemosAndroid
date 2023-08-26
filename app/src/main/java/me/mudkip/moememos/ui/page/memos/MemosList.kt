@@ -70,7 +70,7 @@ fun MemosList(
             state = lazyListState
         ) {
             items(filteredMemos, key = { it.id }) { memo ->
-                MemosCard(memo)
+                MemosCard(memo, previewMode = true)
             }
         }
     }

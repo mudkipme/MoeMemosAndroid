@@ -53,7 +53,8 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 
 @Composable
 fun MemosCard(
-    memo: Memo
+    memo: Memo,
+    previewMode: Boolean = false
 ) {
     val memosViewModel = LocalMemos.current
     val scope = rememberCoroutineScope()
@@ -64,11 +65,9 @@ fun MemosCard(
             .fillMaxWidth(),
         border = if (memo.pinned && memo.rowStatus == MemosRowStatus.NORMAL) { BorderStroke(1.dp, MaterialTheme.colorScheme.primary) } else { null }
     ) {
-        Column(
-            modifier = Modifier.padding(start = 15.dp, bottom = 15.dp)
-        ) {
+        Column {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.padding(start = 15.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(DateUtils.getRelativeTimeSpanString(memo.createdTs * 1000, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
@@ -89,7 +88,7 @@ fun MemosCard(
                 MemosCardActionButton(memo)
             }
 
-            MemoContent(memo, checkboxChange = { checked, startOffset, endOffset ->
+            MemoContent(memo, previewMode = previewMode, checkboxChange = { checked, startOffset, endOffset ->
                 scope.launch {
                     var text = memo.content.substring(startOffset, endOffset)
                     text = if (checked) {

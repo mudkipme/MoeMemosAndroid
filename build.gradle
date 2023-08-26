@@ -5,7 +5,7 @@ buildscript {
         // https://github.com/google/accompanist/releases
         accompanist = '0.30.0'
         // https://developer.android.com/jetpack/androidx/releases/compose-material3
-        material3 = '1.1.0-beta01'
+        material3 = '1.1.1'
         // https://square.github.io/okhttp/changelogs/changelog/
         okhttp_version = '4.10.0'
         // https://github.com/square/retrofit/tags
