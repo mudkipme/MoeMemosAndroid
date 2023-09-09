@@ -10,15 +10,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Tag
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
@@ -181,7 +183,7 @@ fun SideDrawer(
             }
 
             item {
-                Divider(Modifier.padding(vertical = 10.dp))
+                HorizontalDivider(Modifier.padding(vertical = 10.dp))
             }
 
             item {
@@ -198,6 +200,13 @@ fun SideDrawer(
                         label = { Text(tag) },
                         icon = { Icon(Icons.Outlined.Tag, contentDescription = null) },
                         selected = false,
+                        badge = { IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                Icons.Outlined.Delete,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        } },
                         onClick = {
                             scope.launch {
                                 memosNavController.navigate("${RouteName.TAG}/${URLEncoder.encode(tag, "UTF-8")}") {

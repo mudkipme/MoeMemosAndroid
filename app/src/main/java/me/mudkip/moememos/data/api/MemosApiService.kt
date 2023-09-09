@@ -70,7 +70,7 @@ class MemosApiService @Inject constructor(
     suspend fun update(host: String, openId: String?) {
         context.dataStore.edit {
             it[DataStoreKeys.Host.key] = host
-            if (openId != null && openId.isNotEmpty()) {
+            if (!openId.isNullOrEmpty()) {
                 it[DataStoreKeys.OpenId.key] = openId
             } else {
                 it.remove(DataStoreKeys.OpenId.key)

@@ -3,7 +3,7 @@ package me.mudkip.moememos.ui.page.memos
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,7 +44,7 @@ fun SearchPage() {
                         leadingIcon = {
                             IconButton(onClick = { rootNavController.popBackStack() }) {
                                 Icon(
-                                    Icons.Outlined.ArrowBack,
+                                    Icons.AutoMirrored.Outlined.ArrowBack,
                                     contentDescription = R.string.back.string
                                 )
                             }

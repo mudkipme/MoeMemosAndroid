@@ -57,7 +57,7 @@ fun MemoImage(
             val diskCacheKey = state.result.diskCacheKey
 
             if (diskCache != null && diskCacheKey != null) {
-                diskCacheFile = diskCache[diskCacheKey]?.data?.toFile()
+                diskCacheFile = diskCache.openSnapshot(diskCacheKey)?.data?.toFile()
             }
         }
     )
