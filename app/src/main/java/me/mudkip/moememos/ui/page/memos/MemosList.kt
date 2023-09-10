@@ -16,7 +16,6 @@ import me.mudkip.moememos.ui.component.MemosCard
 import me.mudkip.moememos.viewmodel.LocalMemos
 import timber.log.Timber
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MemosList(
     contentPadding: PaddingValues,

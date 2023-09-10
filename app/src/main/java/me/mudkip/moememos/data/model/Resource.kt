@@ -16,10 +16,10 @@ data class Resource(
     val publicId: String?
 ) {
     fun uri(host: String): Uri {
-        if (externalLink != null && externalLink.isNotEmpty()) {
+        if (!externalLink.isNullOrEmpty()) {
             return Uri.parse(externalLink)
         }
-        if (publicId != null && publicId.isNotEmpty()) {
+        if (!publicId.isNullOrEmpty()) {
             return Uri.parse(host)
                 .buildUpon().appendPath("o").appendPath("r")
                 .appendPath(id.toString()).appendPath(publicId).build()

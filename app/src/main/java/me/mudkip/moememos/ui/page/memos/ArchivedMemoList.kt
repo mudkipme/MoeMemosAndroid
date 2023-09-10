@@ -1,6 +1,5 @@
 package me.mudkip.moememos.ui.page.memos
 
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +13,6 @@ import me.mudkip.moememos.ui.component.ArchivedMemoCard
 import me.mudkip.moememos.viewmodel.ArchivedMemoListViewModel
 import me.mudkip.moememos.viewmodel.LocalArchivedMemos
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ArchivedMemoList(
     viewModel: ArchivedMemoListViewModel = hiltViewModel(),
