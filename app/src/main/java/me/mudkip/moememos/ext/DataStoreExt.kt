@@ -11,17 +11,17 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 sealed class DataStoreKeys<T> {
     abstract val key: Preferences.Key<T>
 
-    object Host : DataStoreKeys<String>() {
+    data object Host : DataStoreKeys<String>() {
         override val key: Preferences.Key<String>
             get() = stringPreferencesKey("host")
     }
 
-    object OpenId : DataStoreKeys<String>() {
+    data object OpenId : DataStoreKeys<String>() {
         override val key: Preferences.Key<String>
             get() = stringPreferencesKey("openId")
     }
 
-    object Draft : DataStoreKeys<String>() {
+    data object Draft : DataStoreKeys<String>() {
         override val key: Preferences.Key<String>
             get() = stringPreferencesKey("draft")
     }

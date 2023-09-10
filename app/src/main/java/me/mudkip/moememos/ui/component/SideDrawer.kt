@@ -15,9 +15,8 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Tag
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -41,7 +40,6 @@ import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
-import java.net.URLEncoder
 
 @Composable
 fun SideDrawer(
@@ -181,7 +179,7 @@ fun SideDrawer(
             }
 
             item {
-                Divider(Modifier.padding(vertical = 10.dp))
+                HorizontalDivider(Modifier.padding(vertical = 10.dp))
             }
 
             item {
@@ -194,20 +192,10 @@ fun SideDrawer(
 
             memosViewModel.tags.toList().forEach { tag ->
                 item {
-                    NavigationDrawerItem(
-                        label = { Text(tag) },
-                        icon = { Icon(Icons.Outlined.Tag, contentDescription = null) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                memosNavController.navigate("${RouteName.TAG}/${URLEncoder.encode(tag, "UTF-8")}") {
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                                drawerState.close()
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    TagDrawerItem(
+                        tag = tag,
+                        memosNavController = memosNavController,
+                        drawerState = drawerState
                     )
                 }
             }

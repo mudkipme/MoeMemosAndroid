@@ -63,4 +63,5 @@
     <string name="memo_visibility_protected">Visible to local members</string>
     <string name="memo_visibility_private">Only visible to you</string>
     <string name="explore">Explore</string>
+    <string name="delete_this_tag">Delete this tag?</string>
 </resources>

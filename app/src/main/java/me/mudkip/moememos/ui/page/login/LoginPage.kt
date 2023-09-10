@@ -7,6 +7,7 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -144,7 +145,7 @@ fun LoginPage(
                         text = { Text(R.string.sign_in.string) },
                         icon = {
                             Icon(
-                                Icons.Outlined.Login,
+                                Icons.AutoMirrored.Outlined.Login,
                                 contentDescription = R.string.sign_in.string
                             )
                         }
