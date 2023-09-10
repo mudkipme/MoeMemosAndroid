@@ -46,57 +46,57 @@ data class PatchMemoInput(
 )
 
 interface MemosApi {
-    @POST("/api/v1/auth/signin")
+    @POST("api/v1/auth/signin")
     suspend fun signIn(@Body body: SignInInput): ApiResponse<Unit>
 
-    @POST("/api/v1/auth/signout")
+    @POST("api/v1/auth/signout")
     suspend fun logout(): ApiResponse<Unit>
 
-    @GET("/api/v1/user/me")
+    @GET("api/v1/user/me")
     suspend fun me(): ApiResponse<User>
 
-    @GET("/api/v1/memo")
+    @GET("api/v1/memo")
     suspend fun listMemo(
         @Query("creatorId") creatorId: Long? = null,
         @Query("rowStatus") rowStatus: MemosRowStatus? = null,
         @Query("visibility") visibility: MemosVisibility? = null
     ): ApiResponse<List<Memo>>
 
-    @POST("/api/v1/memo")
+    @POST("api/v1/memo")
     suspend fun createMemo(@Body body: CreateMemoInput): ApiResponse<Memo>
 
-    @GET("/api/v1/tag")
+    @GET("api/v1/tag")
     suspend fun getTags(@Query("creatorId") creatorId: Long? = null): ApiResponse<List<String>>
 
-    @POST("/api/v1/tag")
+    @POST("api/v1/tag")
     suspend fun updateTag(@Body body: UpdateTagInput): ApiResponse<String>
 
-    @POST("/api/v1/tag/delete")
+    @POST("api/v1/tag/delete")
     suspend fun deleteTag(@Body body: DeleteTagInput): ApiResponse<Unit>
 
-    @POST("/api/v1/memo/{id}/organizer")
+    @POST("api/v1/memo/{id}/organizer")
     suspend fun updateMemoOrganizer(@Path("id") memoId: Long, @Body body: UpdateMemoOrganizerInput): ApiResponse<Memo>
 
-    @PATCH("/api/v1/memo/{id}")
+    @PATCH("api/v1/memo/{id}")
     suspend fun patchMemo(@Path("id") memoId: Long, @Body body: PatchMemoInput): ApiResponse<Memo>
 
-    @DELETE("/api/v1/memo/{id}")
+    @DELETE("api/v1/memo/{id}")
     suspend fun deleteMemo(@Path("id") memoId: Long): ApiResponse<Unit>
 
-    @GET("/api/v1/resource")
+    @GET("api/v1/resource")
     suspend fun getResources(): ApiResponse<List<Resource>>
 
     @Multipart
-    @POST("/api/v1/resource/blob")
+    @POST("api/v1/resource/blob")
     suspend fun uploadResource(@Part file: MultipartBody.Part): ApiResponse<Resource>
 
-    @DELETE("/api/v1/resource/{id}")
+    @DELETE("api/v1/resource/{id}")
     suspend fun deleteResource(@Path("id") resourceId: Long): ApiResponse<Unit>
 
-    @GET("/api/v1/status")
+    @GET("api/v1/status")
     suspend fun status(): ApiResponse<Status>
 
-    @GET("/api/v1/memo/all")
+    @GET("api/v1/memo/all")
     suspend fun listAllMemo(
         @Query("pinned") pinned: Boolean? = null,
         @Query("tag") tag: String? = null,
