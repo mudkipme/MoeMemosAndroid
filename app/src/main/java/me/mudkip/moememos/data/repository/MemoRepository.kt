@@ -2,6 +2,7 @@ package me.mudkip.moememos.data.repository
 
 import com.skydoves.sandwich.ApiResponse
 import me.mudkip.moememos.data.api.CreateMemoInput
+import me.mudkip.moememos.data.api.DeleteTagInput
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.PatchMemoInput
 import me.mudkip.moememos.data.api.UpdateMemoOrganizerInput
@@ -26,6 +27,10 @@ class MemoRepository @Inject constructor(private val memosApiService: MemosApiSe
 
     suspend fun updateTag(name: String): ApiResponse<String> = memosApiService.call { api ->
         api.updateTag(UpdateTagInput(name))
+    }
+
+    suspend fun deleteTag(name: String): ApiResponse<Unit> = memosApiService.call { api ->
+        api.deleteTag(DeleteTagInput(name))
     }
 
     suspend fun updatePinned(memoId: Long, pinned: Boolean): ApiResponse<Memo> = memosApiService.call { api ->

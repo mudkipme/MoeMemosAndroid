@@ -73,6 +73,12 @@ class MemosViewModel @Inject constructor(
         }
     }
 
+    suspend fun deleteTag(name: String) = withContext(viewModelScope.coroutineContext) {
+        memoRepository.deleteTag(name).suspendOnSuccess {
+            tags.remove(name)
+        }
+    }
+
     suspend fun updateMemoPinned(memoId: Long, pinned: Boolean) = withContext(viewModelScope.coroutineContext) {
         memoRepository.updatePinned(memoId, pinned).suspendOnSuccess {
             updateMemo(data)

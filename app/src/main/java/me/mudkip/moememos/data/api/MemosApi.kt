@@ -31,6 +31,11 @@ data class UpdateTagInput(
 )
 
 @Keep
+data class DeleteTagInput(
+    val name: String
+)
+
+@Keep
 data class PatchMemoInput(
     val id: Long,
     val createdTs: Long? = null,
@@ -65,6 +70,9 @@ interface MemosApi {
 
     @POST("/api/v1/tag")
     suspend fun updateTag(@Body body: UpdateTagInput): ApiResponse<String>
+
+    @POST("/api/v1/tag/delete")
+    suspend fun deleteTag(@Body body: DeleteTagInput): ApiResponse<Unit>
 
     @POST("/api/v1/memo/{id}/organizer")
     suspend fun updateMemoOrganizer(@Path("id") memoId: Long, @Body body: UpdateMemoOrganizerInput): ApiResponse<Memo>
