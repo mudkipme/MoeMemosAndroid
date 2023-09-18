@@ -1,0 +1,14 @@
+## What's Changed
+- Supported Memos 0.15 and added support for login using Access Tokens by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/94
+- Images in posts can now be displayed in a grid layout by @aholeye in https://github.com/mudkipme/MoeMemosAndroid/pull/101
+- You can now fold and expand memos by @aholeye in https://github.com/mudkipme/MoeMemosAndroid/pull/104
+- Supported TLS connections that use user-installed certificates by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/105
+- You can now delete tags from memos by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/107
+- Worked with non-root base URLs by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/109
+- Updated Russian-language translations by @reysonk in https://github.com/mudkipme/MoeMemosAndroid/pull/98
+- Resolved an issue where image previews were not displaying properly in the compose sheet by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/94
+
+## New Contributors
+* @aholeye made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/101
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.7.0...0.7.1
