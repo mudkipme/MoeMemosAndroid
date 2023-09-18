@@ -55,9 +55,10 @@ class MemosApiService @Inject constructor(
         runBlocking {
             context.dataStore.data.first().let {
                 val host = it[DataStoreKeys.Host.key]
+                val accessToken = it[DataStoreKeys.AccessToken.key]
                 val openId = it[DataStoreKeys.OpenId.key]
                 if (host != null && host.isNotEmpty()) {
-                    val (client, memosApi) = createClient(host, openId)
+                    val (client, memosApi) = createClient(host, accessToken, openId)
                     this@MemosApiService.client = client
                     this@MemosApiService.memosApi = memosApi
                     this@MemosApiService.host = host
@@ -67,9 +68,14 @@ class MemosApiService @Inject constructor(
         loadStatus()
     }
 
-    suspend fun update(host: String, openId: String?) {
+    suspend fun update(host: String, accessToken: String?, openId: String?) {
         context.dataStore.edit {
             it[DataStoreKeys.Host.key] = host
+            if (!accessToken.isNullOrEmpty()) {
+                it[DataStoreKeys.AccessToken.key] = accessToken
+            } else {
+                it.remove(DataStoreKeys.AccessToken.key)
+            }
             if (!openId.isNullOrEmpty()) {
                 it[DataStoreKeys.OpenId.key] = openId
             } else {
@@ -78,7 +84,7 @@ class MemosApiService @Inject constructor(
         }
 
         mutex.withLock {
-            val (client, memosApi) = createClient(host, openId)
+            val (client, memosApi) = createClient(host, accessToken, openId)
             this.client = client
             this.memosApi = memosApi
             this.host = host
@@ -86,8 +92,17 @@ class MemosApiService @Inject constructor(
         loadStatus()
     }
 
-    fun createClient(host: String, openId: String?): Pair<OkHttpClient, MemosApi> {
+    fun createClient(host: String, accessToken: String?, openId: String?): Pair<OkHttpClient, MemosApi> {
         var client = okHttpClient
+
+        if (!accessToken.isNullOrEmpty()) {
+            client = client.newBuilder().addNetworkInterceptor { chain ->
+                var request = chain.request()
+                request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
+                chain.proceed(request)
+            }.build()
+        }
+
         if (!openId.isNullOrEmpty()) {
             client = client.newBuilder().addNetworkInterceptor { chain ->
                 var request = chain.request()

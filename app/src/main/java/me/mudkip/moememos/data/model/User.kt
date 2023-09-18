@@ -35,7 +35,6 @@ data class User(
     val email: String?,
     val id: Long,
     val name: String?,
-    val openId: String?,
     val role: MemosRole = MemosRole.USER,
     val rowStatus: MemosRowStatus = MemosRowStatus.NORMAL,
     val updatedTs: Long?,
