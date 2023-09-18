@@ -43,11 +43,11 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun login(host: String, username: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
-            val (_, client) = memosApiService.createClient(host, null)
+            val (_, client) = memosApiService.createClient(host, null, null)
             client.signIn(SignInInput(username, username, password)).getOrThrow()
             val resp = client.me()
             if (resp.isSuccess) {
-                memosApiService.update(host, null)
+                memosApiService.update(host, null, null)
                 currentUser = resp.getOrNull()
             }
             resp
@@ -56,11 +56,24 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    suspend fun login(host: String, openId: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
+    suspend fun loginWithAccessToken(host: String, accessToken: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
-            val resp = memosApiService.createClient(host, openId).second.me()
+            val resp = memosApiService.createClient(host, accessToken, null).second.me()
             if (resp.isSuccess) {
-                memosApiService.update(host, openId)
+                memosApiService.update(host, accessToken, null)
+                currentUser = resp.getOrNull()
+            }
+            resp
+        } catch (e: Throwable) {
+            ApiResponse.error(e)
+        }
+    }
+
+    suspend fun loginWithOpenId(host: String, openId: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
+        try {
+            val resp = memosApiService.createClient(host, null, openId).second.me()
+            if (resp.isSuccess) {
+                memosApiService.update(host, null, openId)
                 currentUser = resp.getOrNull()
             }
             resp
@@ -73,7 +86,7 @@ class UserStateViewModel @Inject constructor(
         memosApiService.call {
             it.logout()
         }.suspendOnSuccess {
-            memosApiService.update(host, null)
+            memosApiService.update(host, null, null)
             currentUser = null
         }
     }

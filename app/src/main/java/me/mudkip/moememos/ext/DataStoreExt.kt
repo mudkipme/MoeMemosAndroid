@@ -21,6 +21,11 @@ sealed class DataStoreKeys<T> {
             get() = stringPreferencesKey("openId")
     }
 
+    data object AccessToken : DataStoreKeys<String>() {
+        override val key: Preferences.Key<String>
+            get() = stringPreferencesKey("accessToken")
+    }
+
     data object Draft : DataStoreKeys<String>() {
         override val key: Preferences.Key<String>
             get() = stringPreferencesKey("draft")
