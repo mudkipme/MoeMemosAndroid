@@ -7,7 +7,7 @@ buildscript {
         // https://developer.android.com/jetpack/androidx/releases/compose-material3
         material3 = '1.2.0-alpha07'
         // https://square.github.io/okhttp/changelogs/changelog/
-        okhttp_version = '4.10.0'
+        okhttp_version = '4.11.0'
         // https://github.com/square/retrofit/tags
         retrofit_version = '2.9.0'
         // https://developer.android.com/jetpack/androidx/releases/datastore
