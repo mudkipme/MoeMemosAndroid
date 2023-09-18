@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ErrorMessage(
-    val error: String,
+    val error: String? = null,
     val message: String
 )
