@@ -62,4 +62,7 @@
     <string name="memo_visibility_protected">Видимый для локальных пользователей</string>
     <string name="memo_visibility_private">Доступно только вам</string>
     <string name="explore">Больше</string>
+    <string name="delete_this_tag">Удалить этот тег?</string>
+    <string name="expand">Развернуть</string>
+    <string name="collapse">Скрыть</string>
 </resources>
