@@ -22,6 +22,9 @@ import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.ext.DataStoreKeys
 import me.mudkip.moememos.ext.dataStore
 import net.swiftzer.semver.SemVer
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -98,7 +101,9 @@ class MemosApiService @Inject constructor(
         if (!accessToken.isNullOrEmpty()) {
             client = client.newBuilder().addNetworkInterceptor { chain ->
                 var request = chain.request()
-                request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
+                if (request.url.host == host.toHttpUrlOrNull()?.host) {
+                    request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
+                }
                 chain.proceed(request)
             }.build()
         }
@@ -106,8 +111,10 @@ class MemosApiService @Inject constructor(
         if (!openId.isNullOrEmpty()) {
             client = client.newBuilder().addNetworkInterceptor { chain ->
                 var request = chain.request()
-                val url = request.url.newBuilder().addQueryParameter("openId", openId).build()
-                request = request.newBuilder().url(url).build()
+                if (request.url.host == host.toHttpUrlOrNull()?.host) {
+                    val url = request.url.newBuilder().addQueryParameter("openId", openId).build()
+                    request = request.newBuilder().url(url).build()
+                }
                 chain.proceed(request)
             }.build()
         }
