@@ -47,7 +47,7 @@ data class User(
 
     val memoVisibility: MemosVisibility get() = userSettingList?.find { it.key == MemosUserSettingKey.MEMO_VISIBILITY }?.let {
         try {
-            MemosVisibility.valueOf(it.value)
+            MemosVisibility.valueOf(it.value.removePrefix("\"").removeSuffix("\""))
         } catch (_: IllegalArgumentException) {
             MemosVisibility.PRIVATE
         }
