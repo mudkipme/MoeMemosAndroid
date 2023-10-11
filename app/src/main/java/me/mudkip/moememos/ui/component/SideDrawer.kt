@@ -1,6 +1,5 @@
 package me.mudkip.moememos.ui.component
 
-import android.icu.text.DateFormatSymbols
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +39,10 @@ import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
+import java.time.DayOfWeek
+import java.time.format.TextStyle
+import java.time.temporal.WeekFields
+import java.util.Locale
 
 @Composable
 fun SideDrawer(
@@ -47,7 +50,10 @@ fun SideDrawer(
     drawerState: DrawerState
 ) {
     val weekDays = remember {
-        DateFormatSymbols.getInstance().shortWeekdays
+        val day = WeekFields.of(Locale.getDefault()).firstDayOfWeek
+        DayOfWeek.values().mapIndexed { index, _ ->
+            day.plus(index.toLong()).getDisplayName(TextStyle.SHORT, Locale.getDefault())
+        }
     }
     var showHeatMap by remember {
         mutableStateOf(false)
@@ -75,13 +81,13 @@ fun SideDrawer(
                             .padding(end = 5.dp),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(weekDays[1],
+                        Text(weekDays[0],
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline)
-                        Text(weekDays[4],
+                        Text(weekDays[3],
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline)
-                        Text(weekDays[7],
+                        Text(weekDays[6],
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline)
                     }
