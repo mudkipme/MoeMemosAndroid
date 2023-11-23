@@ -96,7 +96,7 @@ fun MemosCard(
                     } else {
                         text.replace("[x]", "[ ]")
                     }
-                    memosViewModel.editMemo(memo.id, memo.content.replaceRange(startOffset, endOffset, text), memo.resourceList)
+                    memosViewModel.editMemo(memo.id, memo.content.replaceRange(startOffset, endOffset, text), memo.resourceList, memo.visibility)
                 }
             })
         }
