@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.model.DailyUsageStat
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemosRowStatus
+import me.mudkip.moememos.data.model.MemosVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.repository.MemoRepository
 import me.mudkip.moememos.ext.string
@@ -85,8 +86,8 @@ class MemosViewModel @Inject constructor(
         }
     }
 
-    suspend fun editMemo(memoId: Long, content: String, resourceList: List<Resource>?): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
-        memoRepository.editMemo(memoId, content, resourceList?.map { it.id }).suspendOnSuccess {
+    suspend fun editMemo(memoId: Long, content: String, resourceList: List<Resource>?, visibility: MemosVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+        memoRepository.editMemo(memoId, content, resourceList?.map { it.id }, visibility).suspendOnSuccess {
             updateMemo(data)
         }
     }
