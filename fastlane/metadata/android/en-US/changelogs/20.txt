@@ -1,0 +1,8 @@
+## What's Changed
+- Fixed a vulnerability where Memos authorization was leaking to the object storage server when using external storage by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/118
+- Resolved an issue with memo visibility after toggling a checkbox by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/132
+- Fixed support of default memo visibility setting by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/122
+- Supported "First day of week" regional preferences by @mudkipme in https://github.com/mudkipme/MoeMemosAndroid/pull/123
+- Updated Russian-language translations by @reysonk in https://github.com/mudkipme/MoeMemosAndroid/pull/113
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.7.1...0.7.2
