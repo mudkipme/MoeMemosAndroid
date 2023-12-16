@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">MoeMemos</string>
+    <string name="default_card_content" translatable="false">C'est ce que vous faites avec le don de la vie qui détermine qui vous êtes.      — Mewtwo</string>
+    <string name="search">Recherche</string>
+    <string name="back">Retour</string>
+    <string name="memos">Memos</string>
+    <string name="menu">Menu</string>
+    <string name="search_hint">Recherche...</string>
+    <string name="new_memo">Nouveau Memo</string>
+    <string name="compose">Composer</string>
+    <string name="remove">Retirer</string>
+    <string name="resources">Ressources</string>
+    <string name="archived">Archivés</string>
+    <string name="settings">Paramètres</string>
+    <string name="tags">Étiquettes</string>
+    <string name="memo">Memo</string>
+    <string name="tag">Étiquette</string>
+    <string name="day">Jour</string>
+    <string name="fill_login_form">Veuillez remplir le formulaire de connexion.</string>
+    <string name="acknowledgements">Remerciements</string>
+    <string name="privacy_policy">Politique de confidentialité</string>
+    <string name="privacy">Confidentialité</string>
+    <string name="website">Website</string>
+    <string name="web">Web</string>
+    <string name="about">À propos de Moe Memos</string>
+    <string name="sign_in">S'identifier</string>
+    <string name="attachment">Pièce jointe</string>
+    <string name="moe_memos" translatable="false">Moe Memos</string>
+    <string name="selected">Sélectionné</string>
+    <string name="username_and_password">Nom d'utilisateur et mot de passe</string>
+    <string name="report_an_issue">Signaler un problème</string>
+    <string name="unpin">Désépingler</string>
+    <string name="sign_out">Se déconnecter</string>
+    <string name="sign_in_method">Méthode de connexion</string>
+    <string name="address">Adresse</string>
+    <string name="host">Hôte</string>
+    <string name="open_id" translatable="false">Open ID</string>
+    <string name="access_token" translatable="false">Jeton d'accès</string>
+    <string name="edit">Modifier</string>
+    <string name="close">Fermer</string>
+    <string name="add_task">Ajouter une Tâche</string>
+    <string name="add_image">Ajouter une Image</string>
+    <string name="take_photo">Prendre une Photo</string>
+    <string name="post">Publier</string>
+    <string name="any_thoughts">Une idée…</string>
+    <string name="input_login_information">Veuillez saisir les informations de connexion de votre serveur \n[✍️memos](https://github.com/usememos/memos).</string>
+    <string name="username">Nom d'utilisateur</string>
+    <string name="password">Mot de passe</string>
+    <string name="email">Email</string>
+    <string name="user_state_not_found">État de l'utilisateur introuvable</string>
+    <string name="memos_view_model_not_found" translatable="false">Modèle de vue Memos introuvable</string>
+    <string name="archived_memo_list_view_model_not_found" translatable="false">Modèle de vue de liste de memos archivés introuvable</string>
+    <string name="nav_host_controller_not_found" translatable="false">Contrôleur d'hôte nav introuvable</string>
+    <string name="cancel">Annuler</string>
+    <string name="confirm">Confirmer</string>
+    <string name="delete_this_memo">Supprimer ce memo ?</string>
+    <string name="delete">Supprimer</string>
+    <string name="restore">Restaurer</string>
+    <string name="invalid_open_api">Open API invalide </string>
+    <string name="pin">Épingler</string>
+    <string name="share">Partager</string>
+    <string name="archive">Archiver</string>
+    <string name="memo_visibility_public">Public</string>
+    <string name="memo_visibility_protected">Visibilité aux Membres</string>
+    <string name="memo_visibility_private">Privé</string>
+    <string name="explore">Explorer</string>
+    <string name="delete_this_tag">Supprimer cette étiquette ?</string>
+    <string name="expand">Agrandir</string>
+    <string name="collapse">Rétracter</string>
+</resources>
