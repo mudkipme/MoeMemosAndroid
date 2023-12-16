@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">MoeMemos</string>
+    <string name="default_card_content" translatable="false">It is what you do with the gift of life that determines who you are.      — Mewtwo</string>
+    <string name="search">Ara</string>
+    <string name="back">Geri</string>
+    <string name="memos">Notlar</string>
+    <string name="menu">Menü</string>
+    <string name="search_hint">Ara…</string>
+    <string name="new_memo">Yeni Not</string>
+    <string name="compose">Oluştur</string>
+    <string name="remove">Kaldır</string>
+    <string name="resources">Kaynaklar</string>
+    <string name="archived">Arşivlenmiş</string>
+    <string name="settings">Ayarlar</string>
+    <string name="tags">Etiketler</string>
+    <string name="memo">Not</string>
+    <string name="tag">Etiket</string>
+    <string name="day">Gün</string>
+    <string name="fill_login_form">Lütfen giriş formunu doldurun.</string>
+    <string name="acknowledgements">Teşekkürler</string>
+    <string name="privacy_policy">Gizlilik Politikası</string>
+    <string name="privacy">Gizlilik</string>
+    <string name="website">Web Sitesi</string>
+    <string name="web">Web</string>
+    <string name="about">Moe Memos Hakkında</string>
+    <string name="sign_in">Giriş yap</string>
+    <string name="attachment">Ek</string>
+    <string name="moe_memos" translatable="false">Moe Notlar</string>
+    <string name="selected">Seçilen</string>
+    <string name="username_and_password">Kullanıcı adı ve şifre</string>
+    <string name="report_an_issue">Bir Sorun Bildir</string>
+    <string name="unpin">Sabitlemeyi kaldır</string>
+    <string name="sign_out">Çıkış yap</string>
+    <string name="sign_in_method">Giriş yöntemi</string>
+    <string name="address">Adres</string>
+    <string name="host">Ana bilgisayar</string>
+    <string name="open_id" translatable="false">Open ID</string>
+    <string name="access_token" translatable="false">Access Token</string>
+    <string name="edit">Düzenle</string>
+    <string name="close">Kapat</string>
+    <string name="add_task">Görev Ekle</string>
+    <string name="add_image">Resim Ekle</string>
+    <string name="take_photo">Fotoğraf Çek</string>
+    <string name="post">Gönder</string>
+    <string name="any_thoughts">Herhangi bir düşünce...</string>
+    <string name="input_login_information">Lütfen \n[✍️notlarınızın](https://github.com/usememos/memos) sunucusunun giriş bilgilerini girin.</string>
+    <string name="username">Kullanıcı adı</string>
+    <string name="password">Şifre</string>
+    <string name="email">E-posta</string>
+    <string name="user_state_not_found">Kullanıcı durumu bulunamadı</string>
+    <string name="memos_view_model_not_found" translatable="false">Memos view model not found</string>
+    <string name="archived_memo_list_view_model_not_found" translatable="false">Archived memo list view model not found</string>
+    <string name="nav_host_controller_not_found" translatable="false">nav host controller not found</string>
+    <string name="cancel">İptal</string>
+    <string name="confirm">Onayla</string>
+    <string name="delete_this_memo">Bu notu silmek istiyor musunuz?</string>
+    <string name="delete">Sil</string>
+    <string name="restore">Geri yükle</string>
+    <string name="invalid_open_api">Geçersiz Açık API</string>
+    <string name="pin">Sabitle</string>
+    <string name="share">Paylaş</string>
+    <string name="archive">Arşivle</string>
+    <string name="memo_visibility_public">Misafirlere görünür</string>
+    <string name="memo_visibility_protected">Yerel üyelere görünür</string>
+    <string name="memo_visibility_private">Sadece sizin için görünür</string>
+    <string name="explore">Keşfet</string>
+    <string name="delete_this_tag">Bu etiketi silmek istiyor musunuz?</string>
+    <string name="expand">Genişlet</string>
+    <string name="collapse">Daralt</string>
+</resources>
