@@ -32,12 +32,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.string
+import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalUserState
 
@@ -48,6 +50,7 @@ fun SettingsPage(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val userStateViewModel = LocalUserState.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     val status = userStateViewModel.status
@@ -60,7 +63,7 @@ fun SettingsPage(
                 title = { Text(text = R.string.settings.string) },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.popBackStack()
+                        navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = R.string.back.string)
                     }

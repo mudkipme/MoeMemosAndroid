@@ -19,11 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.string
+import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ui.component.MemoImage
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.ResourceListViewModel
@@ -34,13 +36,15 @@ fun ResourceListPage(
     navController: NavHostController,
     viewModel: ResourceListViewModel = hiltViewModel()
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = R.string.resources.string) },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.popBackStack()
+                        navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = R.string.back.string)
                     }
