@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -41,6 +42,7 @@ import me.mudkip.moememos.data.constant.LIST_ITEM_SYMBOL_LIST
 import me.mudkip.moememos.data.model.MemosVisibility
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.icon
+import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ext.titleResource
@@ -64,6 +66,7 @@ fun MemoInputPage(
     val coroutineScope = rememberCoroutineScope()
     val snackbarState = remember { SnackbarHostState() }
     val navController = LocalRootNavController.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val memosViewModel = LocalMemos.current
     val memo = remember { memosViewModel.memos.toList().find { it.id == memoId } }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -204,7 +207,7 @@ fun MemoInputPage(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.popBackStack()
+                        navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                     }) {
                         Icon(Icons.Filled.Close, contentDescription = R.string.close.string)
                     }

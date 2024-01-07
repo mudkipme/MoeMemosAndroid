@@ -10,10 +10,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 
@@ -25,6 +27,7 @@ fun SearchPage() {
     }
 
     val rootNavController = LocalRootNavController.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val focusRequester = remember { FocusRequester() }
 
     Scaffold(
@@ -42,7 +45,7 @@ fun SearchPage() {
                         placeholder = { Text(R.string.search.string) },
                         shape = ShapeDefaults.ExtraLarge,
                         leadingIcon = {
-                            IconButton(onClick = { rootNavController.popBackStack() }) {
+                            IconButton(onClick = { rootNavController.popBackStackIfLifecycleIsResumed(lifecycleOwner) }) {
                                 Icon(
                                     Icons.AutoMirrored.Outlined.ArrowBack,
                                     contentDescription = R.string.back.string
