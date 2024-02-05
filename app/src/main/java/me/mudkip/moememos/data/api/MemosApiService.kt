@@ -28,6 +28,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -102,7 +103,11 @@ class MemosApiService @Inject constructor(
             client = client.newBuilder().addNetworkInterceptor { chain ->
                 var request = chain.request()
                 if (request.url.host == host.toHttpUrlOrNull()?.host) {
-                    request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
+                    try {
+                        request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
+                    } catch (e: Throwable) {
+                        Timber.e(e)
+                    }
                 }
                 chain.proceed(request)
             }.build()
