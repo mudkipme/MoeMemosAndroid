@@ -43,11 +43,11 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun login(host: String, username: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
-            val (_, client) = memosApiService.createClient(host, null, null)
+            val (_, client) = memosApiService.createClient(host, null)
             client.signIn(SignInInput(username, username, password)).getOrThrow()
             val resp = client.me()
             if (resp.isSuccess) {
-                memosApiService.update(host, null, null)
+                memosApiService.update(host, null)
                 currentUser = resp.getOrNull()
             }
             resp
@@ -58,22 +58,9 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun loginWithAccessToken(host: String, accessToken: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
-            val resp = memosApiService.createClient(host, accessToken, null).second.me()
+            val resp = memosApiService.createClient(host, accessToken).second.me()
             if (resp.isSuccess) {
-                memosApiService.update(host, accessToken, null)
-                currentUser = resp.getOrNull()
-            }
-            resp
-        } catch (e: Throwable) {
-            ApiResponse.error(e)
-        }
-    }
-
-    suspend fun loginWithOpenId(host: String, openId: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
-        try {
-            val resp = memosApiService.createClient(host, null, openId).second.me()
-            if (resp.isSuccess) {
-                memosApiService.update(host, null, openId)
+                memosApiService.update(host, accessToken)
                 currentUser = resp.getOrNull()
             }
             resp
@@ -86,7 +73,7 @@ class UserStateViewModel @Inject constructor(
         memosApiService.call {
             it.logout()
         }.suspendOnSuccess {
-            memosApiService.update(host, null, null)
+            memosApiService.update(host, null)
             currentUser = null
         }
     }

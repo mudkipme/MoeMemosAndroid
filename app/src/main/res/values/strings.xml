@@ -34,7 +34,6 @@
     <string name="sign_in_method">Sign in method</string>
     <string name="address">Address</string>
     <string name="host">Host</string>
-    <string name="open_id" translatable="false">Open ID</string>
     <string name="access_token" translatable="false">Access Token</string>
     <string name="edit">Edit</string>
     <string name="close">Close</string>

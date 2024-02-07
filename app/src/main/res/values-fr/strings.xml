@@ -34,7 +34,6 @@
     <string name="sign_in_method">Méthode de connexion</string>
     <string name="address">Adresse</string>
     <string name="host">Hôte</string>
-    <string name="open_id" translatable="false">Open ID</string>
     <string name="access_token" translatable="false">Jeton d\'accès</string>
     <string name="edit">Modifier</string>
     <string name="close">Fermer</string>
