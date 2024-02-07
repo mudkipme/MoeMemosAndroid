@@ -60,9 +60,8 @@ class MemosApiService @Inject constructor(
             context.dataStore.data.first().let {
                 val host = it[DataStoreKeys.Host.key]
                 val accessToken = it[DataStoreKeys.AccessToken.key]
-                val openId = it[DataStoreKeys.OpenId.key]
                 if (host != null && host.isNotEmpty()) {
-                    val (client, memosApi) = createClient(host, accessToken, openId)
+                    val (client, memosApi) = createClient(host, accessToken)
                     this@MemosApiService.client = client
                     this@MemosApiService.memosApi = memosApi
                     this@MemosApiService.host = host
@@ -72,7 +71,7 @@ class MemosApiService @Inject constructor(
         loadStatus()
     }
 
-    suspend fun update(host: String, accessToken: String?, openId: String?) {
+    suspend fun update(host: String, accessToken: String?) {
         context.dataStore.edit {
             it[DataStoreKeys.Host.key] = host
             if (!accessToken.isNullOrEmpty()) {
@@ -80,15 +79,10 @@ class MemosApiService @Inject constructor(
             } else {
                 it.remove(DataStoreKeys.AccessToken.key)
             }
-            if (!openId.isNullOrEmpty()) {
-                it[DataStoreKeys.OpenId.key] = openId
-            } else {
-                it.remove(DataStoreKeys.OpenId.key)
-            }
         }
 
         mutex.withLock {
-            val (client, memosApi) = createClient(host, accessToken, openId)
+            val (client, memosApi) = createClient(host, accessToken)
             this.client = client
             this.memosApi = memosApi
             this.host = host
@@ -96,7 +90,7 @@ class MemosApiService @Inject constructor(
         loadStatus()
     }
 
-    fun createClient(host: String, accessToken: String?, openId: String?): Pair<OkHttpClient, MemosApi> {
+    fun createClient(host: String, accessToken: String?): Pair<OkHttpClient, MemosApi> {
         var client = okHttpClient
 
         if (!accessToken.isNullOrEmpty()) {
@@ -108,17 +102,6 @@ class MemosApiService @Inject constructor(
                     } catch (e: Throwable) {
                         Timber.e(e)
                     }
-                }
-                chain.proceed(request)
-            }.build()
-        }
-
-        if (!openId.isNullOrEmpty()) {
-            client = client.newBuilder().addNetworkInterceptor { chain ->
-                var request = chain.request()
-                if (request.url.host == host.toHttpUrlOrNull()?.host) {
-                    val url = request.url.newBuilder().addQueryParameter("openId", openId).build()
-                    request = request.newBuilder().url(url).build()
                 }
                 chain.proceed(request)
             }.build()

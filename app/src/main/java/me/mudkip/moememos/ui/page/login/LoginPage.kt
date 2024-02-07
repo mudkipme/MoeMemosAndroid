@@ -32,7 +32,6 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 private enum class LoginMethod {
     USERNAME_AND_PASSWORD,
     ACCESS_TOKEN,
-    OPEN_ID
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -64,15 +63,10 @@ fun LoginPage(
         mutableStateOf(TextFieldValue())
     }
 
-    var openId by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue())
-    }
-
     fun login() = coroutineScope.launch {
         if (host.text.isBlank()
             || (loginMethod == LoginMethod.USERNAME_AND_PASSWORD && (username.text.isBlank() || password.text.isEmpty()))
-            || (loginMethod == LoginMethod.ACCESS_TOKEN && (accessToken.text.isBlank()))
-            || (loginMethod == LoginMethod.OPEN_ID && openId.text.isBlank())) {
+            || (loginMethod == LoginMethod.ACCESS_TOKEN && (accessToken.text.isBlank()))) {
             snackbarState.showSnackbar(R.string.fill_login_form.string)
             return@launch
         }
@@ -80,7 +74,6 @@ fun LoginPage(
         val resp = when(loginMethod) {
             LoginMethod.USERNAME_AND_PASSWORD -> userStateViewModel.login(host.text.trim(), username.text.trim(), password.text)
             LoginMethod.ACCESS_TOKEN -> userStateViewModel.loginWithAccessToken(host.text.trim(), accessToken.text.trim())
-            LoginMethod.OPEN_ID -> userStateViewModel.loginWithOpenId(host.text.trim(), openId.text.trim())
         }
 
         resp.suspendOnSuccess {
@@ -133,21 +126,6 @@ fun LoginPage(
                                 },
                                 trailingIcon = {
                                     if (loginMethod == LoginMethod.ACCESS_TOKEN) {
-                                        Icon(
-                                            Icons.Outlined.Check,
-                                            contentDescription = R.string.selected.string
-                                        )
-                                    }
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(R.string.open_id.string) },
-                                onClick = {
-                                    loginMethod = LoginMethod.OPEN_ID
-                                    loginMethodMenuExpanded = false
-                                },
-                                trailingIcon = {
-                                    if (loginMethod == LoginMethod.OPEN_ID) {
                                         Icon(
                                             Icons.Outlined.Check,
                                             contentDescription = R.string.selected.string
@@ -321,39 +299,6 @@ fun LoginPage(
                             capitalization = KeyboardCapitalization.None,
                             autoCorrect = false,
                             keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Go
-                        ),
-                        keyboardActions = KeyboardActions(onGo = { login() })
-                    )
-                }
-
-                if (loginMethod == LoginMethod.OPEN_ID) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onFocusEvent { focusState ->
-                                if (focusState.isFocused) {
-                                    coroutineScope.launch {
-                                        bringIntoViewRequester.bringIntoView()
-                                    }
-                                }
-                            },
-                        value = openId,
-                        onValueChange = { openId = it },
-                        singleLine = true,
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.PermIdentity,
-                                contentDescription = R.string.open_id.string
-                            )
-                        },
-                        label = {
-                            Text(R.string.open_id.string)
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.None,
-                            autoCorrect = false,
-                            keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Go
                         ),
                         keyboardActions = KeyboardActions(onGo = { login() })

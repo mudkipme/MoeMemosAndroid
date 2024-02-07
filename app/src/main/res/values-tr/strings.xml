@@ -34,7 +34,6 @@
     <string name="sign_in_method">Giriş yöntemi</string>
     <string name="address">Adres</string>
     <string name="host">Ana bilgisayar</string>
-    <string name="open_id" translatable="false">Open ID</string>
     <string name="access_token" translatable="false">Access Token</string>
     <string name="edit">Düzenle</string>
     <string name="close">Kapat</string>
