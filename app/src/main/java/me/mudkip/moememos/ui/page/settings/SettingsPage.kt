@@ -38,8 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
-import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalUserState
 

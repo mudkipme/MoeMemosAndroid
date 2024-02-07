@@ -10,7 +10,8 @@ import retrofit2.http.*
 data class SignInInput(
     val email: String,
     var username: String,
-    val password: String
+    val password: String,
+    val remember: Boolean
 )
 
 @Keep
