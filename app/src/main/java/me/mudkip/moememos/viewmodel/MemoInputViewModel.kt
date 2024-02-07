@@ -20,7 +20,6 @@ import me.mudkip.moememos.data.repository.MemoRepository
 import me.mudkip.moememos.data.repository.ResourceRepository
 import me.mudkip.moememos.ext.DataStoreKeys
 import me.mudkip.moememos.ext.dataStore
-import me.mudkip.moememos.ext.scaleTo
 import okhttp3.MediaType.Companion.toMediaType
 import java.io.ByteArrayOutputStream
 import java.util.UUID

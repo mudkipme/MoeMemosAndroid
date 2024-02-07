@@ -21,9 +21,6 @@ import me.mudkip.moememos.data.model.MemosUserSettingKey
 import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.ext.DataStoreKeys
 import me.mudkip.moememos.ext.dataStore
-import net.swiftzer.semver.SemVer
-import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -124,13 +121,5 @@ class MemosApiService @Inject constructor(
 
     suspend fun <T>call(block: suspend (MemosApi) -> ApiResponse<T>): ApiResponse<T> {
         return memosApi?.let { block(it) } ?: ApiResponse.error(MoeMemosException.notLogin)
-    }
-
-    fun versionCompare(target: String): Boolean {
-        val version = status?.profile?.version
-
-        return version?.let {
-            SemVer.parse(it) >= SemVer.parse(target)
-        } ?: false
     }
 }
