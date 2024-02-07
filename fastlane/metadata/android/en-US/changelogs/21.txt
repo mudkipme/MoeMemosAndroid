@@ -1,0 +1,10 @@
+## What's Changed
+- Added French localization by @3zmana.
+- Added Turkish translation by @SirCrownguard.
+- Prevented double-clicking on the back button in the top app bar by @imkero.
+- Fixed the display of attachments when using local storage with Memos 0.19.0 or later.
+- Removed automatic resizing of pictures during upload.
+- Removed the legacy "Login with OpenID" method.
+- Login status will no longer expire when logging in with username and password.
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.7.2...0.7.3
