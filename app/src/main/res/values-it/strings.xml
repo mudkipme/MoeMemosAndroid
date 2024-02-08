@@ -1,0 +1,69 @@
+<resources>
+    <string name="app_name">MoeMemos</string>
+    <string name="default_card_content" translatable="false">È ciò che fai con il dono della vita che determina chi sei.      — Mewtwo</string>
+    <string name="search">Ricerca</string>
+    <string name="back">Indietro</string>
+    <string name="memos">Memos</string>
+    <string name="menu">Menu</string>
+    <string name="search_hint">Ricerca…</string>
+    <string name="new_memo">Nuovo Memo</string>
+    <string name="compose">Componi</string>
+    <string name="remove">Rimuovi</string>
+    <string name="resources">Risorse</string>
+    <string name="archived">Archiviato</string>
+    <string name="settings">Impostazioni</string>
+    <string name="tags">Tags</string>
+    <string name="memo">Memo</string>
+    <string name="tag">Tag</string>
+    <string name="day">Giorno</string>
+    <string name="fill_login_form">Si prega di compilare il modulo di accesso.</string>
+    <string name="acknowledgements">Ringraziamenti</string>
+    <string name="privacy_policy">Politiche di Privacy</string>
+    <string name="privacy">Privacy</string>
+    <string name="website">Sito Web</string>
+    <string name="web">Web</string>
+    <string name="about">Info su Moe Memos</string>
+    <string name="sign_in">Registrazione</string>
+    <string name="attachment">Allegati</string>
+    <string name="moe_memos" translatable="false">Moe Memos</string>
+    <string name="selected">Selezionato</string>
+    <string name="username_and_password">Utente e password</string>
+    <string name="report_an_issue">Segnala un problema</string>
+    <string name="unpin">Unpin</string>
+    <string name="sign_out">Disconnessione</string>
+    <string name="sign_in_method">Metodo di accesso</string>
+    <string name="address">Indirizzo</string>
+    <string name="host">Host</string>
+    <string name="access_token" translatable="false">Token di accesso</string>
+    <string name="edit">Modifica</string>
+    <string name="close">Chiudi</string>
+    <string name="add_task">Aggiungi Task</string>
+    <string name="add_image">Aggiungi Immagine</string>
+    <string name="take_photo">Fai una foto</string>
+    <string name="post">Post</string>
+    <string name="any_thoughts">Qualche idea…</string>
+    <string name="input_login_information">Inserisci le informazioni di accesso del tuo \n[✍️memos](https://github.com/usememos/memos) server.</string>
+    <string name="username">Utente</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="user_state_not_found">Stato utente non trovato</string>
+    <string name="memos_view_model_not_found" translatable="false">Memos modello non trovato</string>
+    <string name="archived_memo_list_view_model_not_found" translatable="false">Modello di visualizzazione elenco promemoria archiviati non trovato</string>
+    <string name="nav_host_controller_not_found" translatable="false">controller nav host non trovato</string>
+    <string name="cancel">Cancella</string>
+    <string name="confirm">Conferma</string>
+    <string name="delete_this_memo">Elimina questo memo?</string>
+    <string name="delete">Elimina</string>
+    <string name="restore">Ripristina</string>
+    <string name="invalid_open_api">Open API non valida</string>
+    <string name="pin">Pin</string>
+    <string name="share">Condividi</string>
+    <string name="archive">Archivia</string>
+    <string name="memo_visibility_public">Visibile agli ospiti</string>
+    <string name="memo_visibility_protected">Visibile ai membri locali</string>
+    <string name="memo_visibility_private">Visibile solo a te</string>
+    <string name="explore">Esplora</string>
+    <string name="delete_this_tag">Elimina questo tag?</string>
+    <string name="expand">Espandi</string>
+    <string name="collapse">Restringere</string>
+</resources>
