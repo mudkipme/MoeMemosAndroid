@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId "me.mudkip.moememos"
         minSdk 26
-        targetSdk 33
+        targetSdk 34
         versionCode 22
         versionName "0.7.4"
 
@@ -26,6 +26,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            crunchPngs false
         }
     }
     compileOptions {
@@ -45,9 +46,6 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
-    }
-    aaptOptions {
-        cruncherEnabled = false
     }
 
     namespace 'me.mudkip.moememos'
