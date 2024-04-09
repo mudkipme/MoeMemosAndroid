@@ -15,10 +15,16 @@ data class Resource(
     val externalLink: String?,
     val publicId: String?,
     var name: String?,
+    var uid: String?
 ) {
     fun uri(host: String): Uri {
         if (!externalLink.isNullOrEmpty()) {
             return Uri.parse(externalLink)
+        }
+        if (!uid.isNullOrEmpty()) {
+            return Uri.parse(host)
+                .buildUpon().appendPath("o").appendPath("r")
+                .appendPath(uid.toString()).build()
         }
         if (!name.isNullOrEmpty()) {
             return Uri.parse(host)
