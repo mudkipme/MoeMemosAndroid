@@ -1,0 +1,5 @@
+## What's Changed
+- Added Italian localization by @tombatti.
+- Fixed the display of attachments when using local storage with Memos 0.21.0 or later.
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.7.3...0.7.4
