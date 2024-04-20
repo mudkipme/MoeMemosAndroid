@@ -1,6 +1,7 @@
 package me.mudkip.moememos.ui.page.memoinput
 
 import android.content.ActivityNotFoundException
+import android.content.ClipData
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -9,6 +10,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,6 +54,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draganddrop.mimeTypes
+import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
@@ -85,7 +92,7 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
 import timber.log.Timber
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun MemoInputPage(
     viewModel: MemoInputViewModel = hiltViewModel(),
@@ -109,6 +116,12 @@ fun MemoInputPage(
     val context = LocalContext.current
     val defaultVisibility = LocalUserState.current.currentUser?.memoVisibility ?: MemosVisibility.PRIVATE
     var currentVisibility by remember { mutableStateOf( memo?.visibility ?: defaultVisibility) }
+
+    val validMimeTypePrefixes = remember {
+        setOf(
+            "text/",
+        )
+    }
 
     fun uploadImage(uri: Uri) = coroutineScope.launch {
         try {
@@ -222,6 +235,14 @@ fun MemoInputPage(
         }.suspendOnErrorMessage { message ->
             snackbarState.showSnackbar(message)
         }
+    }
+
+    fun ClipData.textList(): List<CharSequence> {
+        return (0 until itemCount)
+            .mapNotNull(::getItemAt)
+            .mapNotNull { item ->
+                item.text
+            }
     }
 
     Scaffold(
@@ -365,7 +386,35 @@ fun MemoInputPage(
         Column(
             Modifier
                 .padding(innerPadding)
-                .fillMaxHeight()) {
+                .fillMaxHeight()
+                .dragAndDropTarget(
+                    shouldStartDragAndDrop = accept@{ startEvent ->
+                        val hasValidMimeType = startEvent
+                            .mimeTypes()
+                            .any { eventMimeType ->
+                                validMimeTypePrefixes.any(eventMimeType::startsWith)
+                            }
+                        hasValidMimeType
+                    },
+                    target = object : DragAndDropTarget {
+                        override fun onDrop(event: DragAndDropEvent): Boolean {
+                            val androidDragEvent = event.toAndroidDragEvent()
+                            val concatText = androidDragEvent.clipData
+                                .textList()
+                                .fold("") { acc, text ->
+                                    if (acc.isNotBlank()) {
+                                        acc.trimEnd { it == '\n' } + '\n' + '\n' + text.trimStart { it == '\n' }
+                                    } else {
+                                        text.toString()
+                                    }
+                                }
+                            text = text.copy(text = text.text + concatText)
+                            return true
+                        }
+
+                    }
+                )
+        ) {
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
