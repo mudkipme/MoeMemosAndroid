@@ -1,6 +1,7 @@
 package me.mudkip.moememos.ui.component
 
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -118,10 +119,10 @@ fun MemoContent(
                 colors = AssistChipDefaults.assistChipColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                 ),
-                border = AssistChipDefaults.assistChipBorder(
-                    borderColor = MaterialTheme.colorScheme.primaryContainer,
-                    borderWidth = 0.dp,
-                ),
+                border = BorderStroke(
+                    width = 0.dp,
+                    color = MaterialTheme.colorScheme.primaryContainer
+                )
             )
         }
     }
