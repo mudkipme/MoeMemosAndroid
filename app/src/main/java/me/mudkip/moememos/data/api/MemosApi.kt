@@ -2,9 +2,22 @@ package me.mudkip.moememos.data.api
 
 import androidx.annotation.Keep
 import com.skydoves.sandwich.ApiResponse
-import me.mudkip.moememos.data.model.*
+import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.model.MemosRowStatus
+import me.mudkip.moememos.data.model.MemosVisibility
+import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.model.Status
+import me.mudkip.moememos.data.model.User
 import okhttp3.MultipartBody
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.Part
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 @Keep
 data class SignInInput(
