@@ -52,7 +52,7 @@ class UserStateViewModel @Inject constructor(
             }
             resp
         } catch (e: Throwable) {
-            ApiResponse.error(e)
+            ApiResponse.exception(e)
         }
     }
 
@@ -65,7 +65,7 @@ class UserStateViewModel @Inject constructor(
             }
             resp
         } catch (e: Throwable) {
-            ApiResponse.error(e)
+            ApiResponse.exception(e)
         }
     }
 

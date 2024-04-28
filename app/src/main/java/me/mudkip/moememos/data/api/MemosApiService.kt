@@ -3,7 +3,7 @@ package me.mudkip.moememos.data.api
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import com.skydoves.sandwich.ApiResponse
-import com.skydoves.sandwich.adapters.ApiResponseCallAdapterFactory
+import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import com.skydoves.sandwich.suspendOnSuccess
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.EnumJsonAdapter
@@ -120,6 +120,6 @@ class MemosApiService @Inject constructor(
     }
 
     suspend fun <T>call(block: suspend (MemosApi) -> ApiResponse<T>): ApiResponse<T> {
-        return memosApi?.let { block(it) } ?: ApiResponse.error(MoeMemosException.notLogin)
+        return memosApi?.let { block(it) } ?: ApiResponse.exception(MoeMemosException.notLogin)
     }
 }
