@@ -1,26 +1,31 @@
 package me.mudkip.moememos.ui.page.memos
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.launch
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import me.mudkip.moememos.ui.component.MemosCard
 import me.mudkip.moememos.viewmodel.LocalMemos
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemosList(
     contentPadding: PaddingValues,
@@ -28,9 +33,8 @@ fun MemosList(
     tag: String? = null,
     searchString: String? = null
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val viewModel = LocalMemos.current
-    val refreshState = rememberSwipeRefreshState(viewModel.refreshing)
+    val refreshState = rememberPullToRefreshState(enabled = { swipeEnabled })
     val filteredMemos = remember(viewModel.memos.toList(), tag, searchString) {
         val pinned = viewModel.memos.filter { it.pinned }
         val nonPinned = viewModel.memos.filter { !it.pinned }
@@ -58,18 +62,20 @@ fun MemosList(
         mutableStateOf(null)
     }
 
-    SwipeRefresh(
-        indicatorPadding = contentPadding,
-        state = refreshState,
-        swipeEnabled = swipeEnabled,
-        onRefresh = {
-            coroutineScope.launch {
-                viewModel.refresh()
+    if (refreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            viewModel.loadMemos().invokeOnCompletion {
+                refreshState.endRefresh()
             }
         }
-    ) {
+    }
+    
+    Box {
         LazyColumn(
-            modifier = Modifier.consumeWindowInsets(contentPadding),
+            modifier = Modifier
+                .consumeWindowInsets(contentPadding)
+                .fillMaxSize()
+                .nestedScroll(refreshState.nestedScrollConnection),
             contentPadding = contentPadding,
             state = lazyListState
         ) {
@@ -77,6 +83,11 @@ fun MemosList(
                 MemosCard(memo, previewMode = true)
             }
         }
+        
+        PullToRefreshContainer(
+            state = refreshState,
+            modifier = Modifier.align(Alignment.TopCenter).padding(contentPadding),
+        )
     }
 
     LaunchedEffect(viewModel.errorMessage) {

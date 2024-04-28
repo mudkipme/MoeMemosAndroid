@@ -39,8 +39,6 @@ class MemosViewModel @Inject constructor(
         private set
     var errorMessage: String? by mutableStateOf(null)
         private set
-    var refreshing by mutableStateOf(false)
-        private set
     var matrix by mutableStateOf(DailyUsageStat.initialMatrix)
         private set
 
@@ -48,13 +46,6 @@ class MemosViewModel @Inject constructor(
         snapshotFlow { memos.toList() }
             .onEach { matrix = calculateMatrix() }
             .launchIn(viewModelScope)
-    }
-
-    fun refresh() {
-        refreshing = true
-        loadMemos().invokeOnCompletion {
-            refreshing = false
-        }
     }
 
     fun loadMemos() = viewModelScope.launch {
