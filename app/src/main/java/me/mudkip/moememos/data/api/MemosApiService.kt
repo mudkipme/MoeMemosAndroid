@@ -20,7 +20,7 @@ import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.MemosUserSettingKey
 import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.ext.DataStoreKeys
-import me.mudkip.moememos.ext.dataStore
+import me.mudkip.moememos.ext.legacyDataStore
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -54,10 +54,10 @@ class MemosApiService @Inject constructor(
 
     init {
         runBlocking {
-            context.dataStore.data.first().let {
+            context.legacyDataStore.data.first().let {
                 val host = it[DataStoreKeys.Host.key]
                 val accessToken = it[DataStoreKeys.AccessToken.key]
-                if (host != null && host.isNotEmpty()) {
+                if (!host.isNullOrEmpty()) {
                     val (client, memosApi) = createClient(host, accessToken)
                     this@MemosApiService.client = client
                     this@MemosApiService.memosApi = memosApi
@@ -69,7 +69,7 @@ class MemosApiService @Inject constructor(
     }
 
     suspend fun update(host: String, accessToken: String?) {
-        context.dataStore.edit {
+        context.legacyDataStore.edit {
             it[DataStoreKeys.Host.key] = host
             if (!accessToken.isNullOrEmpty()) {
                 it[DataStoreKeys.AccessToken.key] = accessToken

@@ -19,7 +19,7 @@ import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.repository.MemoRepository
 import me.mudkip.moememos.data.repository.ResourceRepository
 import me.mudkip.moememos.ext.DataStoreKeys
-import me.mudkip.moememos.ext.dataStore
+import me.mudkip.moememos.ext.legacyDataStore
 import okhttp3.MediaType.Companion.toMediaType
 import java.io.ByteArrayOutputStream
 import java.util.UUID
@@ -31,7 +31,7 @@ class MemoInputViewModel @Inject constructor(
     private val memoRepository: MemoRepository,
     private val resourceRepository: ResourceRepository
 ) : ViewModel() {
-    val draft = application.applicationContext.dataStore.data.map { it[DataStoreKeys.Draft.key] }
+    val draft = application.applicationContext.legacyDataStore.data.map { it[DataStoreKeys.Draft.key] }
     var uploadResources = mutableStateListOf<Resource>()
 
     suspend fun createMemo(content: String, visibility: MemosVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
@@ -47,7 +47,7 @@ class MemoInputViewModel @Inject constructor(
     }
 
     fun updateDraft(content: String) = runBlocking {
-        application.applicationContext.dataStore.edit {
+        application.applicationContext.legacyDataStore.edit {
             it[DataStoreKeys.Draft.key] = content
         }
     }
