@@ -54,7 +54,7 @@
     <string name="delete_this_memo">Удалить эту заметку?</string>
     <string name="delete">Удалить</string>
     <string name="restore">Восстановить</string>
-    <string name="invalid_open_api">Недопустимый Open API</string>
+    <string name="invalid_access_token">Недопустимый Access Token</string>
     <string name="pin">Закрепить</string>
     <string name="share">Поделиться</string>
     <string name="archive">Архивировать</string>

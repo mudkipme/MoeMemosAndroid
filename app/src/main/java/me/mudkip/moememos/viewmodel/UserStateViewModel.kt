@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.getOrNull
-import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.isSuccess
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,10 +15,12 @@ import kotlinx.coroutines.withContext
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.MemosApiService
 import me.mudkip.moememos.data.api.SignInInput
+import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
 import me.mudkip.moememos.ext.string
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
@@ -43,14 +44,16 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun login(host: String, username: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         try {
-            val (_, client) = memosApiService.createClient(host, null)
-            client.signIn(SignInInput(username, username, password, true)).getOrThrow()
-            val resp = client.me()
-            if (resp.isSuccess) {
-                memosApiService.update(host, null)
-                currentUser = resp.getOrNull()
+            val hostUrl = host.toHttpUrlOrNull() ?: throw IllegalArgumentException()
+            val (okHttpClient, client) = memosApiService.createClient(host, null)
+            val resp = client.signIn(SignInInput(username, username, password, true))
+            okHttpClient.cookieJar.loadForRequest(hostUrl).forEach {
+                if (it.name == "memos.access-token") {
+                    memosApiService.update(host, it.value)
+                    return@withContext resp
+                }
             }
-            resp
+            throw MoeMemosException.invalidAccessToken
         } catch (e: Throwable) {
             ApiResponse.exception(e)
         }

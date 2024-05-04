@@ -55,7 +55,7 @@
     <string name="delete_this_memo">Delete this memo?</string>
     <string name="delete">Delete</string>
     <string name="restore">Restore</string>
-    <string name="invalid_open_api">Invalid Open API</string>
+    <string name="invalid_access_token">Invalid Access Token</string>
     <string name="pin">Pin</string>
     <string name="share">Share</string>
     <string name="archive">Archive</string>

@@ -61,7 +61,7 @@ data class PatchMemoInput(
 
 interface MemosApi {
     @POST("api/v1/auth/signin")
-    suspend fun signIn(@Body body: SignInInput): ApiResponse<Unit>
+    suspend fun signIn(@Body body: SignInInput): ApiResponse<User>
 
     @POST("api/v1/auth/signout")
     suspend fun logout(): ApiResponse<Unit>

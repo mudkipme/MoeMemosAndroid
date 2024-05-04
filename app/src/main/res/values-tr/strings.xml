@@ -55,7 +55,7 @@
     <string name="delete_this_memo">Bu notu silmek istiyor musunuz?</string>
     <string name="delete">Sil</string>
     <string name="restore">Geri yükle</string>
-    <string name="invalid_open_api">Geçersiz Açık API</string>
+    <string name="invalid_access_token">Geçersiz Access Token</string>
     <string name="pin">Sabitle</string>
     <string name="share">Paylaş</string>
     <string name="archive">Arşivle</string>

@@ -11,7 +11,7 @@ import me.mudkip.moememos.ext.getErrorMessage
 
 const val EXPLORE_PAGE_SIZE = 20
 
-class ExplorePagingSource constructor(
+class ExplorePagingSource(
     private val memoRepository: MemoRepository
 ) : PagingSource<Int, Memo>() {
 

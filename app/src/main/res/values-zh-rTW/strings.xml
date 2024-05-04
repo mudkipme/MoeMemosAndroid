@@ -50,7 +50,7 @@
     <string name="delete_this_memo">確認刪除這條 MEMO 嗎？</string>
     <string name="delete">刪除</string>
     <string name="restore">恢復</string>
-    <string name="invalid_open_api">不可用的 Open API</string>
+    <string name="invalid_access_token">不可用的 Access Token</string>
     <string name="pin">置頂</string>
     <string name="share">分享</string>
     <string name="archive">歸檔</string>
