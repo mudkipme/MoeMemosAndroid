@@ -23,7 +23,7 @@
     <string name="website">Website</string>
     <string name="web">Web</string>
     <string name="about">About Moe Memos</string>
-    <string name="sign_in">Sign in</string>
+    <string name="add_account">Add Account</string>
     <string name="attachment">Attachment</string>
     <string name="moe_memos" translatable="false">Moe Memos</string>
     <string name="selected">Selected</string>
@@ -66,4 +66,6 @@
     <string name="delete_this_tag">Delete this tag?</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
+    <string name="accounts">Accounts</string>
+    <string name="account_detail">Account Detail</string>
 </resources>

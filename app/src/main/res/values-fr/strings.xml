@@ -23,7 +23,7 @@
     <string name="website">Website</string>
     <string name="web">Web</string>
     <string name="about">À propos de Moe Memos</string>
-    <string name="sign_in">S\'identifier</string>
+    <string name="add_account">S\'identifier</string>
     <string name="attachment">Pièce jointe</string>
     <string name="moe_memos" translatable="false">Moe Memos</string>
     <string name="selected">Sélectionné</string>

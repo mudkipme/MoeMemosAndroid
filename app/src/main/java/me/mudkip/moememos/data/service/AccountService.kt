@@ -1,9 +1,6 @@
 package me.mudkip.moememos.data.service
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import com.squareup.moshi.Moshi
@@ -11,6 +8,7 @@ import com.squareup.moshi.adapters.EnumJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -33,29 +31,25 @@ class AccountService @Inject constructor(
     private val context: Context,
     private val okHttpClient: OkHttpClient
 ) {
-    var currentAccount: Account? by mutableStateOf(null)
-        private set
     private var memosApi: MemosApi? = null
     var httpClient: OkHttpClient = okHttpClient
         private set
-    private var accounts: List<Account> = emptyList()
+    val accounts = context.settingsDataStore.data.map { settings ->
+        settings.usersList.mapNotNull { Account.parseUserData(it) }
+    }
+    val currentAccount = context.settingsDataStore.data.map { settings ->
+        settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.let { Account.parseUserData(it) }
+    }
+
     private val mutex = Mutex()
 
     init {
         runBlocking {
-            // Load account from data store
-            val settings = context.settingsDataStore.data.first()
-            accounts = settings.usersList.mapNotNull {
-                Account.parseUserData(it)
-            }
-
-            val currentAccount = accounts.firstOrNull { it.accountKey() == settings.currentUser } ?: accounts.firstOrNull()
-            updateCurrentAccount(currentAccount)
+            updateCurrentAccount(currentAccount.first())
         }
     }
 
     private fun updateCurrentAccount(account: Account?) {
-        currentAccount = account
         when (account) {
             is Account.Memos -> {
                 val memosAccount = account.info
@@ -72,7 +66,7 @@ class AccountService @Inject constructor(
 
     suspend fun switchAccount(accountKey: String) {
         mutex.withLock {
-            val account = accounts.firstOrNull { it.accountKey() == accountKey }
+            val account = accounts.first().firstOrNull { it.accountKey() == accountKey }
             context.settingsDataStore.updateData { settings ->
                 settings.toBuilder().apply {
                     this.currentUser = accountKey
@@ -84,8 +78,6 @@ class AccountService @Inject constructor(
 
     suspend fun addAccount(account: Account) {
         mutex.withLock {
-            accounts = accounts.filter { it.accountKey() != account.accountKey() }
-            accounts = accounts + account
             context.settingsDataStore.updateData { settings ->
                 var builder = settings.toBuilder()
                 val index = settings.usersList.indexOfFirst { it.accountKey == account.accountKey() }
@@ -100,7 +92,6 @@ class AccountService @Inject constructor(
 
     suspend fun removeAccount(account: Account) {
         mutex.withLock {
-            accounts = accounts.filter { it.accountKey() != account.accountKey() }
             context.settingsDataStore.updateData { settings ->
                 var builder = settings.toBuilder()
                 val index = settings.usersList.indexOfFirst { it.accountKey == account.accountKey() }
@@ -108,12 +99,12 @@ class AccountService @Inject constructor(
                     builder = builder.removeUsers(index)
                 }
                 if (settings.currentUser == account.accountKey()) {
-                    builder = builder.setCurrentUser(accounts.firstOrNull()?.accountKey() ?: "")
+                    builder = builder.setCurrentUser(accounts.first().firstOrNull()?.accountKey() ?: "")
                 }
                 builder.build()
             }
             if (currentAccount == account) {
-                updateCurrentAccount(accounts.firstOrNull())
+                updateCurrentAccount(accounts.first().firstOrNull())
             }
         }
     }

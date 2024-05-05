@@ -11,17 +11,22 @@ import com.skydoves.sandwich.getOrNull
 import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.SignInInput
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemosAccount
-import me.mudkip.moememos.data.model.Status
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
 import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.ext.string
+import me.mudkip.moememos.ext.suspendOnNotLogin
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import javax.inject.Inject
@@ -34,26 +39,29 @@ class UserStateViewModel @Inject constructor(
 
     var currentUser: User? by mutableStateOf(null)
         private set
-    var status: Status? by mutableStateOf(null)
-        private set
 
-    val host: String get() = accountService.currentAccount?.let {
-        when (it) {
-            is Account.Memos -> it.info.host
-            else -> null
-        }
-    } ?: ""
+    var host: String = ""
+        private set
     val okHttpClient: OkHttpClient get() = accountService.httpClient
+    val accounts = accountService.accounts.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val currentAccount = accountService.currentAccount.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    init {
+        viewModelScope.launch {
+            accountService.currentAccount.collectLatest {
+                host = when(it) {
+                    is Account.Memos -> it.info.host
+                    else -> ""
+                }
+            }
+        }
+    }
 
     suspend fun loadCurrentUser(): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
         userRepository.getCurrentUser().suspendOnSuccess {
             currentUser = data
-        }
-    }
-
-    suspend fun loadStatus(): ApiResponse<Status> = withContext(viewModelScope.coroutineContext) {
-        userRepository.getStatus().suspendOnSuccess {
-            status = data
+        }.suspendOnNotLogin {
+            currentUser = null
         }
     }
 
@@ -89,12 +97,11 @@ class UserStateViewModel @Inject constructor(
     suspend fun logout() = withContext(viewModelScope.coroutineContext) {
         accountService.memosCall {
             it.logout()
-        }.suspendOnSuccess {
-            accountService.currentAccount?.let { account ->
-                accountService.removeAccount(account)
-            }
-            currentUser = null
         }
+        accountService.currentAccount.first()?.let { account ->
+            accountService.removeAccount(account)
+        }
+        currentUser = null
     }
 
     private fun getAccount(host: String, accessToken: String, user: User): Account = Account.Memos(
