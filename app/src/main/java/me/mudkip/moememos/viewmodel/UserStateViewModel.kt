@@ -94,14 +94,19 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    suspend fun logout() = withContext(viewModelScope.coroutineContext) {
-        accountService.memosCall {
-            it.logout()
+    suspend fun logout(accountKey: String) = withContext(viewModelScope.coroutineContext) {
+        if (currentAccount.first()?.accountKey() == accountKey) {
+            accountService.memosCall {
+                it.logout()
+            }
+            currentUser = null
         }
-        accountService.currentAccount.first()?.let { account ->
-            accountService.removeAccount(account)
-        }
-        currentUser = null
+        accountService.removeAccount(accountKey)
+    }
+
+    suspend fun switchAccount(accountKey: String) = withContext(viewModelScope.coroutineContext) {
+        accountService.switchAccount(accountKey)
+        loadCurrentUser()
     }
 
     private fun getAccount(host: String, accessToken: String, user: User): Account = Account.Memos(

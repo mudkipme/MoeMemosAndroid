@@ -90,22 +90,20 @@ class AccountService @Inject constructor(
         }
     }
 
-    suspend fun removeAccount(account: Account) {
+    suspend fun removeAccount(accountKey: String) {
         mutex.withLock {
             context.settingsDataStore.updateData { settings ->
                 var builder = settings.toBuilder()
-                val index = settings.usersList.indexOfFirst { it.accountKey == account.accountKey() }
+                val index = settings.usersList.indexOfFirst { it.accountKey == accountKey }
                 if (index != -1) {
                     builder = builder.removeUsers(index)
                 }
-                if (settings.currentUser == account.accountKey()) {
+                if (settings.currentUser == accountKey) {
                     builder = builder.setCurrentUser(accounts.first().firstOrNull()?.accountKey() ?: "")
                 }
                 builder.build()
             }
-            if (currentAccount == account) {
-                updateCurrentAccount(accounts.first().firstOrNull())
-            }
+            updateCurrentAccount(currentAccount.first())
         }
     }
 

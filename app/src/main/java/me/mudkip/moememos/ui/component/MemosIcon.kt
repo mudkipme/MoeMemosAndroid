@@ -27,7 +27,7 @@ get() {
         return memosIcon!!
     }
     memosIcon = ImageVector.Builder(
-        name = "FullLogo",
+        name = "MemosIcon",
         defaultWidth = 24.dp,
         defaultHeight = 24.dp,
         viewportWidth = 784f,

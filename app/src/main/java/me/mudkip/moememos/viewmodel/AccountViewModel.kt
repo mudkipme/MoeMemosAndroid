@@ -11,8 +11,10 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
@@ -33,6 +35,7 @@ class AccountViewModel @AssistedInject constructor(
     private val selectedAccount = accountService.accounts.map { accounts ->
         accounts.firstOrNull { it.accountKey() == selectedAccountKey }
     }
+    val selectedAccountState = selectedAccount.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     private val memosApi = selectedAccount.map { account ->
         when (account) {
