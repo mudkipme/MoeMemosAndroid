@@ -13,6 +13,7 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Computer
@@ -23,16 +24,19 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +47,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -55,6 +61,7 @@ import androidx.navigation.NavHostController
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
+import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Markdown
@@ -66,13 +73,15 @@ private enum class LoginMethod {
     ACCESS_TOKEN,
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LoginPage(
     navController: NavHostController
 ) {
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val lifecycleOwner = LocalLifecycleOwner.current
     val userStateViewModel = LocalUserState.current
     val snackbarState = remember { SnackbarHostState() }
 
@@ -122,9 +131,26 @@ fun LoginPage(
     }
 
     Scaffold(
-        modifier = Modifier.imePadding(),
+        modifier = Modifier
+            .imePadding()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = {
             SnackbarHost(hostState = snackbarState)
+        },
+        topBar = {
+            LargeTopAppBar(
+                title = { Text(text = if (userStateViewModel.currentUser != null) R.string.add_account.string else R.string.moe_memos.string) },
+                navigationIcon = {
+                    if (userStateViewModel.currentUser != null) {
+                        IconButton(onClick = {
+                            navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+                        }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = R.string.back.string)
+                        }
+                    }
+                },
+                scrollBehavior = scrollBehavior
+            )
         },
         bottomBar = {
             BottomAppBar(
@@ -176,11 +202,11 @@ fun LoginPage(
                         onClick = { login() },
                         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                        text = { Text(R.string.sign_in.string) },
+                        text = { Text(R.string.add_account.string) },
                         icon = {
                             Icon(
                                 Icons.AutoMirrored.Outlined.Login,
-                                contentDescription = R.string.sign_in.string
+                                contentDescription = R.string.add_account.string
                             )
                         }
                     )
@@ -196,11 +222,6 @@ fun LoginPage(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                R.string.moe_memos.string,
-                modifier = Modifier.padding(bottom = 10.dp),
-                style = MaterialTheme.typography.titleLarge
-            )
             Markdown(
                 R.string.input_login_information.string,
                 modifier = Modifier.padding(bottom = 20.dp),

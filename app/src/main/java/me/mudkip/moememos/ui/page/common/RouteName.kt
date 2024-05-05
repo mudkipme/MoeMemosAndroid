@@ -12,4 +12,5 @@ object RouteName {
     const val RESOURCE = "resource"
     const val SHARE = "share"
     const val EXPLORE = "explore"
+    const val ACCOUNT = "account"
 }

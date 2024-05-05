@@ -23,14 +23,14 @@
     <string name="website">Website</string>
     <string name="web">Web</string>
     <string name="about">About Moe Memos</string>
-    <string name="sign_in">Sign in</string>
+    <string name="add_account">Add Account</string>
     <string name="attachment">Attachment</string>
     <string name="moe_memos" translatable="false">Moe Memos</string>
     <string name="selected">Selected</string>
     <string name="username_and_password">Username and password</string>
     <string name="report_an_issue">Report an Issue</string>
     <string name="unpin">Unpin</string>
-    <string name="sign_out">Sign out</string>
+    <string name="sign_out">Sign Out</string>
     <string name="sign_in_method">Sign in method</string>
     <string name="address">Address</string>
     <string name="host">Host</string>
@@ -55,7 +55,7 @@
     <string name="delete_this_memo">Delete this memo?</string>
     <string name="delete">Delete</string>
     <string name="restore">Restore</string>
-    <string name="invalid_open_api">Invalid Open API</string>
+    <string name="invalid_access_token">Invalid Access Token</string>
     <string name="pin">Pin</string>
     <string name="share">Share</string>
     <string name="archive">Archive</string>
@@ -66,4 +66,7 @@
     <string name="delete_this_tag">Delete this tag?</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
+    <string name="accounts">Accounts</string>
+    <string name="account_detail">Account Detail</string>
+    <string name="switch_account">Switch Account</string>
 </resources>

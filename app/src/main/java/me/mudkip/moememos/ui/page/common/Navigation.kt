@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnNotLogin
+import me.mudkip.moememos.ui.page.account.AccountPage
 import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
 import me.mudkip.moememos.ui.page.memos.MemosPage
@@ -77,6 +78,13 @@ fun Navigation() {
 
                 composable(RouteName.RESOURCE) {
                     ResourceListPage(navController = navController)
+                }
+
+                composable("${RouteName.ACCOUNT}?accountKey={accountKey}") { entry ->
+                    AccountPage(
+                        navController = navController,
+                        selectedAccountKey = entry.arguments?.getString("accountKey") ?: ""
+                    )
                 }
             }
         }

@@ -22,9 +22,8 @@
     <string name="website">官网</string>
     <string name="web">官网</string>
     <string name="about">关于 Moe Memos</string>
-    <string name="sign_in">登录</string>
+    <string name="add_account">登录</string>
     <string name="attachment">附件</string>
-    <string name="selected">已选中</string>
     <string name="username_and_password">用户名与密码</string>
     <string name="report_an_issue">反馈 Bug</string>
     <string name="unpin">取消置顶</string>
@@ -50,7 +49,7 @@
     <string name="delete_this_memo">确认删除这条 MEMO 吗？</string>
     <string name="delete">删除</string>
     <string name="restore">恢复</string>
-    <string name="invalid_open_api">不可用的 Open API</string>
+    <string name="invalid_access_token">不可用的 Access Token</string>
     <string name="pin">置顶</string>
     <string name="share">分享</string>
     <string name="archive">归档</string>

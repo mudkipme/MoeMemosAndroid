@@ -6,12 +6,12 @@ import me.mudkip.moememos.ext.string
 class MoeMemosException(string: String) : Exception(string) {
     companion object {
         val notLogin = MoeMemosException("NOT_LOGIN")
-        val invalidOpenAPI = MoeMemosException("INVALID_OPEN_API")
+        val invalidAccessToken = MoeMemosException("INVALID_ACCESS_TOKEN")
     }
 
     override fun getLocalizedMessage(): String? {
         return when (this) {
-            invalidOpenAPI -> R.string.invalid_open_api.string
+            invalidAccessToken -> R.string.invalid_access_token.string
             else -> {
                 super.getLocalizedMessage()
             }

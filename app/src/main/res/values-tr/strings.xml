@@ -23,7 +23,7 @@
     <string name="website">Web Sitesi</string>
     <string name="web">Web</string>
     <string name="about">Moe Memos Hakkında</string>
-    <string name="sign_in">Giriş yap</string>
+    <string name="add_account">Giriş yap</string>
     <string name="attachment">Ek</string>
     <string name="moe_memos" translatable="false">Moe Notlar</string>
     <string name="selected">Seçilen</string>
@@ -55,7 +55,7 @@
     <string name="delete_this_memo">Bu notu silmek istiyor musunuz?</string>
     <string name="delete">Sil</string>
     <string name="restore">Geri yükle</string>
-    <string name="invalid_open_api">Geçersiz Açık API</string>
+    <string name="invalid_access_token">Geçersiz Access Token</string>
     <string name="pin">Sabitle</string>
     <string name="share">Paylaş</string>
     <string name="archive">Arşivle</string>
