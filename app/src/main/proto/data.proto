@@ -6,16 +6,23 @@ option java_multiple_files = true;
 message MemosAccount {
   string host = 1;
   string access_token = 2;
-  string id = 3;
+  int64 id = 3;
+  string name = 4;
+  string avatar_url = 5;
 }
 
 message LocalAccount {}
 
-message UserData {
+message UserSettings {
   string draft = 1;
+}
+
+message UserData {
+  UserSettings settings = 1;
+  string account_key = 2;
   oneof account {
-    MemosAccount memos = 2;
-    LocalAccount local = 3;
+    MemosAccount memos = 3;
+    LocalAccount local = 4;
   }
 }
 

@@ -1,10 +1,8 @@
 package me.mudkip.moememos.data.module
 
-import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
@@ -16,7 +14,7 @@ import java.net.CookiePolicy
 object NetworkModule {
 
     @Provides
-    fun provideOkHttpClient(@ApplicationContext context: Context): OkHttpClient {
+    fun provideOkHttpClient(): OkHttpClient {
         val cookieManager = CookieManager()
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL)
         return OkHttpClient.Builder()

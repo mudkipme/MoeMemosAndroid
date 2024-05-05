@@ -2,7 +2,7 @@ package me.mudkip.moememos.util
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import androidx.datastore.preferences.protobuf.InvalidProtocolBufferException
+import com.google.protobuf.InvalidProtocolBufferException
 import me.mudkip.moememos.data.model.Settings
 import java.io.InputStream
 import java.io.OutputStream

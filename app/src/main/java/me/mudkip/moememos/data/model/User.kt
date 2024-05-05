@@ -41,6 +41,7 @@ data class User(
     val userSettingList: List<MemosUserSetting>? = null,
     val nickname: String?,
     val username: String?,
+    val avatarUrl: String?,
 ) {
     val displayEmail get() = email ?: username ?: ""
     val displayName get() = nickname ?: name ?: ""
