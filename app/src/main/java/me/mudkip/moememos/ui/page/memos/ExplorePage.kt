@@ -18,7 +18,7 @@ import me.mudkip.moememos.ext.string
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExplorePage(
-    drawerState: DrawerState
+    drawerState: DrawerState? = null
 ) {
     val scope = rememberCoroutineScope()
 
@@ -27,8 +27,10 @@ fun ExplorePage(
             TopAppBar(
                 title = { Text(text = R.string.explore.string) },
                 navigationIcon = {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
+                    if (drawerState != null) {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
+                        }
                     }
                 }
             )

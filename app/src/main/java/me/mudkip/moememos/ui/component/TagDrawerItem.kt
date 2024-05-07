@@ -34,7 +34,7 @@ import java.net.URLEncoder
 fun TagDrawerItem(
     tag: String,
     memosNavController: NavHostController,
-    drawerState: DrawerState
+    drawerState: DrawerState? = null
 ) {
     val scope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -57,7 +57,7 @@ fun TagDrawerItem(
                     launchSingleTop = true
                     restoreState = true
                 }
-                drawerState.close()
+                drawerState?.close()
             }
         },
         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)

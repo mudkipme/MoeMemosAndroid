@@ -47,11 +47,11 @@ import java.util.Locale
 @Composable
 fun SideDrawer(
     memosNavController: NavHostController,
-    drawerState: DrawerState
+    drawerState: DrawerState? = null
 ) {
     val weekDays = remember {
         val day = WeekFields.of(Locale.getDefault()).firstDayOfWeek
-        DayOfWeek.values().mapIndexed { index, _ ->
+        List(DayOfWeek.entries.size) { index ->
             day.plus(index.toLong()).getDisplayName(TextStyle.SHORT, Locale.getDefault())
         }
     }
@@ -62,155 +62,153 @@ fun SideDrawer(
     val memosViewModel = LocalMemos.current
     val rootNavController = LocalRootNavController.current
 
-    ModalDrawerSheet {
-        LazyColumn {
-            item {
-                Stats()
-            }
-            
-            item {
-                Row(
+    LazyColumn {
+        item {
+            Stats()
+        }
+
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .padding(10.dp),
+            ) {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp)
-                        .padding(10.dp),
+                        .fillMaxHeight()
+                        .padding(end = 5.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(end = 5.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(weekDays[0],
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.outline)
-                        Text(weekDays[3],
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.outline)
-                        Text(weekDays[6],
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.outline)
-                    }
-                    if (showHeatMap) {
-                        Heatmap()
-                    }
+                    Text(weekDays[0],
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline)
+                    Text(weekDays[3],
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline)
+                    Text(weekDays[6],
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline)
+                }
+                if (showHeatMap) {
+                    Heatmap()
                 }
             }
-            
-            item {
-                Text(
-                    R.string.moe_memos.string,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(20.dp)
-                )
-            }
-            item {
-                NavigationDrawerItem(
-                    label = { Text(R.string.memos.string) },
-                    icon = { Icon(Icons.Outlined.GridView, contentDescription = null) },
-                    selected = memosNavController.currentDestination?.route == RouteName.MEMOS,
-                    onClick = {
-                        scope.launch {
-                            memosNavController.navigate(RouteName.MEMOS) {
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                            drawerState.close()
-                        }
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-            }
-            item {
-                NavigationDrawerItem(
-                    label = { Text(R.string.explore.string) },
-                    icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
-                    selected = memosNavController.currentDestination?.route == RouteName.EXPLORE,
-                    onClick = {
-                        scope.launch {
-                            memosNavController.navigate(RouteName.EXPLORE) {
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                            drawerState.close()
-                        }
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-            }
-            item {
-                NavigationDrawerItem(
-                    label = { Text(R.string.resources.string) },
-                    icon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            rootNavController.navigate(RouteName.RESOURCE)
-                        }
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-            }
-            item {
-                NavigationDrawerItem(
-                    label = { Text(R.string.archived.string) },
-                    icon = { Icon(Icons.Outlined.Inventory2, contentDescription = null) },
-                    selected = memosNavController.currentDestination?.route == RouteName.ARCHIVED,
-                    onClick = {
-                        scope.launch {
-                            memosNavController.navigate(RouteName.ARCHIVED) {
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                            drawerState.close()
-                        }
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-            }
-            item {
-                NavigationDrawerItem(
-                    label = { Text(R.string.settings.string) },
-                    icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            rootNavController.navigate(RouteName.SETTINGS)
-                        }
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-            }
+        }
 
-            item {
-                HorizontalDivider(Modifier.padding(vertical = 10.dp))
-            }
+        item {
+            Text(
+                R.string.moe_memos.string,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(20.dp)
+            )
+        }
+        item {
+            NavigationDrawerItem(
+                label = { Text(R.string.memos.string) },
+                icon = { Icon(Icons.Outlined.GridView, contentDescription = null) },
+                selected = memosNavController.currentDestination?.route == RouteName.MEMOS,
+                onClick = {
+                    scope.launch {
+                        memosNavController.navigate(RouteName.MEMOS) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                        drawerState?.close()
+                    }
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            )
+        }
+        item {
+            NavigationDrawerItem(
+                label = { Text(R.string.explore.string) },
+                icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+                selected = memosNavController.currentDestination?.route == RouteName.EXPLORE,
+                onClick = {
+                    scope.launch {
+                        memosNavController.navigate(RouteName.EXPLORE) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                        drawerState?.close()
+                    }
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            )
+        }
+        item {
+            NavigationDrawerItem(
+                label = { Text(R.string.resources.string) },
+                icon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
+                selected = false,
+                onClick = {
+                    scope.launch {
+                        drawerState?.close()
+                        rootNavController.navigate(RouteName.RESOURCE)
+                    }
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            )
+        }
+        item {
+            NavigationDrawerItem(
+                label = { Text(R.string.archived.string) },
+                icon = { Icon(Icons.Outlined.Inventory2, contentDescription = null) },
+                selected = memosNavController.currentDestination?.route == RouteName.ARCHIVED,
+                onClick = {
+                    scope.launch {
+                        memosNavController.navigate(RouteName.ARCHIVED) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                        drawerState?.close()
+                    }
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            )
+        }
+        item {
+            NavigationDrawerItem(
+                label = { Text(R.string.settings.string) },
+                icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
+                selected = false,
+                onClick = {
+                    scope.launch {
+                        drawerState?.close()
+                        rootNavController.navigate(RouteName.SETTINGS)
+                    }
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            )
+        }
 
+        item {
+            HorizontalDivider(Modifier.padding(vertical = 10.dp))
+        }
+
+        item {
+            Text(
+                R.string.tags.string,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(20.dp)
+            )
+        }
+
+        memosViewModel.tags.toList().forEach { tag ->
             item {
-                Text(
-                    R.string.tags.string,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(20.dp)
+                TagDrawerItem(
+                    tag = tag,
+                    memosNavController = memosNavController,
+                    drawerState = drawerState
                 )
-            }
-
-            memosViewModel.tags.toList().forEach { tag ->
-                item {
-                    TagDrawerItem(
-                        tag = tag,
-                        memosNavController = memosNavController,
-                        drawerState = drawerState
-                    )
-                }
             }
         }
     }
 
     LaunchedEffect(Unit) {
         memosViewModel.loadTags()
-        delay(500)
+        delay(0)
         showHeatMap = true
     }
 }

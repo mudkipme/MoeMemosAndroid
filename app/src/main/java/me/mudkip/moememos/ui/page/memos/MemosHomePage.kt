@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.string
@@ -23,7 +24,8 @@ import me.mudkip.moememos.ui.page.common.RouteName
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemosHomePage(
-    drawerState: DrawerState
+    drawerState: DrawerState? = null,
+    navController: NavHostController
 ) {
     val scope = rememberCoroutineScope()
     val rootNavController = LocalRootNavController.current
@@ -33,13 +35,15 @@ fun MemosHomePage(
             TopAppBar(
                 title = { Text(text = R.string.memos.string) },
                 navigationIcon = {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
+                    if (drawerState != null) {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
+                        }
                     }
                 },
                 actions = {
                     IconButton(onClick = {
-                        rootNavController.navigate(RouteName.SEARCH)
+                        navController.navigate(RouteName.SEARCH)
                     }) {
                         Icon(Icons.Filled.Search, contentDescription = R.string.search.string)
                     }
