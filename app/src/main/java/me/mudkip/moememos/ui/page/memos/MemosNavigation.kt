@@ -9,7 +9,7 @@ import me.mudkip.moememos.ui.page.common.RouteName
 
 @Composable
 fun MemosNavigation(
-    drawerState: DrawerState,
+    drawerState: DrawerState? = null,
     navController: NavHostController
 ) {
     NavHost(
@@ -20,7 +20,8 @@ fun MemosNavigation(
             RouteName.MEMOS,
         ) {
             MemosHomePage(
-                drawerState = drawerState
+                drawerState = drawerState,
+                navController = navController,
             )
         }
 
@@ -47,6 +48,10 @@ fun MemosNavigation(
             ExplorePage(
                 drawerState = drawerState
             )
+        }
+
+        composable(RouteName.SEARCH) {
+            SearchPage(navController = navController)
         }
     }
 }

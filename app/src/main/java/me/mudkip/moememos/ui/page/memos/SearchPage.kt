@@ -25,20 +25,19 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.string
-import me.mudkip.moememos.ui.page.common.LocalRootNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchPage() {
+fun SearchPage(navController: NavHostController) {
     var searchText by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())
     }
 
-    val rootNavController = LocalRootNavController.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val focusRequester = remember { FocusRequester() }
 
@@ -57,7 +56,7 @@ fun SearchPage() {
                         placeholder = { Text(R.string.search.string) },
                         shape = ShapeDefaults.ExtraLarge,
                         leadingIcon = {
-                            IconButton(onClick = { rootNavController.popBackStackIfLifecycleIsResumed(lifecycleOwner) }) {
+                            IconButton(onClick = { navController.popBackStackIfLifecycleIsResumed(lifecycleOwner) }) {
                                 Icon(
                                     Icons.AutoMirrored.Outlined.ArrowBack,
                                     contentDescription = R.string.back.string

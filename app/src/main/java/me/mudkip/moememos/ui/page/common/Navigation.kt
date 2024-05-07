@@ -2,6 +2,9 @@ package me.mudkip.moememos.ui.page.common
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -27,7 +30,6 @@ import me.mudkip.moememos.ui.page.account.AccountPage
 import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
 import me.mudkip.moememos.ui.page.memos.MemosPage
-import me.mudkip.moememos.ui.page.memos.SearchPage
 import me.mudkip.moememos.ui.page.resource.ResourceListPage
 import me.mudkip.moememos.ui.page.settings.SettingsPage
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
@@ -46,6 +48,14 @@ fun Navigation() {
                 modifier = Modifier.background(MaterialTheme.colorScheme.surface),
                 navController = navController,
                 startDestination = RouteName.MEMOS,
+                enterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up,
+                        initialOffset = { it / 4 }) + fadeIn()
+                },
+                exitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down,
+                        targetOffset = { it / 4 }) + fadeOut()
+                },
             ) {
                 composable(RouteName.MEMOS) {
                     MemosPage()
@@ -70,10 +80,6 @@ fun Navigation() {
                 composable("${RouteName.EDIT}?memoId={id}"
                 ) { entry ->
                     MemoInputPage(memoId = entry.arguments?.getString("id")?.toLong())
-                }
-
-                composable(RouteName.SEARCH) {
-                    SearchPage()
                 }
 
                 composable(RouteName.RESOURCE) {

@@ -18,7 +18,7 @@ import me.mudkip.moememos.ext.string
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TagMemoPage(
-    drawerState: DrawerState,
+    drawerState: DrawerState? = null,
     tag: String
 ) {
     val scope = rememberCoroutineScope()
@@ -28,8 +28,10 @@ fun TagMemoPage(
             TopAppBar(
                 title = { Text(tag) },
                 navigationIcon = {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
+                    if (drawerState != null) {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
+                        }
                     }
                 },
 //                actions = {
