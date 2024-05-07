@@ -208,7 +208,7 @@ fun SideDrawer(
 
     LaunchedEffect(Unit) {
         memosViewModel.loadTags()
-        delay(500)
+        delay(0)
         showHeatMap = true
     }
 }
