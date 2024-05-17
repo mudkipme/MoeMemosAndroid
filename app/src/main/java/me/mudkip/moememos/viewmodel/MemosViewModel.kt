@@ -89,6 +89,12 @@ class MemosViewModel @Inject constructor(
         }
     }
 
+    suspend fun deleteMemo(memoId: Long) = withContext(viewModelScope.coroutineContext) {
+        memoRepository.deleteMemo(memoId).suspendOnSuccess {
+            memos.removeIf { it.id == memoId }
+        }
+    }
+
     private fun updateMemo(memo: Memo) {
         val index = memos.indexOfFirst { it.id == memo.id }
         if (index != -1) {
