@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.api.MemosV0Memo
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalUserState
 import org.intellij.markdown.MarkdownElementTypes
@@ -41,7 +41,7 @@ import kotlin.math.ceil
 
 @Composable
 fun MemoContent(
-    memo: Memo,
+    memo: MemosV0Memo,
     previewMode: Boolean = false,
     checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit = { _, _, _ -> }
 ) {
@@ -192,7 +192,7 @@ fun extractPreviewContent(markdownText: String, maxLength: Int = 140): Pair<Stri
 }
 
 @Composable
-fun MemoResourceContent(memo: Memo) {
+fun MemoResourceContent(memo: MemosV0Memo) {
     val cols = 3
     memo.resourceList?.let { resourceList ->
         val imageList = resourceList.filter { it.type.startsWith("image/") }

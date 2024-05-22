@@ -36,14 +36,14 @@ import androidx.compose.ui.unit.dp
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.api.MemosV0Memo
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalArchivedMemos
 import me.mudkip.moememos.viewmodel.LocalMemos
 
 @Composable
 fun ArchivedMemoCard(
-    memo: Memo
+    memo: MemosV0Memo
 ) {
     Card(
         modifier = Modifier
@@ -71,7 +71,7 @@ fun ArchivedMemoCard(
 
 @Composable
 fun ArchivedMemosCardActionButton(
-    memo: Memo
+    memo: MemosV0Memo
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()

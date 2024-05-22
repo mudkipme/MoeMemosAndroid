@@ -15,11 +15,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.mudkip.moememos.data.api.MemosRowStatus
+import me.mudkip.moememos.data.api.MemosV0Memo
+import me.mudkip.moememos.data.api.MemosV0Resource
+import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.model.DailyUsageStat
-import me.mudkip.moememos.data.model.Memo
-import me.mudkip.moememos.data.model.MemosRowStatus
-import me.mudkip.moememos.data.model.MemosVisibility
-import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.repository.MemoRepository
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
@@ -33,7 +33,7 @@ class MemosViewModel @Inject constructor(
     private val memoRepository: MemoRepository
 ) : ViewModel() {
 
-    var memos = mutableStateListOf<Memo>()
+    var memos = mutableStateListOf<MemosV0Memo>()
         private set
     var tags = mutableStateListOf<String>()
         private set
@@ -77,7 +77,7 @@ class MemosViewModel @Inject constructor(
         }
     }
 
-    suspend fun editMemo(memoId: Long, content: String, resourceList: List<Resource>?, visibility: MemosVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+    suspend fun editMemo(memoId: Long, content: String, resourceList: List<MemosV0Resource>?, visibility: MemosVisibility): ApiResponse<MemosV0Memo> = withContext(viewModelScope.coroutineContext) {
         memoRepository.editMemo(memoId, content, resourceList?.map { it.id }, visibility).suspendOnSuccess {
             updateMemo(data)
         }
@@ -95,7 +95,7 @@ class MemosViewModel @Inject constructor(
         }
     }
 
-    private fun updateMemo(memo: Memo) {
+    private fun updateMemo(memo: MemosV0Memo) {
         val index = memos.indexOfFirst { it.id == memo.id }
         if (index != -1) {
             memos[index] = memo

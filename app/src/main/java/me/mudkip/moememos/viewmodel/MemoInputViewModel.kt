@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import me.mudkip.moememos.data.model.Memo
-import me.mudkip.moememos.data.model.MemosVisibility
-import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.api.MemosV0Memo
+import me.mudkip.moememos.data.api.MemosV0Resource
+import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.repository.MemoRepository
 import me.mudkip.moememos.data.repository.ResourceRepository
 import me.mudkip.moememos.ext.settingsDataStore
@@ -34,13 +34,13 @@ class MemoInputViewModel @Inject constructor(
     val draft = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.settings?.draft
     }
-    var uploadResources = mutableStateListOf<Resource>()
+    var uploadResources = mutableStateListOf<MemosV0Resource>()
 
-    suspend fun createMemo(content: String, visibility: MemosVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+    suspend fun createMemo(content: String, visibility: MemosVisibility): ApiResponse<MemosV0Memo> = withContext(viewModelScope.coroutineContext) {
         memoRepository.createMemo(content, uploadResources.map { it.id }, visibility)
     }
 
-    suspend fun editMemo(memoId: Long, content: String, visibility: MemosVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+    suspend fun editMemo(memoId: Long, content: String, visibility: MemosVisibility): ApiResponse<MemosV0Memo> = withContext(viewModelScope.coroutineContext) {
         memoRepository.editMemo(memoId, content, uploadResources.map { it.id }, visibility)
     }
 
@@ -60,7 +60,7 @@ class MemoInputViewModel @Inject constructor(
         }
     }
 
-    suspend fun upload(bitmap: Bitmap): ApiResponse<Resource> = withContext(viewModelScope.coroutineContext) {
+    suspend fun upload(bitmap: Bitmap): ApiResponse<MemosV0Resource> = withContext(viewModelScope.coroutineContext) {
         val bos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos)
         val bytes = bos.toByteArray()

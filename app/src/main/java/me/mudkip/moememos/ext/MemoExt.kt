@@ -6,7 +6,7 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.ui.graphics.vector.ImageVector
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.MemosVisibility
+import me.mudkip.moememos.data.api.MemosVisibility
 
 val MemosVisibility.icon: ImageVector get() = when (this) {
     MemosVisibility.PRIVATE -> Icons.Outlined.Lock

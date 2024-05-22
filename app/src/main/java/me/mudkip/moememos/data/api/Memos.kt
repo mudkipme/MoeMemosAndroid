@@ -1,8 +1,16 @@
-package me.mudkip.moememos.data.model
+package me.mudkip.moememos.data.api
 
 import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = false)
+enum class MemosRole {
+    @field:Json(name = "HOST")
+    HOST,
+    @field:Json(name = "USER")
+    USER
+}
 
 @JsonClass(generateAdapter = false)
 enum class MemosVisibility {
@@ -23,15 +31,7 @@ enum class MemosRowStatus {
 }
 
 @Keep
-data class Memo(
-    val id: Long,
-    val createdTs: Long,
-    val creatorId: Long,
-    val creatorName: String? = null,
-    var content: String,
-    var pinned: Boolean,
-    val rowStatus: MemosRowStatus = MemosRowStatus.NORMAL,
-    val updatedTs: Long,
-    val visibility: MemosVisibility = MemosVisibility.PRIVATE,
-    val resourceList: List<Resource>? = null
+data class MemosProfile(
+    val mode: String,
+    val version: String
 )

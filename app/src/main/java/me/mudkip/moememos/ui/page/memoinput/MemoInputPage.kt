@@ -75,8 +75,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.MoeMemosFileProvider
 import me.mudkip.moememos.R
+import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.constant.LIST_ITEM_SYMBOL_LIST
-import me.mudkip.moememos.data.model.MemosVisibility
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed

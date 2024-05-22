@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import me.mudkip.moememos.data.api.MemosApi
+import me.mudkip.moememos.data.api.MemosV0Api
+import me.mudkip.moememos.data.api.MemosV0UserSettingKey
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
-import me.mudkip.moememos.data.model.MemosUserSettingKey
 import me.mudkip.moememos.ext.settingsDataStore
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
@@ -31,7 +31,7 @@ class AccountService @Inject constructor(
     private val context: Context,
     private val okHttpClient: OkHttpClient
 ) {
-    private var memosApi: MemosApi? = null
+    private var memosV0Api: MemosV0Api? = null
     var httpClient: OkHttpClient = okHttpClient
         private set
     val accounts = context.settingsDataStore.data.map { settings ->
@@ -54,11 +54,11 @@ class AccountService @Inject constructor(
             is Account.Memos -> {
                 val memosAccount = account.info
                 val (client, memosApi) = createMemosClient(memosAccount.host, memosAccount.accessToken)
-                this.memosApi = memosApi
+                this.memosV0Api = memosApi
                 this.httpClient = client
             }
             else -> {
-                memosApi = null
+                memosV0Api = null
                 httpClient = okHttpClient
             }
         }
@@ -107,7 +107,7 @@ class AccountService @Inject constructor(
         }
     }
 
-    fun createMemosClient(host: String, accessToken: String?): Pair<OkHttpClient, MemosApi> {
+    fun createMemosClient(host: String, accessToken: String?): Pair<OkHttpClient, MemosV0Api> {
         var client = okHttpClient
 
         if (!accessToken.isNullOrEmpty()) {
@@ -131,17 +131,17 @@ class AccountService @Inject constructor(
                 MoshiConverterFactory.create(
                 Moshi.Builder()
                     .add(
-                        MemosUserSettingKey::class.java, EnumJsonAdapter.create(MemosUserSettingKey::class.java)
-                        .withUnknownFallback(MemosUserSettingKey.UNKNOWN))
+                        MemosV0UserSettingKey::class.java, EnumJsonAdapter.create(MemosV0UserSettingKey::class.java)
+                        .withUnknownFallback(MemosV0UserSettingKey.UNKNOWN))
                     .add(KotlinJsonAdapterFactory())
                     .build()
             ))
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
-            .create(MemosApi::class.java)
+            .create(MemosV0Api::class.java)
     }
 
-    suspend fun <T>memosCall(block: suspend (MemosApi) -> ApiResponse<T>): ApiResponse<T> {
-        return memosApi?.let { block(it) } ?: ApiResponse.exception(MoeMemosException.notLogin)
+    suspend fun <T>memosCall(block: suspend (MemosV0Api) -> ApiResponse<T>): ApiResponse<T> {
+        return memosV0Api?.let { block(it) } ?: ApiResponse.exception(MoeMemosException.notLogin)
     }
 }

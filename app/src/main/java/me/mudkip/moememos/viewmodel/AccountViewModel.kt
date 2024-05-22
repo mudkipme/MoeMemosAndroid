@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
+import me.mudkip.moememos.data.api.MemosV0Status
+import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
-import me.mudkip.moememos.data.model.Status
-import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.service.AccountService
 
 @HiltViewModel(assistedFactory = AccountViewModel.AccountViewModelFactory::class)
@@ -47,19 +47,19 @@ class AccountViewModel @AssistedInject constructor(
         }
     }
 
-    var user: User? by mutableStateOf(null)
+    var user: MemosV0User? by mutableStateOf(null)
         private set
 
-    var status: Status? by mutableStateOf(null)
+    var status: MemosV0Status? by mutableStateOf(null)
         private set
 
-    suspend fun loadUser(): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
+    suspend fun loadUser(): ApiResponse<MemosV0User> = withContext(viewModelScope.coroutineContext) {
         memosApi.firstOrNull()?.me()?.suspendOnSuccess {
             user = data
         } ?: ApiResponse.exception(MoeMemosException.notLogin)
     }
 
-    suspend fun loadStatus(): ApiResponse<Status> = withContext(viewModelScope.coroutineContext) {
+    suspend fun loadStatus(): ApiResponse<MemosV0Status> = withContext(viewModelScope.coroutineContext) {
         memosApi.firstOrNull()?.status()?.suspendOnSuccess {
             status = data
         } ?: ApiResponse.exception(MoeMemosException.notLogin)

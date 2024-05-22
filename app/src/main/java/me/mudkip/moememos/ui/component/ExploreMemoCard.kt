@@ -13,11 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.api.MemosV0Memo
 
 @Composable
 fun ExploreMemoCard(
-    memo: Memo
+    memo: MemosV0Memo
 ) {
     Card(
         modifier = Modifier

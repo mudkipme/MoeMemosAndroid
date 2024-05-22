@@ -18,11 +18,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.api.SignInInput
+import me.mudkip.moememos.data.api.MemosV0SignInInput
+import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemosAccount
-import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.repository.UserRepository
 import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.ext.string
@@ -37,7 +37,7 @@ class UserStateViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    var currentUser: User? by mutableStateOf(null)
+    var currentUser: MemosV0User? by mutableStateOf(null)
         private set
 
     var host: String = ""
@@ -57,7 +57,7 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    suspend fun loadCurrentUser(): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
+    suspend fun loadCurrentUser(): ApiResponse<MemosV0User> = withContext(viewModelScope.coroutineContext) {
         userRepository.getCurrentUser().suspendOnSuccess {
             currentUser = data
         }.suspendOnNotLogin {
@@ -65,11 +65,11 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    suspend fun login(host: String, username: String, password: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
+    suspend fun login(host: String, username: String, password: String): ApiResponse<MemosV0User> = withContext(viewModelScope.coroutineContext) {
         try {
             val hostUrl = host.toHttpUrlOrNull() ?: throw IllegalArgumentException()
             val (okHttpClient, client) = accountService.createMemosClient(host, null)
-            val resp = client.signIn(SignInInput(username, username, password, true))
+            val resp = client.signIn(MemosV0SignInInput(username, username, password, true))
             okHttpClient.cookieJar.loadForRequest(hostUrl).forEach {
                 if (it.name == "memos.access-token") {
                     accountService.addAccount(getAccount(host, it.value, resp.getOrThrow()))
@@ -83,7 +83,7 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    suspend fun loginWithAccessToken(host: String, accessToken: String): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
+    suspend fun loginWithAccessToken(host: String, accessToken: String): ApiResponse<MemosV0User> = withContext(viewModelScope.coroutineContext) {
         try {
             val resp = accountService.createMemosClient(host, accessToken).second.me()
             accountService.addAccount(getAccount(host, accessToken, resp.getOrThrow()))
@@ -109,7 +109,7 @@ class UserStateViewModel @Inject constructor(
         loadCurrentUser()
     }
 
-    private fun getAccount(host: String, accessToken: String, user: User): Account = Account.Memos(
+    private fun getAccount(host: String, accessToken: String, user: MemosV0User): Account = Account.Memos(
         info = MemosAccount.newBuilder()
             .setHost(host)
             .setId(user.id)

@@ -28,14 +28,14 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.api.MemosV0Resource
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
 
 @Composable
 fun InputImage(
-    resource: Resource,
+    resource: MemosV0Resource,
     inputViewModel: MemoInputViewModel
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
