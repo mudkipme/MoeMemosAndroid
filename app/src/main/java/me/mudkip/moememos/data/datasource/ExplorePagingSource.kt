@@ -6,13 +6,13 @@ import com.skydoves.sandwich.getOrElse
 import com.skydoves.sandwich.mapSuccess
 import me.mudkip.moememos.data.api.MemosV0Memo
 import me.mudkip.moememos.data.constant.MoeMemosException
-import me.mudkip.moememos.data.repository.MemoRepository
+import me.mudkip.moememos.data.repository.MemosV0Repository
 import me.mudkip.moememos.ext.getErrorMessage
 
 const val EXPLORE_PAGE_SIZE = 20
 
 class ExplorePagingSource(
-    private val memoRepository: MemoRepository
+    private val memoRepository: MemosV0Repository
 ) : PagingSource<Int, MemosV0Memo>() {
 
     override fun getRefreshKey(state: PagingState<Int, MemosV0Memo>): Int? {

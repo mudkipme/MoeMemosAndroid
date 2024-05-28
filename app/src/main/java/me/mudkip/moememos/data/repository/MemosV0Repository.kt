@@ -6,13 +6,18 @@ import me.mudkip.moememos.data.api.MemosV0CreateMemoInput
 import me.mudkip.moememos.data.api.MemosV0DeleteTagInput
 import me.mudkip.moememos.data.api.MemosV0Memo
 import me.mudkip.moememos.data.api.MemosV0PatchMemoInput
+import me.mudkip.moememos.data.api.MemosV0Resource
 import me.mudkip.moememos.data.api.MemosV0UpdateMemoOrganizerInput
 import me.mudkip.moememos.data.api.MemosV0UpdateTagInput
+import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.service.AccountService
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
-class MemoRepository @Inject constructor(private val accountService: AccountService) {
+class MemosV0Repository @Inject constructor(private val accountService: AccountService) {
     suspend fun loadMemos(rowStatus: MemosRowStatus? = null): ApiResponse<List<MemosV0Memo>> = accountService.memosCall { api ->
         api.listMemo(rowStatus = rowStatus)
     }
@@ -61,5 +66,22 @@ class MemoRepository @Inject constructor(private val accountService: AccountServ
             tag = tag,
             visibility = visibility
         )
+    }
+
+    suspend fun loadResources(): ApiResponse<List<MemosV0Resource>> = accountService.memosCall { api ->
+        api.getResources()
+    }
+
+    suspend fun uploadResource(resourceData: ByteArray, filename: String, mediaType: MediaType): ApiResponse<MemosV0Resource> = accountService.memosCall { api ->
+        val file = MultipartBody.Part.createFormData("file", filename, resourceData.toRequestBody(mediaType))
+        api.uploadResource(file)
+    }
+
+    suspend fun deleteResource(resourceId: Long): ApiResponse<Unit> = accountService.memosCall { api ->
+        api.deleteResource(resourceId)
+    }
+
+    suspend fun getCurrentUser(): ApiResponse<MemosV0User> = accountService.memosCall { api ->
+        api.me()
     }
 }

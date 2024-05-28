@@ -20,7 +20,7 @@ import me.mudkip.moememos.data.api.MemosV0Memo
 import me.mudkip.moememos.data.api.MemosV0Resource
 import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.model.DailyUsageStat
-import me.mudkip.moememos.data.repository.MemoRepository
+import me.mudkip.moememos.data.repository.MemosV0Repository
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import java.time.LocalDate
@@ -30,7 +30,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MemosViewModel @Inject constructor(
-    private val memoRepository: MemoRepository
+    private val memoRepository: MemosV0Repository
 ) : ViewModel() {
 
     var memos = mutableStateListOf<MemosV0Memo>()

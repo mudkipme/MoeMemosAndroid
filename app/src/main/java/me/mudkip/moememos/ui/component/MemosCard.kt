@@ -47,6 +47,7 @@ import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.MemosRowStatus
 import me.mudkip.moememos.data.api.MemosV0Memo
+import me.mudkip.moememos.data.api.toMemoVisibility
 import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
@@ -80,8 +81,8 @@ fun MemosCard(
                 )
                 if (LocalUserState.current.currentUser?.memoVisibility != memo.visibility) {
                     Icon(
-                        memo.visibility.icon,
-                        contentDescription = stringResource(memo.visibility.titleResource),
+                        memo.visibility.toMemoVisibility().icon,
+                        contentDescription = stringResource(memo.visibility.toMemoVisibility().titleResource),
                         modifier = Modifier
                             .padding(start = 5.dp)
                             .size(20.dp),

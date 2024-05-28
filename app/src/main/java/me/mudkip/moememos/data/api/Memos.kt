@@ -3,6 +3,7 @@ package me.mudkip.moememos.data.api
 import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import me.mudkip.moememos.data.model.MemoVisibility
 
 @JsonClass(generateAdapter = false)
 enum class MemosRole {
@@ -26,6 +27,13 @@ enum class MemosVisibility {
     PROTECTED,
     @field:Json(name = "PUBLIC")
     PUBLIC
+}
+
+fun MemosVisibility.toMemoVisibility(): MemoVisibility = when (this) {
+    MemosVisibility.PRIVATE -> MemoVisibility.PRIVATE
+    MemosVisibility.PROTECTED -> MemoVisibility.PROTECTED
+    MemosVisibility.PUBLIC -> MemoVisibility.PUBLIC
+    else -> MemoVisibility.PRIVATE
 }
 
 @JsonClass(generateAdapter = false)

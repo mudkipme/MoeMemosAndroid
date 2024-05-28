@@ -16,8 +16,7 @@ import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.api.MemosV0Memo
 import me.mudkip.moememos.data.api.MemosV0Resource
 import me.mudkip.moememos.data.api.MemosVisibility
-import me.mudkip.moememos.data.repository.MemoRepository
-import me.mudkip.moememos.data.repository.ResourceRepository
+import me.mudkip.moememos.data.repository.MemosV0Repository
 import me.mudkip.moememos.ext.settingsDataStore
 import okhttp3.MediaType.Companion.toMediaType
 import java.io.ByteArrayOutputStream
@@ -28,8 +27,7 @@ import javax.inject.Inject
 class MemoInputViewModel @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val memoRepository: MemoRepository,
-    private val resourceRepository: ResourceRepository
+    private val memoRepository: MemosV0Repository
 ) : ViewModel() {
     val draft = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.settings?.draft
@@ -64,13 +62,13 @@ class MemoInputViewModel @Inject constructor(
         val bos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos)
         val bytes = bos.toByteArray()
-        resourceRepository.uploadResource(bytes, UUID.randomUUID().toString() + ".jpg", "image/jpeg".toMediaType()).suspendOnSuccess {
+        memoRepository.uploadResource(bytes, UUID.randomUUID().toString() + ".jpg", "image/jpeg".toMediaType()).suspendOnSuccess {
             uploadResources.add(data)
         }
     }
 
     fun deleteResource(resourceId: Long) = viewModelScope.launch {
-        resourceRepository.deleteResource(resourceId).suspendOnSuccess {
+        memoRepository.deleteResource(resourceId).suspendOnSuccess {
             uploadResources.removeIf { it.id == resourceId }
         }
     }

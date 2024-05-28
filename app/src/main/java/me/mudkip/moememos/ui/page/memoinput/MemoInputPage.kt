@@ -76,6 +76,7 @@ import kotlinx.coroutines.launch
 import me.mudkip.moememos.MoeMemosFileProvider
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.MemosVisibility
+import me.mudkip.moememos.data.api.toMemoVisibility
 import me.mudkip.moememos.data.constant.LIST_ITEM_SYMBOL_LIST
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.icon
@@ -275,13 +276,13 @@ fun MemoInputPage(
                     ) {
                         enumValues<MemosVisibility>().forEach { visibility ->
                             DropdownMenuItem(
-                                text = { Text(stringResource(visibility.titleResource)) },
+                                text = { Text(stringResource(visibility.toMemoVisibility().titleResource)) },
                                 onClick = {
                                     currentVisibility = visibility
                                     visibilityMenuExpanded = false
                                 },
                                 leadingIcon = {
-                                    Icon(visibility.icon, contentDescription = stringResource(visibility.titleResource))
+                                    Icon(visibility.toMemoVisibility().icon, contentDescription = stringResource(visibility.toMemoVisibility().titleResource))
                                 },
                                 trailingIcon = {
                                     if (currentVisibility == visibility) {
@@ -293,8 +294,8 @@ fun MemoInputPage(
                     }
                     IconButton(onClick = { visibilityMenuExpanded = !visibilityMenuExpanded }) {
                         Icon(
-                            currentVisibility.icon,
-                            contentDescription = stringResource(currentVisibility.titleResource)
+                            currentVisibility.toMemoVisibility().icon,
+                            contentDescription = stringResource(currentVisibility.toMemoVisibility().titleResource)
                         )
                     }
                 }

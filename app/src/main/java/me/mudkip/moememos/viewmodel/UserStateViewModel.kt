@@ -23,7 +23,7 @@ import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemosAccount
-import me.mudkip.moememos.data.repository.UserRepository
+import me.mudkip.moememos.data.repository.MemosV0Repository
 import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnNotLogin
@@ -34,7 +34,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UserStateViewModel @Inject constructor(
     private val accountService: AccountService,
-    private val userRepository: UserRepository
+    private val memoRepository: MemosV0Repository
 ) : ViewModel() {
 
     var currentUser: MemosV0User? by mutableStateOf(null)
@@ -58,7 +58,7 @@ class UserStateViewModel @Inject constructor(
     }
 
     suspend fun loadCurrentUser(): ApiResponse<MemosV0User> = withContext(viewModelScope.coroutineContext) {
-        userRepository.getCurrentUser().suspendOnSuccess {
+        memoRepository.getCurrentUser().suspendOnSuccess {
             currentUser = data
         }.suspendOnNotLogin {
             currentUser = null
