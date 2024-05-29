@@ -5,6 +5,7 @@ import androidx.annotation.Keep
 import com.skydoves.sandwich.ApiResponse
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import me.mudkip.moememos.data.model.User
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -15,6 +16,7 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.Date
 
 @Keep
 data class MemosV0SignInInput(
@@ -142,6 +144,15 @@ data class MemosV0User(
             MemosVisibility.PRIVATE
         }
     } ?: MemosVisibility.PRIVATE
+
+    fun toUser(): User {
+        return User(
+            identifier = id.toString(),
+            name = displayName,
+            startDate = Date(createdTs * 1000),
+            defaultVisibility = memoVisibility.toMemoVisibility()
+        )
+    }
 }
 
 @JsonClass(generateAdapter = false)

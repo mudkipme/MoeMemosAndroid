@@ -1,7 +1,9 @@
 package me.mudkip.moememos.data.repository
 
 import com.skydoves.sandwich.ApiResponse
+import com.skydoves.sandwich.mapSuccess
 import me.mudkip.moememos.data.api.MemosRowStatus
+import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV0CreateMemoInput
 import me.mudkip.moememos.data.api.MemosV0DeleteTagInput
 import me.mudkip.moememos.data.api.MemosV0Memo
@@ -9,79 +11,158 @@ import me.mudkip.moememos.data.api.MemosV0PatchMemoInput
 import me.mudkip.moememos.data.api.MemosV0Resource
 import me.mudkip.moememos.data.api.MemosV0UpdateMemoOrganizerInput
 import me.mudkip.moememos.data.api.MemosV0UpdateTagInput
-import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.api.MemosVisibility
-import me.mudkip.moememos.data.service.AccountService
+import me.mudkip.moememos.data.constant.MoeMemosException
+import me.mudkip.moememos.data.model.Account
+import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.model.MemoVisibility
+import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import javax.inject.Inject
+import java.util.Date
 
-class MemosV0Repository @Inject constructor(private val accountService: AccountService) {
-    suspend fun loadMemos(rowStatus: MemosRowStatus? = null): ApiResponse<List<MemosV0Memo>> = accountService.memosCall { api ->
-        api.listMemo(rowStatus = rowStatus)
-    }
-
-    suspend fun createMemo(content: String, resourceIdList: List<Long>? = null, visibility: MemosVisibility = MemosVisibility.PRIVATE): ApiResponse<MemosV0Memo> = accountService.memosCall { api ->
-        api.createMemo(MemosV0CreateMemoInput(content, resourceIdList = resourceIdList, visibility = visibility))
-    }
-
-    suspend fun getTags(): ApiResponse<List<String>> = accountService.memosCall { api ->
-        api.getTags()
-    }
-
-    suspend fun updateTag(name: String): ApiResponse<String> = accountService.memosCall { api ->
-        api.updateTag(MemosV0UpdateTagInput(name))
-    }
-
-    suspend fun deleteTag(name: String): ApiResponse<Unit> = accountService.memosCall { api ->
-        api.deleteTag(MemosV0DeleteTagInput(name))
-    }
-
-    suspend fun updatePinned(memoId: Long, pinned: Boolean): ApiResponse<MemosV0Memo> = accountService.memosCall { api ->
-        api.updateMemoOrganizer(memoId, MemosV0UpdateMemoOrganizerInput(pinned = pinned))
-    }
-
-    suspend fun archiveMemo(memoId: Long): ApiResponse<MemosV0Memo> = accountService.memosCall { api ->
-        api.patchMemo(memoId, MemosV0PatchMemoInput(id = memoId, rowStatus = MemosRowStatus.ARCHIVED))
-    }
-
-    suspend fun restoreMemo(memoId: Long): ApiResponse<MemosV0Memo> = accountService.memosCall { api ->
-        api.patchMemo(memoId, MemosV0PatchMemoInput(id = memoId, rowStatus = MemosRowStatus.NORMAL))
-    }
-
-    suspend fun deleteMemo(memoId: Long): ApiResponse<Unit> = accountService.memosCall { api ->
-        api.deleteMemo(memoId)
-    }
-
-    suspend fun editMemo(memoId: Long, content: String, resourceIdList: List<Long>? = null, visibility: MemosVisibility = MemosVisibility.PRIVATE): ApiResponse<MemosV0Memo> = accountService.memosCall { api ->
-        api.patchMemo(memoId, MemosV0PatchMemoInput(id = memoId, content = content, resourceIdList = resourceIdList, visibility = visibility))
-    }
-
-    suspend fun listAllMemo(limit: Int? = null, offset: Int? = null, pinned: Boolean? = null, tag: String? = null, visibility: MemosVisibility? = null): ApiResponse<List<MemosV0Memo>> = accountService.memosCall { api ->
-        api.listAllMemo(
-            limit = limit,
-            offset = offset,
-            pinned = pinned,
-            tag = tag,
-            visibility = visibility
+class MemosV0Repository (
+    private val memosApi: MemosV0Api,
+    private val account: Account.MemosV0,
+) : AbstractMemoRepository() {
+    private fun convertResource(resource: MemosV0Resource): Resource {
+        return Resource(
+            identifier = resource.id.toString(),
+            date = Date(resource.createdTs * 1000),
+            filename = resource.filename,
+            uri = resource.uri(account.info.host),
+            mimeType = resource.type.toMediaTypeOrNull()
         )
     }
 
-    suspend fun loadResources(): ApiResponse<List<MemosV0Resource>> = accountService.memosCall { api ->
-        api.getResources()
+    private fun convertMemo(memo: MemosV0Memo): Memo {
+        return Memo(
+            identifier = memo.id.toString(),
+            content = memo.content,
+            date = Date(memo.createdTs * 1000),
+            pinned = memo.pinned,
+            visibility = memo.visibility.toMemoVisibility(),
+            resources = memo.resourceList?.map { convertResource(it) } ?: emptyList(),
+            tags = emptyList(),
+            creator = memo.creatorName?.let { User(memo.creatorId.toString(), it) }
+        )
     }
 
-    suspend fun uploadResource(resourceData: ByteArray, filename: String, mediaType: MediaType): ApiResponse<MemosV0Resource> = accountService.memosCall { api ->
-        val file = MultipartBody.Part.createFormData("file", filename, resourceData.toRequestBody(mediaType))
-        api.uploadResource(file)
+    override suspend fun listMemos(): ApiResponse<List<Memo>> {
+        return memosApi.listMemo(rowStatus = MemosRowStatus.NORMAL).mapSuccess {
+            this.map { convertMemo(it) }
+        }
     }
 
-    suspend fun deleteResource(resourceId: Long): ApiResponse<Unit> = accountService.memosCall { api ->
-        api.deleteResource(resourceId)
+    override suspend fun listArchivedMemos(): ApiResponse<List<Memo>> {
+        return memosApi.listMemo(rowStatus = MemosRowStatus.ARCHIVED).mapSuccess {
+            this.map { convertMemo(it) }
+        }
     }
 
-    suspend fun getCurrentUser(): ApiResponse<MemosV0User> = accountService.memosCall { api ->
-        api.me()
+    override suspend fun createMemo(
+        content: String,
+        visibility: MemoVisibility,
+        resources: List<Resource>
+    ): ApiResponse<Memo> {
+        return memosApi.createMemo(MemosV0CreateMemoInput(content, resourceIdList = resources.map { it.identifier.toLong() }, visibility = MemosVisibility.fromMemoVisibility(visibility))).mapSuccess {
+            convertMemo(this)
+        }
+    }
+
+    override suspend fun updateMemo(
+        identifier: String,
+        content: String?,
+        resources: List<Resource>?,
+        visibility: MemoVisibility?,
+        tags: List<String>?,
+        pinned: Boolean?
+    ): ApiResponse<Memo> {
+        var result: ApiResponse<Memo> = ApiResponse.exception(MoeMemosException.invalidParameter)
+        pinned?.let {
+            result = memosApi.updateMemoOrganizer(identifier.toLong(), MemosV0UpdateMemoOrganizerInput(pinned = it)).mapSuccess {
+                convertMemo(this)
+            }
+            if (result !is ApiResponse.Success<Memo>) {
+                return result
+            }
+        }
+        content?.let {
+            val memosVisibility = visibility?.let { v -> MemosVisibility.fromMemoVisibility(v) }
+            val resourceIdList = resources?.map { resource -> resource.identifier.toLong() }
+            result = memosApi.patchMemo(identifier.toLong(), MemosV0PatchMemoInput(id = identifier.toLong(), content = it, visibility = memosVisibility, resourceIdList = resourceIdList)).mapSuccess {
+                convertMemo(this)
+            }
+        }
+        tags?.forEach { tag ->
+            memosApi.updateTag(MemosV0UpdateTagInput(tag))
+        }
+        return result
+    }
+
+    override suspend fun deleteMemo(identifier: String): ApiResponse<Unit> {
+        return memosApi.deleteMemo(identifier.toLong())
+    }
+
+    override suspend fun archiveMemo(identifier: String): ApiResponse<Unit> {
+        return memosApi.patchMemo(identifier.toLong(), MemosV0PatchMemoInput(id = identifier.toLong(), rowStatus = MemosRowStatus.ARCHIVED)).mapSuccess {}
+    }
+
+    override suspend fun restoreMemo(identifier: String): ApiResponse<Unit> {
+        return memosApi.patchMemo(identifier.toLong(), MemosV0PatchMemoInput(id = identifier.toLong(), rowStatus = MemosRowStatus.NORMAL)).mapSuccess {}
+    }
+
+    override suspend fun listTags(): ApiResponse<List<String>> {
+        return memosApi.getTags()
+    }
+
+    override suspend fun deleteTag(name: String): ApiResponse<Unit> {
+        return memosApi.deleteTag(MemosV0DeleteTagInput(name))
+    }
+
+    override suspend fun listResources(): ApiResponse<List<Resource>> {
+        return memosApi.getResources().mapSuccess {
+            this.map { convertResource(it) }
+        }
+    }
+
+    override suspend fun createResource(
+        filename: String,
+        type: MediaType?,
+        content: ByteArray,
+        memoIdentifier: String?
+    ): ApiResponse<Resource> {
+        val file = MultipartBody.Part.createFormData("file", filename, content.toRequestBody(type))
+        return memosApi.uploadResource(file).mapSuccess {
+            convertResource(this)
+        }
+    }
+
+    override suspend fun deleteResource(identifier: String): ApiResponse<Unit> {
+        return memosApi.deleteResource(identifier.toLong())
+    }
+
+    override suspend fun listWorkspaceMemos(
+        pageSize: Int,
+        pageToken: String?
+    ): ApiResponse<Pair<List<Memo>, String>> {
+        return memosApi.listAllMemo(limit = pageSize, offset = pageToken?.toIntOrNull()).mapSuccess {
+            val memos = this.map { convertMemo(it) }
+            val nextPageToken = (pageToken?.toIntOrNull() ?: 0) + pageSize
+            memos to nextPageToken.toString()
+        }
+    }
+
+    override suspend fun getCurrentUser(): ApiResponse<User> {
+        return memosApi.me().mapSuccess {
+            toUser()
+        }
+    }
+
+    override suspend fun logout(): ApiResponse<Unit> {
+        return memosApi.logout()
     }
 }

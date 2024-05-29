@@ -79,7 +79,7 @@ fun Navigation() {
 
                 composable("${RouteName.EDIT}?memoId={id}"
                 ) { entry ->
-                    MemoInputPage(memoId = entry.arguments?.getString("id")?.toLong())
+                    MemoInputPage(memoIdentifier = entry.arguments?.getString("id"))
                 }
 
                 composable(RouteName.RESOURCE) {

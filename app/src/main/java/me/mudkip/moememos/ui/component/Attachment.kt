@@ -13,13 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.api.MemosV0Resource
+import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalUserState
 
 @Composable
 fun Attachment(
-    resource: MemosV0Resource
+    resource: Resource
 ) {
     val uriHandler = LocalUriHandler.current
     val userStateViewModel = LocalUserState.current
@@ -27,7 +27,7 @@ fun Attachment(
     AssistChip(
         modifier = Modifier.padding(bottom = 10.dp),
         onClick = {
-            uriHandler.openUri(resource.uri(userStateViewModel.host).toString())
+            uriHandler.openUri(resource.uri.toString())
         },
         label = { Text(resource.filename) },
         leadingIcon = {

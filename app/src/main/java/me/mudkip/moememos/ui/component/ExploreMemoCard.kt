@@ -13,11 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import me.mudkip.moememos.data.api.MemosV0Memo
+import me.mudkip.moememos.data.model.Memo
 
 @Composable
 fun ExploreMemoCard(
-    memo: MemosV0Memo
+    memo: Memo
 ) {
     Card(
         modifier = Modifier
@@ -32,14 +32,14 @@ fun ExploreMemoCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    DateUtils.getRelativeTimeSpanString(memo.createdTs * 1000, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
+                    DateUtils.getRelativeTimeSpanString(memo.date.time, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )
 
-                if (!TextUtils.isEmpty(memo.creatorName)) {
+                if (memo.creator != null && !TextUtils.isEmpty(memo.creator.name)) {
                     Text(
-                        "@${memo.creatorName}",
+                        "@${memo.creator.name}",
                         modifier = Modifier.padding(start = 10.dp),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.outline

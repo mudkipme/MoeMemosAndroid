@@ -21,8 +21,9 @@ message UserData {
   UserSettings settings = 1;
   string account_key = 2;
   oneof account {
-    MemosAccount memos = 3;
-    LocalAccount local = 4;
+    MemosAccount memos_v0 = 3;
+    MemosAccount memos_v1 = 4;
+    LocalAccount local = 5;
   }
 }
 

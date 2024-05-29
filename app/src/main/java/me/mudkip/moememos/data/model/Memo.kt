@@ -15,5 +15,6 @@ data class Memo(
     val pinned: Boolean,
     val visibility: MemoVisibility,
     val resources: List<Resource>,
-    val tags: List<String>
+    val tags: List<String>,
+    val creator: User? = null
 )

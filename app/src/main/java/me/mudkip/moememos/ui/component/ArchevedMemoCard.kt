@@ -36,14 +36,14 @@ import androidx.compose.ui.unit.dp
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.api.MemosV0Memo
+import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalArchivedMemos
 import me.mudkip.moememos.viewmodel.LocalMemos
 
 @Composable
 fun ArchivedMemoCard(
-    memo: MemosV0Memo
+    memo: Memo
 ) {
     Card(
         modifier = Modifier
@@ -56,7 +56,7 @@ fun ArchivedMemoCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    DateUtils.getRelativeTimeSpanString(memo.createdTs * 1000, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
+                    DateUtils.getRelativeTimeSpanString(memo.date.time, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )
@@ -71,7 +71,7 @@ fun ArchivedMemoCard(
 
 @Composable
 fun ArchivedMemosCardActionButton(
-    memo: MemosV0Memo
+    memo: Memo
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -90,7 +90,7 @@ fun ArchivedMemosCardActionButton(
                 text = { Text(R.string.restore.string) },
                 onClick = {
                     scope.launch {
-                        archivedMemoListViewModel.restoreMemo(memo.id).suspendOnSuccess {
+                        archivedMemoListViewModel.restoreMemo(memo.identifier).suspendOnSuccess {
                             menuExpanded = false
                             memosViewModel.loadMemos()
                         }
@@ -129,7 +129,7 @@ fun ArchivedMemosCardActionButton(
                 TextButton(
                     onClick = {
                         scope.launch {
-                            archivedMemoListViewModel.deleteMemo(memo.id).suspendOnSuccess {
+                            archivedMemoListViewModel.deleteMemo(memo.identifier).suspendOnSuccess {
                                 showDeleteDialog = false
                             }
                         }

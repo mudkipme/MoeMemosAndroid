@@ -79,7 +79,7 @@ fun SettingsPage(
 
             accounts.forEach { account ->
                 when (account) {
-                    is Account.Memos -> item {
+                    is Account.MemosV0 -> item {
                         SettingItem(icon = MemosIcon, text = account.info.name, trailingIcon = {
                             if (currentAccount?.accountKey() == account.accountKey()) {
                                 Icon(Icons.Outlined.Check,

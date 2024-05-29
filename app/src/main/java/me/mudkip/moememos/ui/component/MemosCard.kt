@@ -45,9 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.api.MemosRowStatus
-import me.mudkip.moememos.data.api.MemosV0Memo
-import me.mudkip.moememos.data.api.toMemoVisibility
+import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
@@ -58,7 +56,7 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 
 @Composable
 fun MemosCard(
-    memo: MemosV0Memo,
+    memo: Memo,
     previewMode: Boolean = false
 ) {
     val memosViewModel = LocalMemos.current
@@ -68,21 +66,21 @@ fun MemosCard(
         modifier = Modifier
             .padding(horizontal = 15.dp, vertical = 10.dp)
             .fillMaxWidth(),
-        border = if (memo.pinned && memo.rowStatus == MemosRowStatus.NORMAL) { BorderStroke(1.dp, MaterialTheme.colorScheme.primary) } else { null }
+        border = if (memo.pinned) { BorderStroke(1.dp, MaterialTheme.colorScheme.primary) } else { null }
     ) {
         Column {
             Row(
                 modifier = Modifier.padding(start = 15.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(DateUtils.getRelativeTimeSpanString(memo.createdTs * 1000, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
+                Text(DateUtils.getRelativeTimeSpanString(memo.date.time, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )
-                if (LocalUserState.current.currentUser?.memoVisibility != memo.visibility) {
+                if (LocalUserState.current.currentUser?.defaultVisibility != memo.visibility) {
                     Icon(
-                        memo.visibility.toMemoVisibility().icon,
-                        contentDescription = stringResource(memo.visibility.toMemoVisibility().titleResource),
+                        memo.visibility.icon,
+                        contentDescription = stringResource(memo.visibility.titleResource),
                         modifier = Modifier
                             .padding(start = 5.dp)
                             .size(20.dp),
@@ -101,7 +99,7 @@ fun MemosCard(
                     } else {
                         text.replace("[x]", "[ ]")
                     }
-                    memosViewModel.editMemo(memo.id, memo.content.replaceRange(startOffset, endOffset, text), memo.resourceList, memo.visibility)
+                    memosViewModel.editMemo(memo.identifier, memo.content.replaceRange(startOffset, endOffset, text), memo.resources, memo.visibility)
                 }
             })
         }
@@ -110,7 +108,7 @@ fun MemosCard(
 
 @Composable
 fun MemosCardActionButton(
-    memo: MemosV0Memo
+    memo: Memo
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -131,7 +129,7 @@ fun MemosCardActionButton(
                     text = { Text(R.string.unpin.string) },
                     onClick = {
                         scope.launch {
-                            memosViewModel.updateMemoPinned(memo.id, false).suspendOnSuccess {
+                            memosViewModel.updateMemoPinned(memo.identifier, false).suspendOnSuccess {
                                 menuExpanded = false
                             }
                         }
@@ -147,7 +145,7 @@ fun MemosCardActionButton(
                     text = { Text(R.string.pin.string) },
                     onClick = {
                         scope.launch {
-                            memosViewModel.updateMemoPinned(memo.id, true).suspendOnSuccess {
+                            memosViewModel.updateMemoPinned(memo.identifier, true).suspendOnSuccess {
                                 menuExpanded = false
                             }
                         }
@@ -162,7 +160,7 @@ fun MemosCardActionButton(
             DropdownMenuItem(
                 text = { Text(R.string.edit.string) },
                 onClick = {
-                    rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.id}")
+                    rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.identifier}")
                 },
                 leadingIcon = {
                     Icon(
@@ -191,7 +189,7 @@ fun MemosCardActionButton(
                 text = { Text(R.string.archive.string) },
                 onClick = {
                     scope.launch {
-                        memosViewModel.archiveMemo(memo.id).suspendOnSuccess {
+                        memosViewModel.archiveMemo(memo.identifier).suspendOnSuccess {
                             menuExpanded = false
                         }
                     }
@@ -233,7 +231,7 @@ fun MemosCardActionButton(
                 TextButton(
                     onClick = {
                         scope.launch {
-                            memosViewModel.deleteMemo(memo.id).suspendOnSuccess {
+                            memosViewModel.deleteMemo(memo.identifier).suspendOnSuccess {
                                 showDeleteDialog = false
                             }
                         }

@@ -23,7 +23,7 @@ import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemosAccount
-import me.mudkip.moememos.data.repository.MemosV0Repository
+import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnNotLogin
@@ -33,11 +33,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserStateViewModel @Inject constructor(
-    private val accountService: AccountService,
-    private val memoRepository: MemosV0Repository
+    private val accountService: AccountService
 ) : ViewModel() {
 
-    var currentUser: MemosV0User? by mutableStateOf(null)
+    var currentUser: User? by mutableStateOf(null)
         private set
 
     var host: String = ""
@@ -50,15 +49,15 @@ class UserStateViewModel @Inject constructor(
         viewModelScope.launch {
             accountService.currentAccount.collectLatest {
                 host = when(it) {
-                    is Account.Memos -> it.info.host
+                    is Account.MemosV0 -> it.info.host
                     else -> ""
                 }
             }
         }
     }
 
-    suspend fun loadCurrentUser(): ApiResponse<MemosV0User> = withContext(viewModelScope.coroutineContext) {
-        memoRepository.getCurrentUser().suspendOnSuccess {
+    suspend fun loadCurrentUser(): ApiResponse<User> = withContext(viewModelScope.coroutineContext) {
+        accountService.getRepository().getCurrentUser().suspendOnSuccess {
             currentUser = data
         }.suspendOnNotLogin {
             currentUser = null
@@ -73,7 +72,7 @@ class UserStateViewModel @Inject constructor(
             okHttpClient.cookieJar.loadForRequest(hostUrl).forEach {
                 if (it.name == "memos.access-token") {
                     accountService.addAccount(getAccount(host, it.value, resp.getOrThrow()))
-                    currentUser = resp.getOrNull()
+                    currentUser = resp.getOrNull()?.toUser()
                     return@withContext resp
                 }
             }
@@ -87,7 +86,7 @@ class UserStateViewModel @Inject constructor(
         try {
             val resp = accountService.createMemosClient(host, accessToken).second.me()
             accountService.addAccount(getAccount(host, accessToken, resp.getOrThrow()))
-            currentUser = resp.getOrNull()
+            currentUser = resp.getOrNull()?.toUser()
             resp
         } catch (e: Throwable) {
             ApiResponse.exception(e)
@@ -96,9 +95,7 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun logout(accountKey: String) = withContext(viewModelScope.coroutineContext) {
         if (currentAccount.first()?.accountKey() == accountKey) {
-            accountService.memosCall {
-                it.logout()
-            }
+            accountService.getRepository().logout()
             currentUser = null
         }
         accountService.removeAccount(accountKey)
@@ -109,7 +106,7 @@ class UserStateViewModel @Inject constructor(
         loadCurrentUser()
     }
 
-    private fun getAccount(host: String, accessToken: String, user: MemosV0User): Account = Account.Memos(
+    private fun getAccount(host: String, accessToken: String, user: MemosV0User): Account = Account.MemosV0(
         info = MemosAccount.newBuilder()
             .setHost(host)
             .setId(user.id)

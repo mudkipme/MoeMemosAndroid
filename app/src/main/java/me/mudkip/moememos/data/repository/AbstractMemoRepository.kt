@@ -1,25 +1,29 @@
 package me.mudkip.moememos.data.repository
 
+import com.skydoves.sandwich.ApiResponse
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.User
+import okhttp3.MediaType
 
 abstract class AbstractMemoRepository {
-    abstract suspend fun listMemos(): List<Memo>
-    abstract suspend fun listArchivedMemos(): List<Memo>
-    abstract suspend fun createMemo(content: String, visibility: MemoVisibility, resources: List<Resource>): Memo
-    abstract suspend fun updateMemo(identifier: String, content: String? = null, resources: List<Resource>? = null, visibility: MemoVisibility?, tags: List<String>?, pinned: Boolean?): Memo
-    abstract suspend fun deleteMemo(identifier: String)
-    abstract suspend fun archiveMemo(identifier: String)
-    abstract suspend fun restoreMemo(identifier: String)
+    abstract suspend fun listMemos(): ApiResponse<List<Memo>>
+    abstract suspend fun listArchivedMemos(): ApiResponse<List<Memo>>
+    abstract suspend fun listWorkspaceMemos(pageSize: Int, pageToken: String?): ApiResponse<Pair<List<Memo>, String>>
+    abstract suspend fun createMemo(content: String, visibility: MemoVisibility, resources: List<Resource>): ApiResponse<Memo>
+    abstract suspend fun updateMemo(identifier: String, content: String? = null, resources: List<Resource>? = null, visibility: MemoVisibility? = null, tags: List<String>? = null, pinned: Boolean? = null): ApiResponse<Memo>
+    abstract suspend fun deleteMemo(identifier: String): ApiResponse<Unit>
+    abstract suspend fun archiveMemo(identifier: String): ApiResponse<Unit>
+    abstract suspend fun restoreMemo(identifier: String): ApiResponse<Unit>
 
-    abstract suspend fun listTags(): List<String>
-    abstract suspend fun deleteTag(name: String)
+    abstract suspend fun listTags(): ApiResponse<List<String>>
+    abstract suspend fun deleteTag(name: String): ApiResponse<Unit>
 
-    abstract suspend fun listResources(): List<Resource>
-    abstract suspend fun createResource(filename: String, type: String, content: ByteArray, memoIdentifier: String?): Resource
-    abstract suspend fun deleteResource(identifier: String)
+    abstract suspend fun listResources(): ApiResponse<List<Resource>>
+    abstract suspend fun createResource(filename: String, type: MediaType?, content: ByteArray, memoIdentifier: String? = null): ApiResponse<Resource>
+    abstract suspend fun deleteResource(identifier: String): ApiResponse<Unit>
 
-    abstract suspend fun getCurrentUser(): List<User>
+    abstract suspend fun getCurrentUser(): ApiResponse<User>
+    abstract suspend fun logout(): ApiResponse<Unit>
 }

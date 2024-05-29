@@ -7,6 +7,7 @@ class MoeMemosException(string: String) : Exception(string) {
     companion object {
         val notLogin = MoeMemosException("NOT_LOGIN")
         val invalidAccessToken = MoeMemosException("INVALID_ACCESS_TOKEN")
+        val invalidParameter = MoeMemosException("INVALID_PARAMETER")
     }
 
     override fun getLocalizedMessage(): String? {

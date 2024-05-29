@@ -27,7 +27,6 @@ import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.component.MemoImage
-import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.ResourceListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,9 +57,9 @@ fun ResourceListPage(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalItemSpacing = 10.dp
         ) {
-            items(viewModel.resources, key = { it.id }) { resource ->
+            items(viewModel.resources, key = { it.identifier }) { resource ->
                 MemoImage(
-                    url = resource.uri(LocalUserState.current.host).toString(),
+                    url = resource.uri.toString(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))

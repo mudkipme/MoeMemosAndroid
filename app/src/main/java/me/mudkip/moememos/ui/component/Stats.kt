@@ -17,7 +17,6 @@ import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
@@ -27,7 +26,7 @@ fun Stats() {
     val userStateViewModel = LocalUserState.current
     val days = remember(userStateViewModel.currentUser, LocalDate.now()) {
         userStateViewModel.currentUser?.let { currentUser ->
-                ChronoUnit.DAYS.between(LocalDateTime.ofEpochSecond(currentUser.createdTs, 0, OffsetDateTime.now().offset).toLocalDate(), LocalDate.now())
+                ChronoUnit.DAYS.between(currentUser.startDate.toInstant().atZone(OffsetDateTime.now().offset).toLocalDate(), LocalDate.now())
         } ?: 0
     }
 

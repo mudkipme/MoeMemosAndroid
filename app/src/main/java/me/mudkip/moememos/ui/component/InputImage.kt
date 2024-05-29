@@ -28,14 +28,14 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.api.MemosV0Resource
+import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
 
 @Composable
 fun InputImage(
-    resource: MemosV0Resource,
+    resource: Resource,
     inputViewModel: MemoInputViewModel
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -45,7 +45,7 @@ fun InputImage(
 
     Box {
         AsyncImage(
-            model = resource.uri(LocalUserState.current.host).toString(),
+            model = resource.uri.toString(),
             imageLoader = ImageLoader.Builder(context).okHttpClient(userStateViewModel.okHttpClient).build(),
             contentDescription = null,
             modifier = Modifier
@@ -66,7 +66,7 @@ fun InputImage(
                 text = { Text(R.string.remove.string) },
                 onClick = {
                     scope.launch {
-                        inputViewModel.deleteResource(resource.id)
+                        inputViewModel.deleteResource(resource.identifier)
                         menuExpanded = false
                     }
                 },

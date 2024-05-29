@@ -26,14 +26,22 @@ enum class MemosVisibility {
     @field:Json(name = "PROTECTED")
     PROTECTED,
     @field:Json(name = "PUBLIC")
-    PUBLIC
-}
+    PUBLIC;
 
-fun MemosVisibility.toMemoVisibility(): MemoVisibility = when (this) {
-    MemosVisibility.PRIVATE -> MemoVisibility.PRIVATE
-    MemosVisibility.PROTECTED -> MemoVisibility.PROTECTED
-    MemosVisibility.PUBLIC -> MemoVisibility.PUBLIC
-    else -> MemoVisibility.PRIVATE
+    fun toMemoVisibility(): MemoVisibility = when (this) {
+        PRIVATE -> MemoVisibility.PRIVATE
+        PROTECTED -> MemoVisibility.PROTECTED
+        PUBLIC -> MemoVisibility.PUBLIC
+        else -> MemoVisibility.PRIVATE
+    }
+
+    companion object {
+        fun fromMemoVisibility(visibility: MemoVisibility): MemosVisibility = when (visibility) {
+            MemoVisibility.PRIVATE -> PRIVATE
+            MemoVisibility.PROTECTED -> PROTECTED
+            MemoVisibility.PUBLIC -> PUBLIC
+        }
+    }
 }
 
 @JsonClass(generateAdapter = false)

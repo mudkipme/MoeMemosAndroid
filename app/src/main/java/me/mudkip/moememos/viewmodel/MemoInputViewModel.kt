@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import me.mudkip.moememos.data.api.MemosV0Memo
-import me.mudkip.moememos.data.api.MemosV0Resource
-import me.mudkip.moememos.data.api.MemosVisibility
-import me.mudkip.moememos.data.repository.MemosV0Repository
+import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.model.MemoVisibility
+import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.settingsDataStore
 import okhttp3.MediaType.Companion.toMediaType
 import java.io.ByteArrayOutputStream
@@ -27,23 +27,19 @@ import javax.inject.Inject
 class MemoInputViewModel @Inject constructor(
     @ApplicationContext
     private val context: Context,
-    private val memoRepository: MemosV0Repository
+    private val memoService: MemoService
 ) : ViewModel() {
     val draft = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.settings?.draft
     }
-    var uploadResources = mutableStateListOf<MemosV0Resource>()
+    var uploadResources = mutableStateListOf<Resource>()
 
-    suspend fun createMemo(content: String, visibility: MemosVisibility): ApiResponse<MemosV0Memo> = withContext(viewModelScope.coroutineContext) {
-        memoRepository.createMemo(content, uploadResources.map { it.id }, visibility)
+    suspend fun createMemo(content: String, visibility: MemoVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+        memoService.repository.createMemo(content, visibility, uploadResources)
     }
 
-    suspend fun editMemo(memoId: Long, content: String, visibility: MemosVisibility): ApiResponse<MemosV0Memo> = withContext(viewModelScope.coroutineContext) {
-        memoRepository.editMemo(memoId, content, uploadResources.map { it.id }, visibility)
-    }
-
-    suspend fun updateTag(content: String): ApiResponse<String> = withContext(viewModelScope.coroutineContext) {
-        memoRepository.updateTag(content)
+    suspend fun editMemo(identifier: String, content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+        memoService.repository.updateMemo(identifier, content, uploadResources, visibility, tags)
     }
 
     fun updateDraft(content: String) = runBlocking {
@@ -58,18 +54,18 @@ class MemoInputViewModel @Inject constructor(
         }
     }
 
-    suspend fun upload(bitmap: Bitmap): ApiResponse<MemosV0Resource> = withContext(viewModelScope.coroutineContext) {
+    suspend fun upload(bitmap: Bitmap, memoIdentifier: String?): ApiResponse<Resource> = withContext(viewModelScope.coroutineContext) {
         val bos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos)
         val bytes = bos.toByteArray()
-        memoRepository.uploadResource(bytes, UUID.randomUUID().toString() + ".jpg", "image/jpeg".toMediaType()).suspendOnSuccess {
+        memoService.repository.createResource( UUID.randomUUID().toString() + ".jpg", "image/jpeg".toMediaType(), bytes, memoIdentifier).suspendOnSuccess {
             uploadResources.add(data)
         }
     }
 
-    fun deleteResource(resourceId: Long) = viewModelScope.launch {
-        memoRepository.deleteResource(resourceId).suspendOnSuccess {
-            uploadResources.removeIf { it.id == resourceId }
+    fun deleteResource(resourceIdentifier: String) = viewModelScope.launch {
+        memoService.repository.deleteResource(resourceIdentifier).suspendOnSuccess {
+            uploadResources.removeIf { it.identifier == resourceIdentifier }
         }
     }
 }

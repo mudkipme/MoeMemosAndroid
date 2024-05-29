@@ -1,7 +1,6 @@
 package me.mudkip.moememos.data.service
 
 import android.content.Context
-import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.EnumJsonAdapter
@@ -14,8 +13,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV0UserSettingKey
-import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
+import me.mudkip.moememos.data.repository.AbstractMemoRepository
+import me.mudkip.moememos.data.repository.LocalRepository
+import me.mudkip.moememos.data.repository.MemosV0Repository
 import me.mudkip.moememos.ext.settingsDataStore
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
@@ -31,7 +32,6 @@ class AccountService @Inject constructor(
     private val context: Context,
     private val okHttpClient: OkHttpClient
 ) {
-    private var memosV0Api: MemosV0Api? = null
     var httpClient: OkHttpClient = okHttpClient
         private set
     val accounts = context.settingsDataStore.data.map { settings ->
@@ -40,6 +40,7 @@ class AccountService @Inject constructor(
     val currentAccount = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.let { Account.parseUserData(it) }
     }
+    private var repository: AbstractMemoRepository = LocalRepository()
 
     private val mutex = Mutex()
 
@@ -51,14 +52,14 @@ class AccountService @Inject constructor(
 
     private fun updateCurrentAccount(account: Account?) {
         when (account) {
-            is Account.Memos -> {
+            is Account.MemosV0 -> {
                 val memosAccount = account.info
                 val (client, memosApi) = createMemosClient(memosAccount.host, memosAccount.accessToken)
-                this.memosV0Api = memosApi
+                this.repository = MemosV0Repository(memosApi, account)
                 this.httpClient = client
             }
             else -> {
-                memosV0Api = null
+                this.repository = LocalRepository()
                 httpClient = okHttpClient
             }
         }
@@ -141,7 +142,9 @@ class AccountService @Inject constructor(
             .create(MemosV0Api::class.java)
     }
 
-    suspend fun <T>memosCall(block: suspend (MemosV0Api) -> ApiResponse<T>): ApiResponse<T> {
-        return memosV0Api?.let { block(it) } ?: ApiResponse.exception(MoeMemosException.notLogin)
+    suspend fun getRepository(): AbstractMemoRepository {
+        mutex.withLock {
+            return repository
+        }
     }
 }

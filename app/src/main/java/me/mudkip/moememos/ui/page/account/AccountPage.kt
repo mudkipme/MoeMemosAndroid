@@ -93,7 +93,7 @@ fun AccountPage(
                                     color = MaterialTheme.colorScheme.outline
                                 )
                             }
-                            if (account is Account.Memos) {
+                            if (account is Account.MemosV0) {
                                 Text(
                                    account.info.host.toHttpUrlOrNull()?.host ?: "",
                                     style = MaterialTheme.typography.titleSmall,
