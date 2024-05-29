@@ -13,16 +13,17 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV0UserSettingKey
+import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.repository.AbstractMemoRepository
 import me.mudkip.moememos.data.repository.LocalRepository
 import me.mudkip.moememos.data.repository.MemosV0Repository
+import me.mudkip.moememos.data.repository.MemosV1Repository
 import me.mudkip.moememos.ext.settingsDataStore
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -54,8 +55,14 @@ class AccountService @Inject constructor(
         when (account) {
             is Account.MemosV0 -> {
                 val memosAccount = account.info
-                val (client, memosApi) = createMemosClient(memosAccount.host, memosAccount.accessToken)
+                val (client, memosApi) = createMemosV0Client(memosAccount.host, memosAccount.accessToken)
                 this.repository = MemosV0Repository(memosApi, account)
+                this.httpClient = client
+            }
+            is Account.MemosV1 -> {
+                val memosAccount = account.info
+                val (client, memosApi) = createMemosV1Client(memosAccount.host, memosAccount.accessToken)
+                this.repository = MemosV1Repository(memosApi, account)
                 this.httpClient = client
             }
             else -> {
@@ -108,18 +115,14 @@ class AccountService @Inject constructor(
         }
     }
 
-    fun createMemosClient(host: String, accessToken: String?): Pair<OkHttpClient, MemosV0Api> {
+    fun createMemosV0Client(host: String, accessToken: String?): Pair<OkHttpClient, MemosV0Api> {
         var client = okHttpClient
 
         if (!accessToken.isNullOrEmpty()) {
             client = client.newBuilder().addNetworkInterceptor { chain ->
                 var request = chain.request()
                 if (request.url.host == host.toHttpUrlOrNull()?.host) {
-                    try {
-                        request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
-                    } catch (e: Throwable) {
-                        Timber.e(e)
-                    }
+                    request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
                 }
                 chain.proceed(request)
             }.build()
@@ -140,6 +143,33 @@ class AccountService @Inject constructor(
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(MemosV0Api::class.java)
+    }
+
+    fun createMemosV1Client(host: String, accessToken: String?): Pair<OkHttpClient, MemosV1Api> {
+        var client = okHttpClient
+
+        if (!accessToken.isNullOrEmpty()) {
+            client = client.newBuilder().addNetworkInterceptor { chain ->
+                var request = chain.request()
+                if (request.url.host == host.toHttpUrlOrNull()?.host) {
+                    request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
+                }
+                chain.proceed(request)
+            }.build()
+        }
+
+        return client to Retrofit.Builder()
+            .baseUrl(host)
+            .client(client)
+            .addConverterFactory(
+                MoshiConverterFactory.create(
+                    Moshi.Builder()
+                        .add(KotlinJsonAdapterFactory())
+                        .build()
+                ))
+            .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
+            .build()
+            .create(MemosV1Api::class.java)
     }
 
     suspend fun getRepository(): AbstractMemoRepository {

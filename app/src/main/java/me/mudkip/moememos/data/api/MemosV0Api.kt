@@ -136,7 +136,7 @@ data class MemosV0User(
     val displayEmail get() = email ?: username ?: ""
     val displayName get() = nickname ?: name ?: ""
 
-    val memoVisibility: MemosVisibility
+    private val memoVisibility: MemosVisibility
         get() = userSettingList?.find { it.key == MemosV0UserSettingKey.MEMO_VISIBILITY }?.let {
         try {
             MemosVisibility.valueOf(it.value.removePrefix("\"").removeSuffix("\""))

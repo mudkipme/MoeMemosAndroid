@@ -67,7 +67,7 @@ class UserStateViewModel @Inject constructor(
     suspend fun login(host: String, username: String, password: String): ApiResponse<MemosV0User> = withContext(viewModelScope.coroutineContext) {
         try {
             val hostUrl = host.toHttpUrlOrNull() ?: throw IllegalArgumentException()
-            val (okHttpClient, client) = accountService.createMemosClient(host, null)
+            val (okHttpClient, client) = accountService.createMemosV0Client(host, null)
             val resp = client.signIn(MemosV0SignInInput(username, username, password, true))
             okHttpClient.cookieJar.loadForRequest(hostUrl).forEach {
                 if (it.name == "memos.access-token") {
@@ -84,7 +84,7 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun loginWithAccessToken(host: String, accessToken: String): ApiResponse<MemosV0User> = withContext(viewModelScope.coroutineContext) {
         try {
-            val resp = accountService.createMemosClient(host, accessToken).second.me()
+            val resp = accountService.createMemosV0Client(host, accessToken).second.me()
             accountService.addAccount(getAccount(host, accessToken, resp.getOrThrow()))
             currentUser = resp.getOrNull()?.toUser()
             resp

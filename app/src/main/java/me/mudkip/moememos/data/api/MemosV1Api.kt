@@ -1,5 +1,6 @@
 package me.mudkip.moememos.data.api
 
+import android.net.Uri
 import androidx.annotation.Keep
 import com.skydoves.sandwich.ApiResponse
 import okio.ByteString
@@ -25,7 +26,7 @@ interface MemosV1Api {
     @GET("api/v1/memos")
     suspend fun listMemos(
         @Query("pageSize") pageSize: Int,
-        @Query("pageToken") pageToken: String,
+        @Query("pageToken") pageToken: String? = null,
         @Query("filter") filter: String
     ): ApiResponse<ListMemosResponse>
 
@@ -148,4 +149,12 @@ data class MemosV1Resource(
     val type: String,
     val size: Int,
     val memo: String?
-)
+) {
+    fun uri(host: String): Uri {
+        if (externalLink.isNotEmpty()) {
+            return Uri.parse(externalLink)
+        }
+        return Uri.parse(host)
+            .buildUpon().appendPath("file").appendPath(name).build()
+    }
+}
