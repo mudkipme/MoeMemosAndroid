@@ -14,8 +14,12 @@ import retrofit2.http.Query
 import java.util.Date
 
 interface MemosV1Api {
-    @POST("/api/v1/auth/signin")
-    suspend fun signIn(@Body body: MemosV1SignInRequest): ApiResponse<MemosV1User>
+    @POST("api/v1/auth/signin")
+    suspend fun signIn(
+        @Query("username") username: String,
+        @Query("password") password: String,
+        @Query("neverExpire") neverExpire: Boolean = true
+    ): ApiResponse<MemosV1User>
 
     @POST("api/v1/auth/signout")
     suspend fun signOut(): ApiResponse<Unit>
@@ -77,13 +81,6 @@ data class MemosV1User(
     val rowStatus: MemosRowStatus,
     val createTime: Date,
     val updateTime: Date
-)
-
-@Keep
-data class MemosV1SignInRequest(
-    val username: String,
-    val password: String,
-    val neverExpire: Boolean
 )
 
 @Keep

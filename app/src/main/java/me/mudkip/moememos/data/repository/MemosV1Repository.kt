@@ -31,7 +31,7 @@ class MemosV1Repository(
 
     private fun convertResource(resource: MemosV1Resource): Resource {
         return Resource(
-            identifier = "${resource.name}#${resource.uid}",
+            identifier = "${resource.name}|${resource.uid}",
             date = resource.createTime.toInstant(),
             filename = resource.filename,
             uri = resource.uri(account.info.host),
@@ -41,7 +41,7 @@ class MemosV1Repository(
 
     private fun convertMemo(memo: MemosV1Memo): Memo {
         return Memo(
-            identifier = "${memo.name}#${memo.uid}",
+            identifier = "${memo.name}|${memo.uid}",
             content = memo.content,
             date = memo.displayTime.toInstant(),
             pinned = memo.pinned,
@@ -70,11 +70,11 @@ class MemosV1Repository(
     }
 
     private fun getId(identifier: String): String {
-        return identifier.substringBefore('#').substringAfterLast('/')
+        return identifier.substringBefore('|').substringAfterLast('/')
     }
 
     private fun getNameAndUid(identifier: String): Pair<String, String> {
-        val (name, uid) = identifier.split('#')
+        val (name, uid) = identifier.split('|')
         return name to uid
     }
 
@@ -89,9 +89,9 @@ class MemosV1Repository(
     override suspend fun listWorkspaceMemos(
         pageSize: Int,
         pageToken: String?
-    ): ApiResponse<Pair<List<Memo>, String>> {
+    ): ApiResponse<Pair<List<Memo>, String?>> {
         return memosApi.listMemos(pageSize, pageToken, "row_status == \"NORMAL\" && visibilities == ['PUBLIC', 'PROTECTED']")
-            .mapSuccess { this.memos.map { convertMemo(it) } to this.nextPageToken }
+            .mapSuccess { this.memos.map { convertMemo(it) } to this.nextPageToken.ifEmpty { null } }
     }
 
     override suspend fun createMemo(

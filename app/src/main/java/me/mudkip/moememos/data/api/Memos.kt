@@ -51,7 +51,9 @@ enum class MemosRowStatus {
     @field:Json(name = "NORMAL")
     NORMAL,
     @field:Json(name = "ARCHIVED")
-    ARCHIVED
+    ARCHIVED,
+    @field:Json(name = "ACTIVE")
+    ACTIVE,
 }
 
 @Keep

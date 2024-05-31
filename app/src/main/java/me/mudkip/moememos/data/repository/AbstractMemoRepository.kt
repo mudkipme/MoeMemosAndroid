@@ -10,7 +10,7 @@ import okhttp3.MediaType
 abstract class AbstractMemoRepository {
     abstract suspend fun listMemos(): ApiResponse<List<Memo>>
     abstract suspend fun listArchivedMemos(): ApiResponse<List<Memo>>
-    abstract suspend fun listWorkspaceMemos(pageSize: Int, pageToken: String?): ApiResponse<Pair<List<Memo>, String>>
+    abstract suspend fun listWorkspaceMemos(pageSize: Int, pageToken: String?): ApiResponse<Pair<List<Memo>, String?>>
     abstract suspend fun createMemo(content: String, visibility: MemoVisibility, resources: List<Resource>): ApiResponse<Memo>
     abstract suspend fun updateMemo(identifier: String, content: String? = null, resources: List<Resource>? = null, visibility: MemoVisibility? = null, tags: List<String>? = null, pinned: Boolean? = null): ApiResponse<Memo>
     abstract suspend fun deleteMemo(identifier: String): ApiResponse<Unit>

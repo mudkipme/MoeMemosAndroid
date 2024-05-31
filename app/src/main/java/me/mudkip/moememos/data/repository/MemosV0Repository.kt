@@ -148,7 +148,7 @@ class MemosV0Repository (
     override suspend fun listWorkspaceMemos(
         pageSize: Int,
         pageToken: String?
-    ): ApiResponse<Pair<List<Memo>, String>> {
+    ): ApiResponse<Pair<List<Memo>, String?>> {
         return memosApi.listAllMemo(limit = pageSize, offset = pageToken?.toIntOrNull()).mapSuccess {
             val memos = this.map { convertMemo(it) }
             val nextPageToken = (pageToken?.toIntOrNull() ?: 0) + pageSize
