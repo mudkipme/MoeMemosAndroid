@@ -16,6 +16,7 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.time.Instant
 import java.util.Date
 
 @Keep
@@ -149,7 +150,7 @@ data class MemosV0User(
         return User(
             identifier = id.toString(),
             name = displayName,
-            startDate = Date(createdTs * 1000),
+            startDate = Instant.ofEpochSecond(createdTs),
             defaultVisibility = memoVisibility.toMemoVisibility()
         )
     }

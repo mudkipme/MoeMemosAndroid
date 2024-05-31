@@ -22,6 +22,7 @@ import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.time.Instant
 import java.util.Date
 
 class MemosV0Repository (
@@ -31,7 +32,7 @@ class MemosV0Repository (
     private fun convertResource(resource: MemosV0Resource): Resource {
         return Resource(
             identifier = resource.id.toString(),
-            date = Date(resource.createdTs * 1000),
+            date = Instant.ofEpochSecond(resource.createdTs),
             filename = resource.filename,
             uri = resource.uri(account.info.host),
             mimeType = resource.type.toMediaTypeOrNull()
@@ -42,7 +43,7 @@ class MemosV0Repository (
         return Memo(
             identifier = memo.id.toString(),
             content = memo.content,
-            date = Date(memo.createdTs * 1000),
+            date = Instant.ofEpochSecond(memo.createdTs),
             pinned = memo.pinned,
             visibility = memo.visibility.toMemoVisibility(),
             resources = memo.resourceList?.map { convertResource(it) } ?: emptyList(),

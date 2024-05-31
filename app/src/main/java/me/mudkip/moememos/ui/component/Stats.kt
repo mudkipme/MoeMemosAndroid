@@ -26,7 +26,7 @@ fun Stats() {
     val userStateViewModel = LocalUserState.current
     val days = remember(userStateViewModel.currentUser, LocalDate.now()) {
         userStateViewModel.currentUser?.let { currentUser ->
-                ChronoUnit.DAYS.between(currentUser.startDate.toInstant().atZone(OffsetDateTime.now().offset).toLocalDate(), LocalDate.now())
+                ChronoUnit.DAYS.between(currentUser.startDate.atZone(OffsetDateTime.now().offset).toLocalDate(), LocalDate.now())
         } ?: 0
     }
 

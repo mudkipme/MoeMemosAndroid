@@ -4,6 +4,7 @@ import android.content.Context
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.EnumJsonAdapter
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -24,6 +25,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -165,6 +167,7 @@ class AccountService @Inject constructor(
                 MoshiConverterFactory.create(
                     Moshi.Builder()
                         .add(KotlinJsonAdapterFactory())
+                        .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
                         .build()
                 ))
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())

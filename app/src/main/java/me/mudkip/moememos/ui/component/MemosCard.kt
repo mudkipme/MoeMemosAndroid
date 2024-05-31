@@ -73,7 +73,7 @@ fun MemosCard(
                 modifier = Modifier.padding(start = 15.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(DateUtils.getRelativeTimeSpanString(memo.date.time, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
+                Text(DateUtils.getRelativeTimeSpanString(memo.date.toEpochMilli(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )

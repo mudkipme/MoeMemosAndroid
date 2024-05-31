@@ -104,7 +104,7 @@ class MemosViewModel @Inject constructor(
         val countMap = HashMap<LocalDate, Int>()
 
         for (memo in memos) {
-            val date = memo.date.toInstant().atZone(OffsetDateTime.now().offset).toLocalDate()
+            val date = memo.date.atZone(OffsetDateTime.now().offset).toLocalDate()
             countMap[date] = (countMap[date] ?: 0) + 1
         }
 

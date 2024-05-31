@@ -24,7 +24,7 @@ class MemosV1Repository(
     private fun convertResource(resource: MemosV1Resource): Resource {
         return Resource(
             identifier = resource.name,
-            date = resource.createTime,
+            date = resource.createTime.toInstant(),
             filename = resource.filename,
             uri = resource.uri(account.info.host),
             mimeType = resource.type.toMediaTypeOrNull()
@@ -35,7 +35,7 @@ class MemosV1Repository(
         return Memo(
             identifier = memo.name,
             content = memo.content,
-            date = memo.displayTime,
+            date = memo.displayTime.toInstant(),
             pinned = memo.pinned,
             visibility = memo.visibility.toMemoVisibility(),
             resources = memo.resources.map { convertResource(it) },
