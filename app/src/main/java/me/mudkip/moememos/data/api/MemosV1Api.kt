@@ -23,6 +23,9 @@ interface MemosV1Api {
     @POST("api/v1/auth/status")
     suspend fun authStatus(): ApiResponse<MemosV1User>
 
+    @GET("api/v1/users/{id}/setting")
+    suspend fun getUserSetting(@Path("id") userId: String): ApiResponse<MemosV1UserSetting>
+
     @GET("api/v1/memos")
     suspend fun listMemos(
         @Query("pageSize") pageSize: Int,
@@ -36,8 +39,14 @@ interface MemosV1Api {
     @PATCH("api/v1/memos/{id}/resources")
     suspend fun setMemoResources(@Path("id") memoId: String, @Body body: MemosV1SetMemoResourcesRequest): ApiResponse<Unit>
 
+    @PATCH("api/v1/memos/{id}")
+    suspend fun updateMemo(@Path("id") memoId: String, @Body body: UpdateMemoRequest): ApiResponse<MemosV1Memo>
+
+    @DELETE("api/v1/memos/{id}")
+    suspend fun deleteMemo(@Path("id") memoId: String): ApiResponse<Unit>
+
     @GET("api/v1/memos/{id}/tags")
-    suspend fun listMemoTags(@Path("id") memoId: String): ApiResponse<ListMemoTagsResponse>
+    suspend fun listMemoTags(@Path("id") memoId: String, @Query("filter") filter: String? = null): ApiResponse<ListMemoTagsResponse>
 
     @DELETE("api/v1/memos/{id}/tags/{tag}")
     suspend fun deleteMemoTag(@Path("id") memoId: String, @Path("tag") tag: String, @Query("deleteRelatedMemos") deleteRelatedMemos: Boolean): ApiResponse<Unit>
@@ -101,6 +110,14 @@ data class MemosV1SetMemoResourcesRequestItem(
 )
 
 @Keep
+data class UpdateMemoRequest(
+    val content: String? = null,
+    val visibility: MemosVisibility? = null,
+    val rowStatus: MemosRowStatus? = null,
+    val pinned: Boolean? = null
+)
+
+@Keep
 data class ListMemoTagsResponse(
     val tagAmounts: Map<String, Int>
 )
@@ -111,16 +128,11 @@ data class ListResourceResponse(
 )
 
 @Keep
-data class CreateResourceRequestResource(
+data class CreateResourceRequest(
     val filename: String,
     val type: String,
     val content: ByteString,
     val memo: String?
-)
-
-@Keep
-data class CreateResourceRequest(
-    val resource: CreateResourceRequestResource
 )
 
 @Keep
@@ -158,3 +170,11 @@ data class MemosV1Resource(
             .buildUpon().appendPath("file").appendPath(name).build()
     }
 }
+
+@Keep
+data class MemosV1UserSetting(
+    val name: String,
+    val locale: String,
+    val appearance: String,
+    val memoVisibility: MemosVisibility
+)
