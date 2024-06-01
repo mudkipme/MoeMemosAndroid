@@ -6,7 +6,7 @@
 
 *To use this app, you must have a self-hosted [✍️memos](https://github.com/usememos/memos) server set up and running. ([supported versions](https://memos.moe/memos/))*
 
-**Moe Memos currently only supports Memos 0.21.0, as Memos 0.22.0 introduced major API-breaking changes and requires a lot of work to support. Please use the `0.21.0` Docker tag if you are using Moe Memos for now.**
+**Please download the [latest pre-release version](https://github.com/mudkipme/MoeMemosAndroid/releases) if you are using Memos 0.22.0 or higher.**
 
 ## Installation
 
