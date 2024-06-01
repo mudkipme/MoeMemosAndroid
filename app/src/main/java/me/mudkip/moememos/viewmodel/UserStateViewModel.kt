@@ -67,10 +67,14 @@ class UserStateViewModel @Inject constructor(
     }
 
     suspend fun loginMemos(host: String, username: String, password: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
-        when (accountService.detectAccountCase(host)) {
-            UserData.AccountCase.MEMOS_V0 -> loginMemosV0(host, username, password)
-            UserData.AccountCase.MEMOS_V1 -> loginMemosV1(host, username, password)
-            else -> throw MoeMemosException.invalidServer
+        try {
+            when (accountService.detectAccountCase(host)) {
+                UserData.AccountCase.MEMOS_V0 -> loginMemosV0(host, username, password)
+                UserData.AccountCase.MEMOS_V1 -> loginMemosV1(host, username, password)
+                else -> throw MoeMemosException.invalidServer
+            }
+        } catch (e: Throwable) {
+            ApiResponse.exception(e)
         }
     }
 
@@ -126,10 +130,14 @@ class UserStateViewModel @Inject constructor(
     }
 
     suspend fun loginMemosWithAccessToken(host: String, accessToken: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
-        when (accountService.detectAccountCase(host)) {
-            UserData.AccountCase.MEMOS_V1 -> loginMemosV1WithAccessToken(host, accessToken)
-            UserData.AccountCase.MEMOS_V0 -> loginMemosV0WithAccessToken(host, accessToken)
-            else -> throw MoeMemosException.invalidServer
+        try {
+            when (accountService.detectAccountCase(host)) {
+                UserData.AccountCase.MEMOS_V1 -> loginMemosV1WithAccessToken(host, accessToken)
+                UserData.AccountCase.MEMOS_V0 -> loginMemosV0WithAccessToken(host, accessToken)
+                else -> throw MoeMemosException.invalidServer
+            }
+        } catch (e: Throwable) {
+            ApiResponse.exception(e)
         }
     }
 
