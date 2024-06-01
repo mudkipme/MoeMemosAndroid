@@ -43,7 +43,8 @@ class AccountService @Inject constructor(
         settings.usersList.mapNotNull { Account.parseUserData(it) }
     }
     val currentAccount = context.settingsDataStore.data.map { settings ->
-        settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.let { Account.parseUserData(it) }
+        settings.usersList.firstOrNull { it.accountKey == settings.currentUser }
+            ?.let { Account.parseUserData(it) }
     }
     private var repository: AbstractMemoRepository = LocalRepository()
 
@@ -59,16 +60,24 @@ class AccountService @Inject constructor(
         when (account) {
             is Account.MemosV0 -> {
                 val memosAccount = account.info
-                val (client, memosApi) = createMemosV0Client(memosAccount.host, memosAccount.accessToken)
+                val (client, memosApi) = createMemosV0Client(
+                    memosAccount.host,
+                    memosAccount.accessToken
+                )
                 this.repository = MemosV0Repository(memosApi, account)
                 this.httpClient = client
             }
+
             is Account.MemosV1 -> {
                 val memosAccount = account.info
-                val (client, memosApi) = createMemosV1Client(memosAccount.host, memosAccount.accessToken)
+                val (client, memosApi) = createMemosV1Client(
+                    memosAccount.host,
+                    memosAccount.accessToken
+                )
                 this.repository = MemosV1Repository(memosApi, account)
                 this.httpClient = client
             }
+
             else -> {
                 this.repository = LocalRepository()
                 httpClient = okHttpClient
@@ -92,7 +101,8 @@ class AccountService @Inject constructor(
         mutex.withLock {
             context.settingsDataStore.updateData { settings ->
                 var builder = settings.toBuilder()
-                val index = settings.usersList.indexOfFirst { it.accountKey == account.accountKey() }
+                val index =
+                    settings.usersList.indexOfFirst { it.accountKey == account.accountKey() }
                 if (index != -1) {
                     builder = builder.removeUsers(index)
                 }
@@ -111,7 +121,8 @@ class AccountService @Inject constructor(
                     builder = builder.removeUsers(index)
                 }
                 if (settings.currentUser == accountKey) {
-                    builder = builder.setCurrentUser(accounts.first().firstOrNull()?.accountKey() ?: "")
+                    builder =
+                        builder.setCurrentUser(accounts.first().firstOrNull()?.accountKey() ?: "")
                 }
                 builder.build()
             }
@@ -126,7 +137,8 @@ class AccountService @Inject constructor(
             client = client.newBuilder().addNetworkInterceptor { chain ->
                 var request = chain.request()
                 if (request.url.host == host.toHttpUrlOrNull()?.host) {
-                    request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
+                    request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken")
+                        .build()
                 }
                 chain.proceed(request)
             }.build()
@@ -137,13 +149,16 @@ class AccountService @Inject constructor(
             .client(client)
             .addConverterFactory(
                 MoshiConverterFactory.create(
-                Moshi.Builder()
-                    .add(
-                        MemosV0UserSettingKey::class.java, EnumJsonAdapter.create(MemosV0UserSettingKey::class.java)
-                        .withUnknownFallback(MemosV0UserSettingKey.UNKNOWN))
-                    .add(KotlinJsonAdapterFactory())
-                    .build()
-            ))
+                    Moshi.Builder()
+                        .add(
+                            MemosV0UserSettingKey::class.java,
+                            EnumJsonAdapter.create(MemosV0UserSettingKey::class.java)
+                                .withUnknownFallback(MemosV0UserSettingKey.UNKNOWN)
+                        )
+                        .add(KotlinJsonAdapterFactory())
+                        .build()
+                )
+            )
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(MemosV0Api::class.java)
@@ -156,7 +171,8 @@ class AccountService @Inject constructor(
             client = client.newBuilder().addNetworkInterceptor { chain ->
                 var request = chain.request()
                 if (request.url.host == host.toHttpUrlOrNull()?.host) {
-                    request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
+                    request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken")
+                        .build()
                 }
                 chain.proceed(request)
             }.build()
@@ -171,7 +187,8 @@ class AccountService @Inject constructor(
                         .add(KotlinJsonAdapterFactory())
                         .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
                         .build()
-                ))
+                )
+            )
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(MemosV1Api::class.java)

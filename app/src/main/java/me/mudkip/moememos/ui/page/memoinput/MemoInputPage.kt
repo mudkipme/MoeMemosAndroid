@@ -133,9 +133,11 @@ fun MemoInputPage(
             viewModel.upload(bitmap, memo?.identifier).suspendOnSuccess {
                 delay(300)
                 focusRequester.requestFocus()
+            }.suspendOnErrorMessage { message ->
+                snackbarState.showSnackbar(message)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            snackbarState.showSnackbar(e.localizedMessage ?: e.toString())
         }
     }
 

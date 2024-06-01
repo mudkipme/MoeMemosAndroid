@@ -3,7 +3,6 @@ package me.mudkip.moememos.data.api
 import android.net.Uri
 import androidx.annotation.Keep
 import com.skydoves.sandwich.ApiResponse
-import okio.ByteString
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -128,7 +127,7 @@ data class ListResourceResponse(
 data class CreateResourceRequest(
     val filename: String,
     val type: String,
-    val content: ByteString,
+    val content: String,
     val memo: String?
 )
 
