@@ -32,14 +32,14 @@ fun ExploreMemoCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    DateUtils.getRelativeTimeSpanString(memo.createdTs * 1000, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
+                    DateUtils.getRelativeTimeSpanString(memo.date.toEpochMilli(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )
 
-                if (!TextUtils.isEmpty(memo.creatorName)) {
+                if (memo.creator != null && !TextUtils.isEmpty(memo.creator.name)) {
                     Text(
-                        "@${memo.creatorName}",
+                        "@${memo.creator.name}",
                         modifier = Modifier.padding(start = 10.dp),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.outline

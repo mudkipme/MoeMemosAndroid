@@ -194,34 +194,33 @@ fun extractPreviewContent(markdownText: String, maxLength: Int = 140): Pair<Stri
 @Composable
 fun MemoResourceContent(memo: Memo) {
     val cols = 3
-    memo.resourceList?.let { resourceList ->
-        val imageList = resourceList.filter { it.type.startsWith("image/") }
-        if (imageList.isNotEmpty()) {
-            val rows = ceil(imageList.size.toFloat() / cols).toInt()
-            for (rowIndex in 0 until rows) {
-                Row {
-                    for (colIndex in 0 until cols) {
-                        val index = rowIndex * cols + colIndex
-                        if (index < imageList.size) {
-                            Box(modifier = Modifier.fillMaxWidth(1f / (cols - colIndex))) {
-                                MemoImage(
-                                    url = imageList[index].uri(LocalUserState.current.host)
-                                        .toString(),
-                                    modifier = Modifier
-                                        .aspectRatio(1f)
-                                        .padding(2.dp)
-                                        .clip(RoundedCornerShape(4.dp))
-                                )
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.fillMaxWidth(1f / cols))
+
+    val imageList = memo.resources.filter { it.mimeType?.type == "image" }
+    if (imageList.isNotEmpty()) {
+        val rows = ceil(imageList.size.toFloat() / cols).toInt()
+        for (rowIndex in 0 until rows) {
+            Row {
+                for (colIndex in 0 until cols) {
+                    val index = rowIndex * cols + colIndex
+                    if (index < imageList.size) {
+                        Box(modifier = Modifier.fillMaxWidth(1f / (cols - colIndex))) {
+                            MemoImage(
+                                url = imageList[index].uri
+                                    .toString(),
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .padding(2.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                            )
                         }
+                    } else {
+                        Spacer(modifier = Modifier.fillMaxWidth(1f / cols))
                     }
                 }
             }
         }
-        resourceList.filterNot { it.type.startsWith("image/") }.forEach { resource ->
-            Attachment(resource)
-        }
+    }
+    memo.resources.filterNot { it.mimeType?.type == "image" }.forEach { resource ->
+        Attachment(resource)
     }
 }

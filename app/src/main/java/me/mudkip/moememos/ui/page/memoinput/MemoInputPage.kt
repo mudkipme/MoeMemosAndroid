@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 import me.mudkip.moememos.MoeMemosFileProvider
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.constant.LIST_ITEM_SYMBOL_LIST
-import me.mudkip.moememos.data.model.MemosVisibility
+import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
@@ -90,13 +90,12 @@ import me.mudkip.moememos.util.extractCustomTags
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun MemoInputPage(
     viewModel: MemoInputViewModel = hiltViewModel(),
-    memoId: Long? = null,
+    memoIdentifier: String? = null,
     shareContent: ShareContent? = null
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -105,7 +104,7 @@ fun MemoInputPage(
     val navController = LocalRootNavController.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val memosViewModel = LocalMemos.current
-    val memo = remember { memosViewModel.memos.toList().find { it.id == memoId } }
+    val memo = remember { memosViewModel.memos.toList().find { it.identifier == memoIdentifier } }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(memo?.content ?: "", TextRange(memo?.content?.length ?: 0)))
     }
@@ -114,7 +113,7 @@ fun MemoInputPage(
     var photoImageUri by remember { mutableStateOf<Uri?>(null) }
 
     val context = LocalContext.current
-    val defaultVisibility = LocalUserState.current.currentUser?.memoVisibility ?: MemosVisibility.PRIVATE
+    val defaultVisibility = LocalUserState.current.currentUser?.defaultVisibility ?: MemoVisibility.PRIVATE
     var currentVisibility by remember { mutableStateOf( memo?.visibility ?: defaultVisibility) }
 
     val validMimeTypePrefixes = remember {
@@ -131,12 +130,14 @@ fun MemoInputPage(
                 @Suppress("DEPRECATION")
                 MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
             }
-            viewModel.upload(bitmap).suspendOnSuccess {
+            viewModel.upload(bitmap, memo?.identifier).suspendOnSuccess {
                 delay(300)
                 focusRequester.requestFocus()
+            }.suspendOnErrorMessage { message ->
+                snackbarState.showSnackbar(message)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            snackbarState.showSnackbar(e.localizedMessage ?: e.toString())
         }
     }
 
@@ -215,12 +216,9 @@ fun MemoInputPage(
 
     fun submit() = coroutineScope.launch {
         val tags = extractCustomTags(text.text)
-        for (tag in tags) {
-            viewModel.updateTag(tag).suspendOnErrorMessage { message -> Timber.e(message) }
-        }
 
         memo?.let {
-            viewModel.editMemo(memo.id, text.text, currentVisibility).suspendOnSuccess {
+            viewModel.editMemo(memo.identifier, text.text, currentVisibility, tags.toList()).suspendOnSuccess {
                 navController.popBackStack()
             }.suspendOnErrorMessage { message ->
                 snackbarState.showSnackbar(message)
@@ -273,7 +271,7 @@ fun MemoInputPage(
                         onDismissRequest = { visibilityMenuExpanded = false },
                         properties = PopupProperties(focusable = false)
                     ) {
-                        enumValues<MemosVisibility>().forEach { visibility ->
+                        enumValues<MemoVisibility>().forEach { visibility ->
                             DropdownMenuItem(
                                 text = { Text(stringResource(visibility.titleResource)) },
                                 onClick = {
@@ -451,8 +449,8 @@ fun MemoInputPage(
                         .padding(start = 15.dp, end = 15.dp, bottom = 15.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(viewModel.uploadResources.toList(), { it.id }) { resource ->
-                        if (resource.type.startsWith("image/")) {
+                    items(viewModel.uploadResources.toList(), { it.identifier }) { resource ->
+                        if (resource.mimeType?.type == "image") {
                             InputImage(resource = resource, inputViewModel = viewModel)
                         } else {
                             Attachment(resource = resource)
@@ -466,7 +464,7 @@ fun MemoInputPage(
     LaunchedEffect(Unit) {
         when {
             memo != null -> {
-                memo.resourceList?.let { resourceList -> viewModel.uploadResources.addAll(resourceList) }
+                viewModel.uploadResources.addAll(memo.resources)
             }
 
             shareContent != null -> {

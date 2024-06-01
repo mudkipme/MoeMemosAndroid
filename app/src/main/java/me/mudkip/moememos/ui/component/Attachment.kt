@@ -27,7 +27,7 @@ fun Attachment(
     AssistChip(
         modifier = Modifier.padding(bottom = 10.dp),
         onClick = {
-            uriHandler.openUri(resource.uri(userStateViewModel.host).toString())
+            uriHandler.openUri(resource.uri.toString())
         },
         label = { Text(resource.filename) },
         leadingIcon = {

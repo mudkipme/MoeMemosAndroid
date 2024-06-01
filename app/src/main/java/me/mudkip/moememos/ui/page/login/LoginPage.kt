@@ -113,10 +113,9 @@ fun LoginPage(
         }
 
         val resp = when(loginMethod) {
-            LoginMethod.USERNAME_AND_PASSWORD -> userStateViewModel.login(host.text.trim(), username.text.trim(), password.text)
-            LoginMethod.ACCESS_TOKEN -> userStateViewModel.loginWithAccessToken(host.text.trim(), accessToken.text.trim())
+            LoginMethod.USERNAME_AND_PASSWORD -> userStateViewModel.loginMemos(host.text.trim(), username.text.trim(), password.text)
+            LoginMethod.ACCESS_TOKEN -> userStateViewModel.loginMemosWithAccessToken(host.text.trim(), accessToken.text.trim())
         }
-
         resp.suspendOnSuccess {
             navController.popBackStack()
             navController.navigate(RouteName.MEMOS) {

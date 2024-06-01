@@ -56,7 +56,7 @@ fun ArchivedMemoCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    DateUtils.getRelativeTimeSpanString(memo.createdTs * 1000, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
+                    DateUtils.getRelativeTimeSpanString(memo.date.toEpochMilli(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString(),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )
@@ -90,7 +90,7 @@ fun ArchivedMemosCardActionButton(
                 text = { Text(R.string.restore.string) },
                 onClick = {
                     scope.launch {
-                        archivedMemoListViewModel.restoreMemo(memo.id).suspendOnSuccess {
+                        archivedMemoListViewModel.restoreMemo(memo.identifier).suspendOnSuccess {
                             menuExpanded = false
                             memosViewModel.loadMemos()
                         }
@@ -129,7 +129,7 @@ fun ArchivedMemosCardActionButton(
                 TextButton(
                     onClick = {
                         scope.launch {
-                            archivedMemoListViewModel.deleteMemo(memo.id).suspendOnSuccess {
+                            archivedMemoListViewModel.deleteMemo(memo.identifier).suspendOnSuccess {
                                 showDeleteDialog = false
                             }
                         }

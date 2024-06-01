@@ -17,20 +17,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.model.DailyUsageStat
 import me.mudkip.moememos.data.model.Memo
-import me.mudkip.moememos.data.model.MemosRowStatus
-import me.mudkip.moememos.data.model.MemosVisibility
+import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
-import me.mudkip.moememos.data.repository.MemoRepository
+import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class MemosViewModel @Inject constructor(
-    private val memoRepository: MemoRepository
+    private val memoService: MemoService
 ) : ViewModel() {
 
     var memos = mutableStateListOf<Memo>()
@@ -49,7 +47,7 @@ class MemosViewModel @Inject constructor(
     }
 
     fun loadMemos() = viewModelScope.launch {
-        memoRepository.loadMemos(rowStatus = MemosRowStatus.NORMAL).suspendOnSuccess {
+        memoService.repository.listMemos().suspendOnSuccess {
             memos.clear()
             memos.addAll(data)
             errorMessage = null
@@ -59,44 +57,44 @@ class MemosViewModel @Inject constructor(
     }
 
     fun loadTags() = viewModelScope.launch {
-        memoRepository.getTags().suspendOnSuccess {
+        memoService.repository.listTags().suspendOnSuccess {
             tags.clear()
             tags.addAll(data)
         }
     }
 
     suspend fun deleteTag(name: String) = withContext(viewModelScope.coroutineContext) {
-        memoRepository.deleteTag(name).suspendOnSuccess {
+        memoService.repository.deleteTag(name).suspendOnSuccess {
             tags.remove(name)
         }
     }
 
-    suspend fun updateMemoPinned(memoId: Long, pinned: Boolean) = withContext(viewModelScope.coroutineContext) {
-        memoRepository.updatePinned(memoId, pinned).suspendOnSuccess {
+    suspend fun updateMemoPinned(memoIdentifier: String, pinned: Boolean) = withContext(viewModelScope.coroutineContext) {
+        memoService.repository.updateMemo(memoIdentifier, pinned = pinned).suspendOnSuccess {
             updateMemo(data)
         }
     }
 
-    suspend fun editMemo(memoId: Long, content: String, resourceList: List<Resource>?, visibility: MemosVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
-        memoRepository.editMemo(memoId, content, resourceList?.map { it.id }, visibility).suspendOnSuccess {
+    suspend fun editMemo(memoIdentifier: String, content: String, resourceList: List<Resource>?, visibility: MemoVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+        memoService.repository.updateMemo(memoIdentifier, content, resourceList, visibility).suspendOnSuccess {
             updateMemo(data)
         }
     }
 
-    suspend fun archiveMemo(memoId: Long) = withContext(viewModelScope.coroutineContext) {
-        memoRepository.archiveMemo(memoId).suspendOnSuccess {
-            memos.removeIf { it.id == memoId }
+    suspend fun archiveMemo(memoIdentifier: String) = withContext(viewModelScope.coroutineContext) {
+        memoService.repository.archiveMemo(memoIdentifier).suspendOnSuccess {
+            memos.removeIf { it.identifier == memoIdentifier }
         }
     }
 
-    suspend fun deleteMemo(memoId: Long) = withContext(viewModelScope.coroutineContext) {
-        memoRepository.deleteMemo(memoId).suspendOnSuccess {
-            memos.removeIf { it.id == memoId }
+    suspend fun deleteMemo(memoIdentifier: String) = withContext(viewModelScope.coroutineContext) {
+        memoService.repository.deleteMemo(memoIdentifier).suspendOnSuccess {
+            memos.removeIf { it.identifier == memoIdentifier }
         }
     }
 
     private fun updateMemo(memo: Memo) {
-        val index = memos.indexOfFirst { it.id == memo.id }
+        val index = memos.indexOfFirst { it.identifier == memo.identifier }
         if (index != -1) {
             memos[index] = memo
         }
@@ -106,7 +104,7 @@ class MemosViewModel @Inject constructor(
         val countMap = HashMap<LocalDate, Int>()
 
         for (memo in memos) {
-            val date = LocalDateTime.ofEpochSecond(memo.createdTs, 0, OffsetDateTime.now().offset).toLocalDate()
+            val date = memo.date.atZone(OffsetDateTime.now().offset).toLocalDate()
             countMap[date] = (countMap[date] ?: 0) + 1
         }
 

@@ -58,7 +58,7 @@ fun MemosList(
         fullList
     }
     val lazyListState = rememberLazyListState()
-    var listTopId: Long? by rememberSaveable {
+    var listTopId: String? by rememberSaveable {
         mutableStateOf(null)
     }
 
@@ -79,7 +79,7 @@ fun MemosList(
             contentPadding = contentPadding,
             state = lazyListState
         ) {
-            items(filteredMemos, key = { it.id }) { memo ->
+            items(filteredMemos, key = { it.identifier }) { memo ->
                 MemosCard(memo, previewMode = true)
             }
         }
@@ -100,11 +100,11 @@ fun MemosList(
         viewModel.loadMemos()
     }
 
-    LaunchedEffect(filteredMemos.firstOrNull()?.id) {
-        if (listTopId != null && filteredMemos.isNotEmpty() && listTopId != filteredMemos.first().id) {
+    LaunchedEffect(filteredMemos.firstOrNull()?.identifier) {
+        if (listTopId != null && filteredMemos.isNotEmpty() && listTopId != filteredMemos.first().identifier) {
             lazyListState.scrollToItem(0)
         }
 
-        listTopId = filteredMemos.firstOrNull()?.id
+        listTopId = filteredMemos.firstOrNull()?.identifier
     }
 }

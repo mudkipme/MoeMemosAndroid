@@ -45,7 +45,7 @@ fun InputImage(
 
     Box {
         AsyncImage(
-            model = resource.uri(LocalUserState.current.host).toString(),
+            model = resource.uri.toString(),
             imageLoader = ImageLoader.Builder(context).okHttpClient(userStateViewModel.okHttpClient).build(),
             contentDescription = null,
             modifier = Modifier
@@ -66,7 +66,7 @@ fun InputImage(
                 text = { Text(R.string.remove.string) },
                 onClick = {
                     scope.launch {
-                        inputViewModel.deleteResource(resource.id)
+                        inputViewModel.deleteResource(resource.identifier)
                         menuExpanded = false
                     }
                 },

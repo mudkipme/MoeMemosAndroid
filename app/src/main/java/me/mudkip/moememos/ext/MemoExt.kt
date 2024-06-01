@@ -6,16 +6,16 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.ui.graphics.vector.ImageVector
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.MemosVisibility
+import me.mudkip.moememos.data.model.MemoVisibility
 
-val MemosVisibility.icon: ImageVector get() = when (this) {
-    MemosVisibility.PRIVATE -> Icons.Outlined.Lock
-    MemosVisibility.PROTECTED -> Icons.Outlined.House
-    MemosVisibility.PUBLIC -> Icons.Outlined.Public
+val MemoVisibility.icon: ImageVector get() = when (this) {
+    MemoVisibility.PRIVATE -> Icons.Outlined.Lock
+    MemoVisibility.PROTECTED -> Icons.Outlined.House
+    MemoVisibility.PUBLIC -> Icons.Outlined.Public
 }
 
-val MemosVisibility.titleResource: Int get() = when (this) {
-    MemosVisibility.PRIVATE -> R.string.memo_visibility_private
-    MemosVisibility.PROTECTED -> R.string.memo_visibility_protected
-    MemosVisibility.PUBLIC -> R.string.memo_visibility_public
+val MemoVisibility.titleResource: Int get() = when (this) {
+    MemoVisibility.PRIVATE -> R.string.memo_visibility_private
+    MemoVisibility.PROTECTED -> R.string.memo_visibility_protected
+    MemoVisibility.PUBLIC -> R.string.memo_visibility_public
 }

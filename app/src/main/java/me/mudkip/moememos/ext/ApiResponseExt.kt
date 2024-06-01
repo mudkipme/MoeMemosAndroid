@@ -6,6 +6,7 @@ import com.skydoves.sandwich.message
 import com.skydoves.sandwich.retrofit.errorBody
 import com.skydoves.sandwich.retrofit.serialization.deserializeErrorBody
 import com.skydoves.sandwich.retrofit.statusCode
+import kotlinx.serialization.json.Json
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.ErrorMessage
 import timber.log.Timber
@@ -13,7 +14,7 @@ import timber.log.Timber
 fun <T> ApiResponse<T>.getErrorMessage(): String {
     if (this is ApiResponse.Failure.Error) {
         try {
-            val errorMessage: ErrorMessage? = this.deserializeErrorBody()
+            val errorMessage: ErrorMessage? = this.deserializeErrorBody(Json { ignoreUnknownKeys = true })
             if (errorMessage != null) {
                 return errorMessage.message
             }

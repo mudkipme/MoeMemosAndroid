@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.skydoves.sandwich.onSuccess
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
@@ -54,8 +55,14 @@ fun AccountPage(
     }
     val userStateViewModel = LocalUserState.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val user = viewModel.user
-    val status = viewModel.status
+    val userAndProfile = viewModel.userAndProfile
+    val memosV0User = if (userAndProfile is AccountViewModel.UserAndProfile.MemosV0) userAndProfile.user else null
+    val memosV1User = if (userAndProfile is AccountViewModel.UserAndProfile.MemosV1) userAndProfile.user else null
+    val status = when (userAndProfile) {
+        is AccountViewModel.UserAndProfile.MemosV0 -> userAndProfile.profile
+        is AccountViewModel.UserAndProfile.MemosV1 -> userAndProfile.profile
+        else -> null
+    }
     val selectedAccount by viewModel.selectedAccountState.collectAsState()
     val currentAccount by userStateViewModel.currentAccount.collectAsState()
     val account = selectedAccount
@@ -76,7 +83,7 @@ fun AccountPage(
         },
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
-            if (user != null) {
+            if (userAndProfile != null) {
                 item {
                     Card(
                         modifier = Modifier
@@ -84,23 +91,43 @@ fun AccountPage(
                             .padding(15.dp)
                     ) {
                         Column(Modifier.padding(15.dp)) {
-                            Text(user.displayName,
-                                style = MaterialTheme.typography.headlineSmall
-                            )
-                            if (user.displayName != user.displayEmail && user.displayEmail.isNotEmpty()) {
-                                Text(user.displayEmail,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.outline
+                            if (memosV0User != null) {
+                                Text(memosV0User.displayName,
+                                    style = MaterialTheme.typography.headlineSmall
                                 )
+                                if (memosV0User.displayName != memosV0User.displayEmail && memosV0User.displayEmail.isNotEmpty()) {
+                                    Text(memosV0User.displayEmail,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.outline
+                                    )
+                                }
                             }
-                            if (account is Account.Memos) {
+                            if (memosV1User != null) {
+                                Text(memosV1User.nickname,
+                                    style = MaterialTheme.typography.headlineSmall
+                                )
+                                if (memosV1User.nickname != memosV1User.email && memosV1User.email.isNotEmpty()) {
+                                    Text(memosV1User.email,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.outline
+                                    )
+                                }
+                            }
+                            if (account is Account.MemosV0) {
                                 Text(
                                    account.info.host.toHttpUrlOrNull()?.host ?: "",
                                     style = MaterialTheme.typography.titleSmall,
                                     color = MaterialTheme.colorScheme.outline
                                 )
                             }
-                            if (status?.profile?.version?.isNotEmpty() == true) {
+                            if (account is Account.MemosV1) {
+                                Text(
+                                    account.info.host.toHttpUrlOrNull()?.host ?: "",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            }
+                            if (status?.version?.isNotEmpty() == true) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.padding(top = 8.dp),
@@ -112,7 +139,7 @@ fun AccountPage(
                                             .padding(end = 8.dp)
                                             .clip(CircleShape),
                                     )
-                                    Text("memos v${status.profile.version}",
+                                    Text("memos v${status.version}",
                                         modifier = Modifier.padding(top = 5.dp),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.outline
@@ -125,13 +152,14 @@ fun AccountPage(
             }
 
             if (selectedAccountKey != currentAccount?.accountKey()) {
-
                 item {
                     FilledTonalButton(
                         onClick = {
                             coroutineScope.launch {
                                 userStateViewModel.switchAccount(selectedAccountKey)
-                                navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+                                    .onSuccess {
+                                        navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+                                    }
                             }
                         },
                         modifier = Modifier
@@ -176,7 +204,6 @@ fun AccountPage(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.loadUser()
-        viewModel.loadStatus()
+        viewModel.loadUserAndProfile()
     }
 }
