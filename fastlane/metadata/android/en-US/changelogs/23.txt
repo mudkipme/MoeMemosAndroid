@@ -1,0 +1,11 @@
+## What's Changed
+- Added support for Memos 0.22.0. Versions 0.15 to 0.21 are still supported.
+- Added beta support for multiple Memos instances or accounts and switching between them.
+- Added support for drag and drop on certain Android devices by @fightyz.
+- Introduced initial support for tablet layout.
+- Enabled the deletion of memos without the need to archive them first.
+
+## New Contributors
+* @fightyz made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/166
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.7.4...0.8.0-beta
