@@ -28,7 +28,6 @@ class MemosV1Repository(
     private val memosApi: MemosV1Api,
     private val account: Account.MemosV1
 ): AbstractMemoRepository() {
-
     private fun convertResource(resource: MemosV1Resource): Resource {
         return Resource(
             identifier = "${resource.name}|${resource.uid}",
