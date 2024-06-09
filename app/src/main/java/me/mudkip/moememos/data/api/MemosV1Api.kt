@@ -163,7 +163,7 @@ data class MemosV1Resource(
             return Uri.parse(externalLink)
         }
         return Uri.parse(host)
-            .buildUpon().appendPath("file").appendPath(name).build()
+            .buildUpon().appendPath("file").appendPath(name).appendPath(filename).build()
     }
 }
 
