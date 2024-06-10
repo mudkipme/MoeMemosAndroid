@@ -66,11 +66,16 @@ class MemosV0Repository (
     override suspend fun createMemo(
         content: String,
         visibility: MemoVisibility,
-        resources: List<Resource>
+        resources: List<Resource>,
+        tags: List<String>?
     ): ApiResponse<Memo> {
-        return memosApi.createMemo(MemosV0CreateMemoInput(content, resourceIdList = resources.map { it.identifier.toLong() }, visibility = MemosVisibility.fromMemoVisibility(visibility))).mapSuccess {
+        val result = memosApi.createMemo(MemosV0CreateMemoInput(content, resourceIdList = resources.map { it.identifier.toLong() }, visibility = MemosVisibility.fromMemoVisibility(visibility))).mapSuccess {
             convertMemo(this)
         }
+        tags?.forEach { tag ->
+            memosApi.updateTag(MemosV0UpdateTagInput(tag))
+        }
+        return result
     }
 
     override suspend fun updateMemo(
