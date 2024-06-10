@@ -226,7 +226,7 @@ fun MemoInputPage(
             return@launch
         }
 
-        viewModel.createMemo(text.text, currentVisibility).suspendOnSuccess {
+        viewModel.createMemo(text.text, currentVisibility, tags.toList()).suspendOnSuccess {
             text = TextFieldValue("")
             viewModel.updateDraft("")
             navController.popBackStack()

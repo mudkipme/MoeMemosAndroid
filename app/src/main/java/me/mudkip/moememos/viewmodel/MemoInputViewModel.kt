@@ -34,8 +34,8 @@ class MemoInputViewModel @Inject constructor(
     }
     var uploadResources = mutableStateListOf<Resource>()
 
-    suspend fun createMemo(content: String, visibility: MemoVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
-        memoService.repository.createMemo(content, visibility, uploadResources)
+    suspend fun createMemo(content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+        memoService.repository.createMemo(content, visibility, uploadResources, tags)
     }
 
     suspend fun editMemo(identifier: String, content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {

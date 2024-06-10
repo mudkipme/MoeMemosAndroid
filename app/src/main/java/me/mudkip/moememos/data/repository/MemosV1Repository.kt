@@ -96,7 +96,8 @@ class MemosV1Repository(
     override suspend fun createMemo(
         content: String,
         visibility: MemoVisibility,
-        resources: List<Resource>
+        resources: List<Resource>,
+        tags: List<String>?
     ): ApiResponse<Memo> {
         val resp = memosApi.createMemo(MemosV1CreateMemoRequest(content, MemosVisibility.fromMemoVisibility(visibility)))
             .mapSuccess { convertMemo(this) }
