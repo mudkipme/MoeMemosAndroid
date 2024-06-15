@@ -65,6 +65,9 @@ interface MemosV1Api {
 
     @GET("api/v1/workspace/profile")
     suspend fun getProfile(): ApiResponse<MemosProfile>
+
+    @GET("api/v1/users/{id}")
+    suspend fun getUser(@Path("id") userId: String): ApiResponse<MemosV1User>
 }
 
 @Keep

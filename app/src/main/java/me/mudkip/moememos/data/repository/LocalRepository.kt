@@ -27,7 +27,8 @@ class LocalRepository : AbstractMemoRepository() {
     override suspend fun createMemo(
         content: String,
         visibility: MemoVisibility,
-        resources: List<Resource>
+        resources: List<Resource>,
+        tags: List<String>?
     ): ApiResponse<Memo> {
         return ApiResponse.exception(MoeMemosException.notLogin)
     }

@@ -1,8 +1,13 @@
 package me.mudkip.moememos.data.repository
 
 import com.skydoves.sandwich.ApiResponse
+import com.skydoves.sandwich.getOrNull
+import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.mapSuccess
 import com.skydoves.sandwich.onSuccess
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import me.mudkip.moememos.data.api.CreateResourceRequest
 import me.mudkip.moememos.data.api.MemosRowStatus
 import me.mudkip.moememos.data.api.MemosV1Api
@@ -47,7 +52,6 @@ class MemosV1Repository(
             visibility = memo.visibility.toMemoVisibility(),
             resources = memo.resources.map { convertResource(it) },
             tags = emptyList(),
-            // TODO: parse creator
         )
     }
 
@@ -89,8 +93,24 @@ class MemosV1Repository(
         pageSize: Int,
         pageToken: String?
     ): ApiResponse<Pair<List<Memo>, String?>> {
-        return memosApi.listMemos(pageSize, pageToken, "row_status == \"NORMAL\" && visibilities == ['PUBLIC', 'PROTECTED']")
-            .mapSuccess { this.memos.map { convertMemo(it) } to this.nextPageToken.ifEmpty { null } }
+        val resp = memosApi.listMemos(pageSize, pageToken, "row_status == \"NORMAL\" && visibilities == ['PUBLIC', 'PROTECTED']")
+        if (resp !is ApiResponse.Success) {
+            return resp.mapSuccess { emptyList<Memo>() to null }
+        }
+        val respData = resp.getOrThrow()
+        val users = respData.memos.map { it.creator.substringAfter("/") }.toSet()
+        val userResp = coroutineScope {
+            users.map { userId ->
+                async { memosApi.getUser(userId).getOrNull() }
+            }.awaitAll()
+        }.filterNotNull()
+        val userMap = mapOf(*userResp.map { it.id.toString() to it }.toTypedArray())
+
+        return resp
+            .mapSuccess { this.memos.map {
+                convertMemo(it)
+                .copy(creator = userMap[it.creator.substringAfter("/")]?.let { user -> User(user.name, user.nickname, user.createTime.toInstant()) } )
+            } to this.nextPageToken.ifEmpty { null } }
     }
 
     override suspend fun createMemo(
