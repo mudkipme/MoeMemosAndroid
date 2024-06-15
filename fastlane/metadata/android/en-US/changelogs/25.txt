@@ -1,0 +1,16 @@
+## What's Changed
+- Added support for Memos 0.22.1 and 0.22.2. Versions 0.15 to 0.21 are still supported.
+- Added beta support for multiple Memos instances or accounts and switching between them.
+- Added support for drag and drop on certain Android devices by @fightyz.
+- Introduced initial support for tablet layout.
+- Enabled the deletion of memos without the need to archive them first.
+
+## New Contributors
+* @fightyz made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/166
+
+## Changes since 0.8.0
+- Supports Memos 0.22.1 and 0.22.2. Please upgrade to 0.22.1 or higher if you are using 0.22.0.
+- Fixed the issue where tags were not created when using Memos 0.21 or lower.
+- Fixed the issue where the username wasn't displayed on the Explore page.
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.7.4...0.8.1
