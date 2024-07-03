@@ -1,5 +1,7 @@
 # Moe Memos
 
+[![justforfunnoreally.dev badge](https://img.shields.io/badge/justforfunnoreally-dev-9ff)](https://justforfunnoreally.dev)
+
 <img alt="Moe Memos" src="https://memos.moe/memos.png" width="160" height="160" />
 
 **Moe Memos** is an app to help you capture thoughts and ideas.
