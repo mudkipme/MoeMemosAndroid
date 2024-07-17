@@ -11,6 +11,7 @@ import androidx.compose.ui.text.UrlAnnotation
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
@@ -18,6 +19,7 @@ import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.ast.getTextInNode
+import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
 import java.util.UUID
 
@@ -166,8 +168,8 @@ fun AnnotatedString.Builder.appendMarkdown(
             withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
                 node.children.filter {
                     it.type != MarkdownTokenTypes.CODE_FENCE_START
-                        && it.type != MarkdownTokenTypes.CODE_FENCE_END
-                        && it.type != MarkdownTokenTypes.FENCE_LANG
+                            && it.type != MarkdownTokenTypes.CODE_FENCE_END
+                            && it.type != MarkdownTokenTypes.FENCE_LANG
                 }.drop(1).dropLast(1).forEach { childNode ->
                     appendMarkdown(
                         markdownText = markdownText,
@@ -269,6 +271,26 @@ fun AnnotatedString.Builder.appendMarkdown(
                     headlineMedium = headlineMedium,
                     headlineSmall = headlineSmall
                 )
+            }
+        }
+
+        GFMElementTypes.STRIKETHROUGH -> {
+            withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) {
+                node.children.filter { it.type != GFMTokenTypes.TILDE }.forEach { childNode ->
+                    appendMarkdown(
+                        markdownText = markdownText,
+                        node = childNode,
+                        depth = depth + 1,
+                        linkColor = linkColor,
+                        onImage = onImage,
+                        onCheckbox = onCheckbox,
+                        maxWidth = maxWidth,
+                        bulletColor = bulletColor,
+                        headlineLarge = headlineLarge,
+                        headlineMedium = headlineMedium,
+                        headlineSmall = headlineSmall
+                    )
+                }
             }
         }
 
