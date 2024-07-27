@@ -1,32 +1,33 @@
 buildscript {
     ext {
         // https://developer.android.com/jetpack/androidx/releases/compose-ui
-        compose_version = '1.6.6'
-        // https://github.com/google/accompanist/releases
+        compose_version = '1.6.8'
+        // https://developer.android.com/jetpack/androidx/releases/compose-material3
         material3 = '1.2.1'
         // https://square.github.io/okhttp/changelogs/changelog/
         okhttp_version = '4.12.0'
         // https://github.com/square/retrofit/tags
         retrofit_version = '2.11.0'
         // https://developer.android.com/jetpack/androidx/releases/datastore
-        datastore = "1.1.0"
+        datastore = "1.1.1"
         // https://github.com/skydoves/sandwich/releases
-        sandwich = "2.0.7"
+        sandwich = "2.0.8"
         // https://github.com/square/moshi/tags
         moshi = "1.15.1"
         // https://developer.android.com/jetpack/androidx/releases/paging
-        paging_version = "3.2.1"
-        // https://developer.android.com/jetpack/compose/navigation
+        paging_version = "3.3.1"
+        // https://developer.android.com/jetpack/androidx/releases/navigation
         nav_version = "2.7.7"
     }
 }
 
 plugins {
-    id 'com.android.application' version '8.3.2' apply false
-    id 'com.android.library' version '8.3.2' apply false
-    id 'org.jetbrains.kotlin.android' version '1.9.23' apply false
+    id 'com.android.application' version '8.5.1' apply false
+    id 'com.android.library' version '8.5.1' apply false
+    id 'org.jetbrains.kotlin.android' version '2.0.0' apply false
     id 'com.google.dagger.hilt.android' version '2.51.1' apply false
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.23' apply false
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0' apply false
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.0.0' apply false
 }
 
 tasks.register('clean', Delete) {

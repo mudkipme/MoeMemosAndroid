@@ -89,3 +89,6 @@ lint/tmp/
 # int/reports/
 #
 .DS_Store
+
+# Kotlin 2.0
+.kotlin/
