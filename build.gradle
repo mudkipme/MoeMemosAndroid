@@ -1,9 +1,9 @@
 buildscript {
     ext {
         // https://developer.android.com/jetpack/androidx/releases/compose-ui
-        compose_version = '1.6.8'
+        compose_version = '1.7.0-beta06'
         // https://developer.android.com/jetpack/androidx/releases/compose-material3
-        material3 = '1.2.1'
+        material3 = '1.3.0-beta05'
         // https://square.github.io/okhttp/changelogs/changelog/
         okhttp_version = '4.12.0'
         // https://github.com/square/retrofit/tags
