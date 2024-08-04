@@ -1,6 +1,7 @@
 package me.mudkip.moememos.ext
 
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -12,6 +13,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
@@ -294,6 +296,33 @@ fun AnnotatedString.Builder.appendMarkdown(
             }
         }
 
+        MarkdownElementTypes.BLOCK_QUOTE -> {
+            withStyle(
+                style = ParagraphStyle(textIndent = TextIndent(firstLine = 16.sp))
+            ) {
+                withStyle(
+                    style = SpanStyle(
+                        background = lightColorScheme().surfaceDim,
+                    )
+                ) {
+                    node.children.forEach { childNode ->
+                        appendMarkdown(
+                            markdownText = markdownText,
+                            node = childNode,
+                            depth = depth + 1,
+                            linkColor = linkColor,
+                            onImage = onImage,
+                            onCheckbox = onCheckbox,
+                            maxWidth = maxWidth,
+                            bulletColor = bulletColor,
+                            headlineLarge = headlineLarge,
+                            headlineMedium = headlineMedium,
+                            headlineSmall = headlineSmall
+                        )
+                    }
+                }
+            }
+        }
         else -> {
             append(node.getTextInNode(markdownText).toString())
         }
