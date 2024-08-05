@@ -1,7 +1,6 @@
 package me.mudkip.moememos.ext
 
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -9,6 +8,7 @@ import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.UrlAnnotation
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -297,15 +297,15 @@ fun AnnotatedString.Builder.appendMarkdown(
         }
 
         MarkdownElementTypes.BLOCK_QUOTE -> {
-            withStyle(
-                style = ParagraphStyle(textIndent = TextIndent(firstLine = 16.sp))
-            ) {
-                withStyle(
-                    style = SpanStyle(
-                        background = lightColorScheme().surfaceDim,
-                    )
-                ) {
-                    node.children.forEach { childNode ->
+            val quoteColor = Color.Black.copy(alpha = 0.7f)
+            val borderColor = Color.Gray
+            val quotePadding = 16.sp
+
+            // Iterate over each child node of the block quote
+            node.children.forEach { childNode ->
+                if (childNode.type != MarkdownTokenTypes.BLOCK_QUOTE) {
+                    // Build the content of the block quote
+                    val quoteContent = buildAnnotatedString {
                         appendMarkdown(
                             markdownText = markdownText,
                             node = childNode,
@@ -319,6 +319,17 @@ fun AnnotatedString.Builder.appendMarkdown(
                             headlineMedium = headlineMedium,
                             headlineSmall = headlineSmall
                         )
+                    }
+                    val lines = quoteContent.split("\n")
+                    lines.forEachIndexed { index, line ->
+                        if (index > 0) append("\n")
+                        withStyle(style = ParagraphStyle(textIndent = TextIndent(firstLine = 16.sp, restLine = quotePadding))) {
+                            withStyle(style = SpanStyle(color = borderColor)) {
+                            }
+                            withStyle(style = SpanStyle(color = quoteColor)) {
+                                append(line)
+                            }
+                        }
                     }
                 }
             }
