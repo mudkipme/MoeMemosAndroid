@@ -209,7 +209,7 @@ fun AnnotatedString.Builder.appendMarkdown(
         MarkdownElementTypes.ATX_2,
         MarkdownElementTypes.SETEXT_2,
         MarkdownElementTypes.ATX_3 -> {
-            var content = node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT || it.type == MarkdownTokenTypes.SETEXT_CONTENT }
+            val content = node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT || it.type == MarkdownTokenTypes.SETEXT_CONTENT }
 
             val textStyle = when (node.type) {
                 MarkdownElementTypes.ATX_1, MarkdownElementTypes.SETEXT_1 -> headlineLarge
@@ -301,10 +301,8 @@ fun AnnotatedString.Builder.appendMarkdown(
             val borderColor = Color.Gray
             val quotePadding = 16.sp
 
-            // Iterate over each child node of the block quote
             node.children.forEach { childNode ->
                 if (childNode.type != MarkdownTokenTypes.BLOCK_QUOTE) {
-                    // Build the content of the block quote
                     val quoteContent = buildAnnotatedString {
                         appendMarkdown(
                             markdownText = markdownText,
