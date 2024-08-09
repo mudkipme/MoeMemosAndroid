@@ -8,10 +8,12 @@ import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.UrlAnnotation
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
@@ -207,7 +209,7 @@ fun AnnotatedString.Builder.appendMarkdown(
         MarkdownElementTypes.ATX_2,
         MarkdownElementTypes.SETEXT_2,
         MarkdownElementTypes.ATX_3 -> {
-            var content = node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT || it.type == MarkdownTokenTypes.SETEXT_CONTENT }
+            val content = node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT || it.type == MarkdownTokenTypes.SETEXT_CONTENT }
 
             val textStyle = when (node.type) {
                 MarkdownElementTypes.ATX_1, MarkdownElementTypes.SETEXT_1 -> headlineLarge
@@ -294,6 +296,42 @@ fun AnnotatedString.Builder.appendMarkdown(
             }
         }
 
+        MarkdownElementTypes.BLOCK_QUOTE -> {
+            val quoteColor = Color.Black.copy(alpha = 0.7f)
+            val borderColor = Color.Gray
+            val quotePadding = 16.sp
+
+            node.children.forEach { childNode ->
+                if (childNode.type != MarkdownTokenTypes.BLOCK_QUOTE) {
+                    val quoteContent = buildAnnotatedString {
+                        appendMarkdown(
+                            markdownText = markdownText,
+                            node = childNode,
+                            depth = depth + 1,
+                            linkColor = linkColor,
+                            onImage = onImage,
+                            onCheckbox = onCheckbox,
+                            maxWidth = maxWidth,
+                            bulletColor = bulletColor,
+                            headlineLarge = headlineLarge,
+                            headlineMedium = headlineMedium,
+                            headlineSmall = headlineSmall
+                        )
+                    }
+                    val lines = quoteContent.split("\n")
+                    lines.forEachIndexed { index, line ->
+                        if (index > 0) append("\n")
+                        withStyle(style = ParagraphStyle(textIndent = TextIndent(firstLine = 16.sp, restLine = quotePadding))) {
+                            withStyle(style = SpanStyle(color = borderColor)) {
+                            }
+                            withStyle(style = SpanStyle(color = quoteColor)) {
+                                append(line)
+                            }
+                        }
+                    }
+                }
+            }
+        }
         else -> {
             append(node.getTextInNode(markdownText).toString())
         }
