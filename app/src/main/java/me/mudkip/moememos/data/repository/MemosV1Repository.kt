@@ -190,7 +190,7 @@ class MemosV1Repository(
             filename = filename,
             type = type?.toString() ?: "application/octet-stream",
             content = content.toByteString().base64(),
-            memo = memoIdentifier?.let { getId(it) }
+            memo = memoIdentifier?.let { getNameAndUid(it).first }
         )).mapSuccess { convertResource(this) }
     }
 
