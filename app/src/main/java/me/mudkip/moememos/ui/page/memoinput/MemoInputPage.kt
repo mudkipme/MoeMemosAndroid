@@ -6,6 +6,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
@@ -32,7 +33,9 @@ import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Tag
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -114,12 +117,56 @@ fun MemoInputPage(
 
     val context = LocalContext.current
     val defaultVisibility = LocalUserState.current.currentUser?.defaultVisibility ?: MemoVisibility.PRIVATE
-    var currentVisibility by remember { mutableStateOf( memo?.visibility ?: defaultVisibility) }
+    var currentVisibility by remember { mutableStateOf(memo?.visibility ?: defaultVisibility) }
 
     val validMimeTypePrefixes = remember {
-        setOf(
-            "text/",
-        )
+        setOf("text/")
+    }
+
+    var showExitConfirmation by remember { mutableStateOf(false) }
+
+    fun submit() = coroutineScope.launch {
+        val tags = extractCustomTags(text.text)
+
+        memo?.let {
+            viewModel.editMemo(memo.identifier, text.text, currentVisibility, tags.toList()).suspendOnSuccess {
+                navController.popBackStack()
+            }.suspendOnErrorMessage { message ->
+                snackbarState.showSnackbar(message)
+            }
+            return@launch
+        }
+
+        viewModel.createMemo(text.text, currentVisibility, tags.toList()).suspendOnSuccess {
+            text = TextFieldValue("")
+            viewModel.updateDraft("")
+            navController.popBackStack()
+        }.suspendOnErrorMessage { message ->
+            snackbarState.showSnackbar(message)
+        }
+    }
+
+    fun handleExit() {
+        if (text.text.isNotEmpty()) {
+            showExitConfirmation = true
+        } else {
+            navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+        }
+    }
+
+    fun confirmExit() {
+        showExitConfirmation = false
+        submit()
+    }
+
+    fun discardExit() {
+        showExitConfirmation = false
+        text = TextFieldValue("")
+        navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+    }
+
+    BackHandler {
+        handleExit()
     }
 
     fun uploadImage(uri: Uri) = coroutineScope.launch {
@@ -214,27 +261,6 @@ fun MemoInputPage(
         }
     }
 
-    fun submit() = coroutineScope.launch {
-        val tags = extractCustomTags(text.text)
-
-        memo?.let {
-            viewModel.editMemo(memo.identifier, text.text, currentVisibility, tags.toList()).suspendOnSuccess {
-                navController.popBackStack()
-            }.suspendOnErrorMessage { message ->
-                snackbarState.showSnackbar(message)
-            }
-            return@launch
-        }
-
-        viewModel.createMemo(text.text, currentVisibility, tags.toList()).suspendOnSuccess {
-            text = TextFieldValue("")
-            viewModel.updateDraft("")
-            navController.popBackStack()
-        }.suspendOnErrorMessage { message ->
-            snackbarState.showSnackbar(message)
-        }
-    }
-
     fun ClipData.textList(): List<CharSequence> {
         return (0 until itemCount)
             .mapNotNull(::getItemAt)
@@ -256,7 +282,7 @@ fun MemoInputPage(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+                        handleExit()
                     }) {
                         Icon(Icons.Filled.Close, contentDescription = R.string.close.string)
                     }
@@ -460,7 +486,29 @@ fun MemoInputPage(
             }
         }
     }
-    
+
+    if (showExitConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirmation = false },
+            title = { Text("Save Changes?") },
+            text = { Text("Do you want to save changes before exiting?") },
+            confirmButton = {
+                Button(onClick = {
+                    confirmExit()
+                }) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    discardExit()
+                }) {
+                    Text("Discard")
+                }
+            }
+        )
+    }
+
     LaunchedEffect(Unit) {
         when {
             memo != null -> {
