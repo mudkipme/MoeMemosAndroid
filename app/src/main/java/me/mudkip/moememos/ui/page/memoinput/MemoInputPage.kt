@@ -108,6 +108,7 @@ fun MemoInputPage(
     val lifecycleOwner = LocalLifecycleOwner.current
     val memosViewModel = LocalMemos.current
     val memo = remember { memosViewModel.memos.toList().find { it.identifier == memoIdentifier } }
+    var initialContent by remember { mutableStateOf(memo?.content ?: "") }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(memo?.content ?: "", TextRange(memo?.content?.length ?: 0)))
     }
@@ -147,7 +148,7 @@ fun MemoInputPage(
     }
 
     fun handleExit() {
-        if (text.text.isNotEmpty()) {
+        if (text.text.isNotEmpty() && text.text != initialContent) {
             showExitConfirmation = true
         } else {
             navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
@@ -513,6 +514,7 @@ fun MemoInputPage(
         when {
             memo != null -> {
                 viewModel.uploadResources.addAll(memo.resources)
+                initialContent = memo.content
             }
 
             shareContent != null -> {
