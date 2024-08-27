@@ -1,0 +1,10 @@
+## What's Changed
+* Added support for Markdown strikethrough syntax by @jkuhlemann.
+* Added initial Markdown blockquote support by @jkuhlemann.
+* Fixed attaching images to existing memos by @mudkipme.
+* Added confirmation dialogue when exiting memo editorby @jkuhlemann.
+
+## New Contributors
+* @jkuhlemann made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/192
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.8.1...0.8.2
