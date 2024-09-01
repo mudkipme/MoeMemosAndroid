@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.page.memos
 
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -13,6 +14,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
@@ -27,8 +31,16 @@ fun MemosHomePage(
     drawerState: DrawerState? = null,
     navController: NavHostController
 ) {
+    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val rootNavController = LocalRootNavController.current
+
+    val expandedFab by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -56,6 +68,7 @@ fun MemosHomePage(
                 onClick = {
                     rootNavController.navigate(RouteName.INPUT)
                 },
+                expanded = expandedFab,
                 text = { Text(R.string.new_memo.string) },
                 icon = { Icon(Icons.Filled.Add, contentDescription = R.string.compose.string) }
             )
@@ -63,6 +76,7 @@ fun MemosHomePage(
 
         content = { innerPadding ->
             MemosList(
+                lazyListState = listState,
                 contentPadding = innerPadding
             )
         }

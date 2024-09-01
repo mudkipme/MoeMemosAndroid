@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +26,7 @@ import timber.log.Timber
 @Composable
 fun MemosList(
     contentPadding: PaddingValues,
+    lazyListState: LazyListState = rememberLazyListState(),
     tag: String? = null,
     searchString: String? = null
 ) {
@@ -53,11 +55,10 @@ fun MemosList(
 
         fullList
     }
-    val lazyListState = rememberLazyListState()
     var listTopId: String? by rememberSaveable {
         mutableStateOf(null)
     }
-    
+
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = {
