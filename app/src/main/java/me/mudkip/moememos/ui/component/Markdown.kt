@@ -1,22 +1,16 @@
 package me.mudkip.moememos.ui.component
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import me.mudkip.moememos.ext.appendMarkdown
@@ -24,7 +18,6 @@ import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
 
-@OptIn(ExperimentalTextApi::class)
 @Composable
 fun Markdown(
     text: String,
@@ -38,7 +31,6 @@ fun Markdown(
     val headlineLarge = MaterialTheme.typography.headlineLarge
     val headlineMedium = MaterialTheme.typography.headlineMedium
     val headlineSmall = MaterialTheme.typography.headlineSmall
-    val uriHandler = LocalUriHandler.current
 
     BoxWithConstraints {
         val (annotatedString, inlineContent) = remember(text, maxWidth) {
@@ -51,6 +43,7 @@ fun Markdown(
                 node = markdownAst,
                 depth = 0,
                 linkColor = linkColor,
+                linkInteractionListener = null, // Use default interaction listener
                 onImage = { key, url ->
                     inlineContent[key] = InlineTextContent(
                         Placeholder(maxWidth.value.sp, (maxWidth.value * 9f / 16f).sp, PlaceholderVerticalAlign.AboveBaseline),
@@ -78,47 +71,11 @@ fun Markdown(
             Pair(builder.toAnnotatedString(), inlineContent)
         }
 
-        ClickableText(
+        Text(
             text = annotatedString,
             modifier = modifier,
             textAlign = textAlign,
             inlineContent = inlineContent,
-            onClick = {
-                annotatedString.getUrlAnnotations(it, it)
-                    .firstOrNull()?.let { url ->
-                        uriHandler.openUri(url.item.url)
-                    }
-            }
         )
     }
-
-
-}
-
-@Composable
-fun ClickableText(
-    text: AnnotatedString,
-    modifier: Modifier = Modifier,
-    textAlign: TextAlign? = null,
-    inlineContent: Map<String, InlineTextContent> = mapOf(),
-    onClick: (Int) -> Unit
-) {
-    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
-    val pressIndicator = Modifier.pointerInput(onClick) {
-        detectTapGestures { pos ->
-            layoutResult.value?.let { layoutResult ->
-                onClick(layoutResult.getOffsetForPosition(pos))
-            }
-        }
-    }
-
-    Text(
-        text = text,
-        modifier = modifier.then(pressIndicator),
-        textAlign = textAlign,
-        inlineContent = inlineContent,
-        onTextLayout = {
-            layoutResult.value = it
-        }
-    )
 }
