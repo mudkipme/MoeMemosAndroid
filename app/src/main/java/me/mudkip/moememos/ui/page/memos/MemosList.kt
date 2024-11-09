@@ -19,6 +19,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import me.mudkip.moememos.ui.component.MemosCard
+import me.mudkip.moememos.ui.page.common.LocalRootNavController
+import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
 import timber.log.Timber
 
@@ -30,6 +32,7 @@ fun MemosList(
     tag: String? = null,
     searchString: String? = null
 ) {
+    val navController = LocalRootNavController.current
     val viewModel = LocalMemos.current
     val refreshState = rememberPullToRefreshState()
     var isRefreshing by remember { mutableStateOf(false) }
@@ -41,7 +44,7 @@ fun MemosList(
         tag?.let { tag ->
             fullList = fullList.filter { memo ->
                 memo.content.contains("#$tag") ||
-                    memo.content.contains("#$tag/")
+                        memo.content.contains("#$tag/")
             }
         }
 
@@ -75,7 +78,13 @@ fun MemosList(
             state = lazyListState
         ) {
             items(filteredMemos, key = { it.identifier }) { memo ->
-                MemosCard(memo, previewMode = true)
+                MemosCard(
+                    memo = memo,
+                    onEdit = { selectedMemo ->
+                        navController.navigate("${RouteName.EDIT}?memoId=${selectedMemo.identifier}")
+                    },
+                    previewMode = true
+                )
             }
         }
     }

@@ -3,18 +3,18 @@ package me.mudkip.moememos.ext
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.UrlAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextIndent
-import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import org.intellij.markdown.MarkdownElementTypes
@@ -25,12 +25,12 @@ import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
 import java.util.UUID
 
-@OptIn(ExperimentalTextApi::class)
 fun AnnotatedString.Builder.appendMarkdown(
     markdownText: String,
     node: ASTNode,
     depth: Int = 0,
     linkColor: Color,
+    linkInteractionListener: LinkInteractionListener?,
     onImage: (id: String, link: String) -> Unit,
     onCheckbox: (id: String, startOffset: Int, endOffset: Int) -> Unit,
     maxWidth: Float,
@@ -59,6 +59,7 @@ fun AnnotatedString.Builder.appendMarkdown(
                     node = childNode,
                     depth = depth + 1,
                     linkColor = linkColor,
+                    linkInteractionListener = linkInteractionListener,
                     onImage = onImage,
                     onCheckbox = onCheckbox,
                     maxWidth = maxWidth,
@@ -76,30 +77,42 @@ fun AnnotatedString.Builder.appendMarkdown(
                     ?: return this
             val linkText = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }?.children
 
-            withAnnotation(UrlAnnotation(linkDestination.getTextInNode(markdownText).toString())) {
+            withLink(
+                LinkAnnotation.Url(
+                    url = linkDestination.getTextInNode(markdownText).toString(),
+                    linkInteractionListener = linkInteractionListener
+                )
+            ) {
                 withStyle(SpanStyle(linkColor)) {
-                    linkText?.filterIndexed { index, _ -> index != 0 && index != linkText.size - 1 }?.forEach { childNode ->
-                        appendMarkdown(
-                            markdownText = markdownText,
-                            node = childNode,
-                            depth = depth + 1,
-                            linkColor = linkColor,
-                            onImage = onImage,
-                            onCheckbox = onCheckbox,
-                            maxWidth = maxWidth,
-                            bulletColor = bulletColor,
-                            headlineLarge = headlineLarge,
-                            headlineMedium = headlineMedium,
-                            headlineSmall = headlineSmall
-                        )
-                    } ?: Unit
+                    linkText?.filterIndexed { index, _ -> index != 0 && index != linkText.size - 1 }
+                        ?.forEach { childNode ->
+                            appendMarkdown(
+                                markdownText = markdownText,
+                                node = childNode,
+                                depth = depth + 1,
+                                linkColor = linkColor,
+                                linkInteractionListener = linkInteractionListener,
+                                onImage = onImage,
+                                onCheckbox = onCheckbox,
+                                maxWidth = maxWidth,
+                                bulletColor = bulletColor,
+                                headlineLarge = headlineLarge,
+                                headlineMedium = headlineMedium,
+                                headlineSmall = headlineSmall
+                            )
+                        } ?: Unit
                 }
             }
         }
 
         MarkdownElementTypes.AUTOLINK, GFMTokenTypes.GFM_AUTOLINK -> {
             val linkDestination = node.getTextInNode(markdownText).toString()
-            withAnnotation(UrlAnnotation(linkDestination)) {
+            withLink(
+                LinkAnnotation.Url(
+                    url = linkDestination,
+                    linkInteractionListener = linkInteractionListener
+                )
+            ) {
                 withStyle(SpanStyle(linkColor)) {
                     append(linkDestination)
                 }
@@ -114,6 +127,7 @@ fun AnnotatedString.Builder.appendMarkdown(
                         node = childNode,
                         depth = depth + 1,
                         linkColor = linkColor,
+                        linkInteractionListener = linkInteractionListener,
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
@@ -134,6 +148,7 @@ fun AnnotatedString.Builder.appendMarkdown(
                         node = childNode,
                         depth = depth + 1,
                         linkColor = linkColor,
+                        linkInteractionListener = linkInteractionListener,
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
@@ -154,6 +169,7 @@ fun AnnotatedString.Builder.appendMarkdown(
                         node = childNode,
                         depth = depth + 1,
                         linkColor = linkColor,
+                        linkInteractionListener = linkInteractionListener,
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
@@ -178,6 +194,7 @@ fun AnnotatedString.Builder.appendMarkdown(
                         node = childNode,
                         depth = depth + 1,
                         linkColor = linkColor,
+                        linkInteractionListener = linkInteractionListener,
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
@@ -231,6 +248,7 @@ fun AnnotatedString.Builder.appendMarkdown(
                                 node = it,
                                 depth = depth + 1,
                                 linkColor = linkColor,
+                                linkInteractionListener = linkInteractionListener,
                                 onImage = onImage,
                                 onCheckbox = onCheckbox,
                                 maxWidth = maxWidth,
@@ -265,6 +283,7 @@ fun AnnotatedString.Builder.appendMarkdown(
                     node = childNode,
                     depth = depth + 1,
                     linkColor = linkColor,
+                    linkInteractionListener = linkInteractionListener,
                     onImage = onImage,
                     onCheckbox = onCheckbox,
                     maxWidth = maxWidth,
@@ -284,6 +303,7 @@ fun AnnotatedString.Builder.appendMarkdown(
                         node = childNode,
                         depth = depth + 1,
                         linkColor = linkColor,
+                        linkInteractionListener = linkInteractionListener,
                         onImage = onImage,
                         onCheckbox = onCheckbox,
                         maxWidth = maxWidth,
@@ -309,6 +329,7 @@ fun AnnotatedString.Builder.appendMarkdown(
                             node = childNode,
                             depth = depth + 1,
                             linkColor = linkColor,
+                            linkInteractionListener = linkInteractionListener,
                             onImage = onImage,
                             onCheckbox = onCheckbox,
                             maxWidth = maxWidth,
