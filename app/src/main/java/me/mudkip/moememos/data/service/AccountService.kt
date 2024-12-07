@@ -260,47 +260,38 @@ class AccountService @Inject constructor(
         val localRepository = getLocalRepository() as LocalDatabaseRepository
         val onlineRepository = getRepository()
         
-        // First sync online memos to local
-        onlineRepository.listMemos().suspendOnSuccess { 
-            // Store latest online memos locally
-            localRepository.storeSyncedMemos(this.data)
-            
-            // Get local memos that need syncing
-            val localMemos = localRepository.getUnsyncedMemos()
-            
-            // Handle each unsynced local memo
-            for (localMemo in localMemos) {
-                if (localMemo.isDeleted) {
-                    // If marked for deletion locally, delete from server
-                    onlineRepository.deleteMemo(localMemo.identifier).suspendOnSuccess {
-                        localRepository.permanentlyDeleteMemo(localMemo.identifier)
-                    }
-                } else {
-                    // Check if memo exists online
-                    val exists = this.data.any { it.identifier == localMemo.identifier }
-                    
-                    if (!exists) {
-                        // New local memo - create online
-                        onlineRepository.createMemo(
-                            content = localMemo.content,
-                            visibility = localMemo.visibility,
-                            resources = emptyList(),
-                            tags = null
-                        ).suspendOnSuccess {
-                            localRepository.markMemoSynced(localMemo.identifier)
-                        }
-                    } else {
-                        // Existing memo - update online
-                        onlineRepository.updateMemo(
-                            identifier = localMemo.identifier,
-                            content = localMemo.content,
-                            visibility = localMemo.visibility
-                        ).suspendOnSuccess {
-                            localRepository.markMemoSynced(localMemo.identifier)
-                        }
-                    }
+        // First handle local memos that need syncing
+        val localMemos = localRepository.getUnsyncedMemos()
+        val syncedIdentifiers = mutableSetOf<String>() // Track synced memo identifiers
+        
+        for (localMemo in localMemos) {
+            if (localMemo.isDeleted) {
+                onlineRepository.deleteMemo(localMemo.identifier).suspendOnSuccess {
+                    localRepository.permanentlyDeleteMemo(localMemo.identifier)
+                }
+            } else {
+                // New local memo - create online
+                onlineRepository.createMemo(
+                    content = localMemo.content,
+                    visibility = localMemo.visibility,
+                    resources = emptyList(),
+                    tags = null
+                ).suspendOnSuccess {
+                    // Delete the local memo with temporary UUID
+                    localRepository.permanentlyDeleteMemo(localMemo.identifier)
+                    // Create new local memo with server ID
+                    localRepository.storeSyncedMemos(listOf(data))
+                    syncedIdentifiers.add(data.identifier)
                 }
             }
+        }
+        
+        // Then sync online memos to local, excluding ones we just synced
+        onlineRepository.listMemos().suspendOnSuccess { 
+            val filteredMemos = data.filterNot { memo ->
+                syncedIdentifiers.contains(memo.identifier)
+            }
+            localRepository.storeSyncedMemos(filteredMemos)
         }
     }
 }

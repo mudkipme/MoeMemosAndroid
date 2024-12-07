@@ -13,14 +13,23 @@ class MemoService @Inject constructor(
     private val accountService: AccountService,
     private val networkUtils: NetworkUtils
 ) {
+    private var lastSyncTime = 0L
+    private val syncThreshold = 5000L // 5 seconds
+
     val repository: AbstractMemoRepository
         get() = runBlocking { 
             val localRepo = accountService.getLocalRepository()
             
-            // If online, trigger background sync but still return local repo
-            if (networkUtils.isOnline.value) {
+            // If online and enough time has passed since last sync
+            val currentTime = System.currentTimeMillis()
+            if (networkUtils.isOnline.value && (currentTime - lastSyncTime) > syncThreshold) {
                 withContext(Dispatchers.IO) {
-                    accountService.syncMemos()
+                    try {
+                        accountService.syncMemos()
+                        lastSyncTime = currentTime
+                    } catch (e: Exception) {
+                        e.printStackTrace() 
+                    }
                 }
             }
             

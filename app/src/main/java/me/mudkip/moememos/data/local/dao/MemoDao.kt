@@ -13,7 +13,11 @@ interface MemoDao {
     @Query("SELECT * FROM memos WHERE archived = 1 ORDER BY date DESC")
     suspend fun getArchivedMemos(): List<MemoEntity>
 
-    @Query("SELECT * FROM memos WHERE archived = 0 ORDER BY pinned DESC, date DESC")
+    @Query("""
+        SELECT * FROM memos 
+        WHERE archived = 0 AND isDeleted = 0
+        ORDER BY pinned DESC, date DESC
+    """)
     suspend fun getAllMemos(): List<MemoEntity>
 
     @Query("SELECT * FROM memos WHERE identifier = :identifier")

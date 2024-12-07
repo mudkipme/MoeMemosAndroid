@@ -59,7 +59,10 @@ class LocalDatabaseRepository(
                 creatorId = user.identifier,
                 creatorName = user.name,
                 pinned = false,
-                archived = false
+                archived = false,
+                needsSync = true,  // Explicitly set needsSync flag
+                isDeleted = false,
+                lastModified = now
             )
             
             // Save memo locally
@@ -302,22 +305,23 @@ class LocalDatabaseRepository(
         return memoDao.getUnsyncedMemos()
     }
 
-    suspend fun markMemoSynced(identifier: String) {
-        memoDao.updateMemoSyncStatus(identifier, false)
-    }
-
     suspend fun storeSyncedMemos(memos: List<Memo>) {
-        // First, get all existing memos to preserve deletion status
         val existingMemos = memoDao.getAllMemos().associateBy { it.identifier }
         
         memos.forEach { memo ->
-            // Check if memo exists and is marked as deleted locally
             val existingMemo = existingMemos[memo.identifier]
+            
+            // Skip if memo is marked for deletion locally
             if (existingMemo?.isDeleted == true) {
-                // Skip updating this memo as it's marked for deletion locally
                 return@forEach
             }
             
+            // Skip if memo exists locally and needs sync (local changes pending)
+            if (existingMemo?.needsSync == true) {
+                return@forEach
+            }
+            
+            // Create or update memo
             val memoEntity = MemoEntity(
                 identifier = memo.identifier,
                 content = memo.content,
@@ -326,14 +330,17 @@ class LocalDatabaseRepository(
                 creatorId = memo.creator?.identifier,
                 creatorName = memo.creator?.name,
                 pinned = memo.pinned,
-                archived = false,
-                needsSync = false,  // Mark as synced
+                archived = existingMemo?.archived ?: false,
+                needsSync = false,
                 isDeleted = false,
                 lastModified = Instant.now()
             )
             memoDao.insertMemo(memoEntity)
             
-            // Store resources
+            // Handle resources
+            memoDao.getMemoResources(memo.identifier).forEach {
+                memoDao.deleteResource(it)
+            }
             memo.resources.forEach { resource ->
                 val resourceEntity = ResourceEntity(
                     identifier = resource.identifier,
@@ -389,4 +396,5 @@ class LocalDatabaseRepository(
         val memo = memoDao.getMemoById(identifier) ?: return
         memoDao.deleteMemo(memo)
     }
-} 
+
+}
