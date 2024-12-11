@@ -19,6 +19,7 @@ import me.mudkip.moememos.data.model.DailyUsageStat
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
@@ -28,7 +29,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MemosViewModel @Inject constructor(
-    private val memoService: MemoService
+    private val memoService: MemoService,
+    private val accountService: AccountService
 ) : ViewModel() {
 
     var memos = mutableStateListOf<Memo>()
@@ -38,6 +40,8 @@ class MemosViewModel @Inject constructor(
     var errorMessage: String? by mutableStateOf(null)
         private set
     var matrix by mutableStateOf(DailyUsageStat.initialMatrix)
+        private set
+    var host: String? by mutableStateOf(null)
         private set
 
     init {
@@ -51,6 +55,7 @@ class MemosViewModel @Inject constructor(
             memos.clear()
             memos.addAll(data)
             errorMessage = null
+            loadHost()
         }.suspendOnErrorMessage {
             errorMessage = it
         }
@@ -60,6 +65,15 @@ class MemosViewModel @Inject constructor(
         memoService.repository.listTags().suspendOnSuccess {
             tags.clear()
             tags.addAll(data)
+        }
+    }
+
+    suspend fun loadHost() = withContext(viewModelScope.coroutineContext) {
+        accountService.currentAccount.collect { currentAccount ->
+            val currentHost = currentAccount?.toUserData()?.memosV1?.host ?: let {
+                currentAccount?.toUserData()?.memosV0?.host
+            }
+            host = currentHost
         }
     }
 
