@@ -16,6 +16,7 @@ import me.mudkip.moememos.data.api.MemosV1Memo
 import me.mudkip.moememos.data.api.MemosV1Resource
 import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequest
 import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequestItem
+import me.mudkip.moememos.data.api.MemosView
 import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.api.UpdateMemoRequest
 import me.mudkip.moememos.data.model.Account
@@ -28,6 +29,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okio.ByteString.Companion.toByteString
 
 private const val PAGE_SIZE = 100
+private const val ALL_PAGE_SIZE = 1000000
 
 class MemosV1Repository(
     private val memosApi: MemosV1Api,
@@ -169,7 +171,12 @@ class MemosV1Repository(
     }
 
     override suspend fun listTags(): ApiResponse<List<String>> {
-        return memosApi.listMemoTags("-").mapSuccess { this.tagAmounts.keys.toList() }
+        val resp = memosApi.listMemos(ALL_PAGE_SIZE, filter = "creator == \"users/${account.info.id}\" && row_status == \"NORMAL\"", view = MemosView.MEMO_VIEW_METADATA_ONLY).getOrThrow()
+        val tags = HashSet<String>()
+        resp.memos.forEach { memo ->
+            tags.addAll(memo.property?.tags ?: emptyList())
+        }
+        return ApiResponse.Success(tags.toList())
     }
 
     override suspend fun deleteTag(name: String): ApiResponse<Unit> {

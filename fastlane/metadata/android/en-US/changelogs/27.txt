@@ -1,0 +1,9 @@
+## What's Changed
+* Added expand fab animation when scrolling by @Divinelink
+* Added initial hold to edit functionality by @jkuhlemann
+* Supports Memos 0.23.0. Due to API changes, some features may no longer work with 0.22.x.
+
+## New Contributors
+* @Divinelink made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/203
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.8.2...0.8.3

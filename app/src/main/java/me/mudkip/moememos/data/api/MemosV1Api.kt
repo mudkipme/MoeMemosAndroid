@@ -33,7 +33,8 @@ interface MemosV1Api {
     suspend fun listMemos(
         @Query("pageSize") pageSize: Int,
         @Query("pageToken") pageToken: String? = null,
-        @Query("filter") filter: String
+        @Query("filter") filter: String,
+        @Query("view") view: MemosView? = MemosView.MEMO_VIEW_FULL
     ): ApiResponse<ListMemosResponse>
 
     @POST("api/v1/memos")
@@ -47,9 +48,6 @@ interface MemosV1Api {
 
     @DELETE("api/v1/memos/{id}")
     suspend fun deleteMemo(@Path("id") memoId: String): ApiResponse<Unit>
-
-    @GET("api/v1/memos/{id}/tags")
-    suspend fun listMemoTags(@Path("id") memoId: String, @Query("filter") filter: String? = null): ApiResponse<ListMemoTagsResponse>
 
     @DELETE("api/v1/memos/{id}/tags/{tag}")
     suspend fun deleteMemoTag(@Path("id") memoId: String, @Path("tag") tag: String, @Query("deleteRelatedMemos") deleteRelatedMemos: Boolean): ApiResponse<Unit>
@@ -135,6 +133,11 @@ data class CreateResourceRequest(
 )
 
 @Keep
+data class MemosMemoProperty(
+    val tags: List<String>? = null,
+)
+
+@Keep
 data class MemosV1Memo(
     val name: String,
     val uid: String,
@@ -145,9 +148,9 @@ data class MemosV1Memo(
     val displayTime: Date,
     val content: String,
     val visibility: MemosVisibility,
-    val tags: List<String>,
     val pinned: Boolean,
-    val resources: List<MemosV1Resource>
+    val resources: List<MemosV1Resource>,
+    val property: MemosMemoProperty?
 )
 
 @Keep
