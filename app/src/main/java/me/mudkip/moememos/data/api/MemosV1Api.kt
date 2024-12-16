@@ -133,6 +133,11 @@ data class CreateResourceRequest(
 )
 
 @Keep
+data class MemosMemoProperty(
+    val tags: List<String>? = null,
+)
+
+@Keep
 data class MemosV1Memo(
     val name: String,
     val uid: String,
@@ -143,9 +148,9 @@ data class MemosV1Memo(
     val displayTime: Date,
     val content: String,
     val visibility: MemosVisibility,
-    val tags: List<String>,
     val pinned: Boolean,
-    val resources: List<MemosV1Resource>
+    val resources: List<MemosV1Resource>,
+    val property: MemosMemoProperty?
 )
 
 @Keep

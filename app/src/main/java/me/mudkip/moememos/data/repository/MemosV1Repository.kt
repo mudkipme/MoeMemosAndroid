@@ -174,7 +174,7 @@ class MemosV1Repository(
         val resp = memosApi.listMemos(ALL_PAGE_SIZE, filter = "creator == \"users/${account.info.id}\" && row_status == \"NORMAL\"", view = MemosView.MEMO_VIEW_METADATA_ONLY).getOrThrow()
         val tags = HashSet<String>()
         resp.memos.forEach { memo ->
-            tags.addAll(memo.tags)
+            tags.addAll(memo.property?.tags ?: emptyList())
         }
         return ApiResponse.Success(tags.toList())
     }
