@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.PinDrop
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.outlined.Share
@@ -48,6 +49,7 @@ import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.ext.getFullLink
 import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
@@ -60,6 +62,7 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 fun MemosCard(
     memo: Memo,
     onEdit: (Memo) -> Unit,
+    host: String? = null,
     previewMode: Boolean = false
 ) {
     val memosViewModel = LocalMemos.current
@@ -112,7 +115,7 @@ fun MemosCard(
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    MemosCardActionButton(memo)
+                    MemosCardActionButton(memo, host)
                 }
 
                 MemoContent(
@@ -141,7 +144,8 @@ fun MemosCard(
 
 @Composable
 fun MemosCardActionButton(
-    memo: Memo
+    memo: Memo,
+    host: String? = null,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -218,6 +222,25 @@ fun MemosCardActionButton(
                         contentDescription = null
                     )
                 })
+            host?.let {
+                DropdownMenuItem(
+                    text = { Text(R.string.copy_link.string) },
+                    onClick = {
+                        val sendIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, memo.getFullLink(host))
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, "Copy Link")
+                        context.startActivity(shareIntent)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Link,
+                            contentDescription = null
+                        )
+                    })
+            }
             DropdownMenuItem(
                 text = { Text(R.string.archive.string) },
                 onClick = {
