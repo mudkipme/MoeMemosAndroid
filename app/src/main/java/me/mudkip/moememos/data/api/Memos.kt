@@ -61,3 +61,13 @@ data class MemosProfile(
     val mode: String,
     val version: String
 )
+
+@JsonClass(generateAdapter = false)
+enum class MemosView {
+    @field:Json(name = "MEMO_VIEW_UNSPECIFIED")
+    MEMO_VIEW_UNSPECIFIED,
+    @field:Json(name = "MEMO_VIEW_FULL")
+    MEMO_VIEW_FULL,
+    @field:Json(name = "MEMO_VIEW_METADATA_ONLY")
+    MEMO_VIEW_METADATA_ONLY,
+}
