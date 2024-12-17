@@ -47,6 +47,11 @@ android {
         }
     }
 
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     namespace 'me.mudkip.moememos'
 }
 
