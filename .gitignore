@@ -53,6 +53,7 @@ captures/
 .idea/other.xml
 # Comment next line if keeping position of elements in Navigation Editor is relevant for you
 .idea/navEditor.xml
+.idea/inspectionProfiles
 
 # Keystore files
 # Uncomment the following lines if you do not want to check your keystore files in.
