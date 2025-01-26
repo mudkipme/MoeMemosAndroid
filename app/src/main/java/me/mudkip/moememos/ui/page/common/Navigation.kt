@@ -30,6 +30,7 @@ import me.mudkip.moememos.ui.page.account.AccountPage
 import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
 import me.mudkip.moememos.ui.page.memos.MemosPage
+import me.mudkip.moememos.ui.page.memos.SearchPage
 import me.mudkip.moememos.ui.page.resource.ResourceListPage
 import me.mudkip.moememos.ui.page.settings.SettingsPage
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
@@ -92,6 +93,10 @@ fun Navigation() {
                         selectedAccountKey = entry.arguments?.getString("accountKey") ?: ""
                     )
                 }
+
+                composable(RouteName.SEARCH) {
+                    SearchPage(navController = navController)
+                }
             }
         }
     }
@@ -111,9 +116,15 @@ fun Navigation() {
 
     fun handleIntent(intent: Intent) {
         when(intent.action) {
-             Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> {
+            Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> {
                 shareContent = ShareContent.parseIntent(intent)
                 navController.navigate(RouteName.SHARE)
+            }
+            Intent.ACTION_VIEW -> {
+                when (intent.getStringExtra("action")) {
+                    "compose" -> navController.navigate(RouteName.INPUT)
+                    "search" -> navController.navigate(RouteName.SEARCH)
+                }
             }
         }
     }

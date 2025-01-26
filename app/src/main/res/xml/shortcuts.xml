@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="compose"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_add"
+        android:shortcutShortLabel="@string/new_memo">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="me.mudkip.moememos"
+            android:targetClass="me.mudkip.moememos.MainActivity">
+            <extra android:name="action" android:value="compose" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="search"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_search"
+        android:shortcutShortLabel="@string/search">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="me.mudkip.moememos"
+            android:targetClass="me.mudkip.moememos.MainActivity">
+            <extra android:name="action" android:value="search" />
+        </intent>
+    </shortcut>
+</shortcuts> 
