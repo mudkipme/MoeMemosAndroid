@@ -6,9 +6,7 @@
 
 **Moe Memos** is an app to help you capture thoughts and ideas.
 
-*To use this app, you must have a self-hosted [✍️memos](https://github.com/usememos/memos) server set up and running. ([supported versions](https://memos.moe/memos/))*
-
-**Please download the [latest pre-release version](https://github.com/mudkipme/MoeMemosAndroid/releases) if you are using Memos 0.22.0 or higher.**
+*To use this app, you must have a self-hosted [✍️memos](https://github.com/usememos/memos) server set up and running.
 
 ## Installation
 
