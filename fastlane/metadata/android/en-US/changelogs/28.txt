@@ -1,0 +1,13 @@
+## What's Changed
+- Added support for Memos 0.23.1. Due to breaking API changes, Memos 0.22.0–0.23.0 is no longer supported. You can still use Memos 0.21.0 or upgrade to 0.23.1.
+- Added the Copy Note Link feature by @Bitnik212.
+- Added German translation by @Motschen.
+- Added app shortcuts for composing and searching memos by @seewhy163.
+- Fixed a crash that occurred when loading memos failed.
+
+## New Contributors
+* @Bitnik212 made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/216
+* @Motschen made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/232
+* @seewhy163 made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/231
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.8.3...0.8.4

@@ -57,6 +57,7 @@
     <string name="invalid_access_token">Недопустимый Access Token</string>
     <string name="pin">Закрепить</string>
     <string name="share">Поделиться</string>
+    <string name="copy_link">Скопировать ссылку</string>
     <string name="archive">Архивировать</string>
     <string name="memo_visibility_public">Видимый для гостей</string>
     <string name="memo_visibility_protected">Видимый для локальных пользователей</string>

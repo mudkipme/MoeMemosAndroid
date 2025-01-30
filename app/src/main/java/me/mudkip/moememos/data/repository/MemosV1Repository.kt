@@ -9,13 +9,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import me.mudkip.moememos.data.api.CreateResourceRequest
-import me.mudkip.moememos.data.api.MemosRowStatus
 import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.api.MemosV1CreateMemoRequest
 import me.mudkip.moememos.data.api.MemosV1Memo
 import me.mudkip.moememos.data.api.MemosV1Resource
 import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequest
 import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequestItem
+import me.mudkip.moememos.data.api.MemosV1State
 import me.mudkip.moememos.data.api.MemosView
 import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.api.UpdateMemoRequest
@@ -27,6 +27,7 @@ import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okio.ByteString.Companion.toByteString
+import java.util.Date
 
 private const val PAGE_SIZE = 100
 private const val ALL_PAGE_SIZE = 1000000
@@ -84,34 +85,34 @@ class MemosV1Repository(
     }
 
     override suspend fun listMemos(): ApiResponse<List<Memo>> {
-        return listMemosByFilter("creator == \"users/${account.info.id}\" && row_status == \"NORMAL\" && order_by_pinned == true")
+        return listMemosByFilter("creator == \"users/${account.info.id}\" && state == \"NORMAL\" && order_by_pinned == true")
     }
 
     override suspend fun listArchivedMemos(): ApiResponse<List<Memo>> {
-        return listMemosByFilter("creator == \"users/${account.info.id}\" && row_status == \"ARCHIVED\"")
+        return listMemosByFilter("creator == \"users/${account.info.id}\" && state == \"ARCHIVED\"")
     }
 
     override suspend fun listWorkspaceMemos(
         pageSize: Int,
         pageToken: String?
     ): ApiResponse<Pair<List<Memo>, String?>> {
-        val resp = memosApi.listMemos(pageSize, pageToken, "row_status == \"NORMAL\" && visibilities == ['PUBLIC', 'PROTECTED']")
+        val resp = memosApi.listMemos(pageSize, pageToken, "state == \"NORMAL\" && visibilities == ['PUBLIC', 'PROTECTED']")
         if (resp !is ApiResponse.Success) {
             return resp.mapSuccess { emptyList<Memo>() to null }
         }
         val respData = resp.getOrThrow()
-        val users = respData.memos.map { it.creator.substringAfter("/") }.toSet()
+        val users = respData.memos.map { it.creator }.toSet()
         val userResp = coroutineScope {
             users.map { userId ->
                 async { memosApi.getUser(userId).getOrNull() }
             }.awaitAll()
         }.filterNotNull()
-        val userMap = mapOf(*userResp.map { it.id.toString() to it }.toTypedArray())
+        val userMap = mapOf(*userResp.map { it.name to it }.toTypedArray())
 
         return resp
             .mapSuccess { this.memos.map {
                 convertMemo(it)
-                .copy(creator = userMap[it.creator.substringAfter("/")]?.let { user -> User(user.name, user.nickname, user.createTime.toInstant()) } )
+                .copy(creator = userMap[it.creator]?.let { user -> User(user.name, user.nickname, user.createTime.toInstant()) } )
             } to this.nextPageToken.ifEmpty { null } }
     }
 
@@ -146,6 +147,7 @@ class MemosV1Repository(
             content = content,
             visibility = visibility?.let { MemosVisibility.fromMemoVisibility(it) },
             pinned = pinned,
+            updateTime = Date(),
         )).mapSuccess { convertMemo(this) }
         if (resp !is ApiResponse.Success || resources == null || resources.map { it.identifier }.toSet() == resp.data.resources.map { it.identifier }.toSet()) {
             return resp
@@ -163,18 +165,18 @@ class MemosV1Repository(
     }
 
     override suspend fun archiveMemo(identifier: String): ApiResponse<Unit> {
-        return memosApi.updateMemo(getId(identifier), UpdateMemoRequest(rowStatus = MemosRowStatus.ARCHIVED)).mapSuccess {  }
+        return memosApi.updateMemo(getId(identifier), UpdateMemoRequest(state = MemosV1State.ARCHIVED)).mapSuccess {  }
     }
 
     override suspend fun restoreMemo(identifier: String): ApiResponse<Unit> {
-        return memosApi.updateMemo(getId(identifier), UpdateMemoRequest(rowStatus = MemosRowStatus.NORMAL)).mapSuccess {  }
+        return memosApi.updateMemo(getId(identifier), UpdateMemoRequest(state = MemosV1State.NORMAL)).mapSuccess {  }
     }
 
     override suspend fun listTags(): ApiResponse<List<String>> {
-        val resp = memosApi.listMemos(ALL_PAGE_SIZE, filter = "creator == \"users/${account.info.id}\" && row_status == \"NORMAL\"", view = MemosView.MEMO_VIEW_METADATA_ONLY).getOrNull()
+        val resp = memosApi.listMemos(ALL_PAGE_SIZE, filter = "creator == \"users/${account.info.id}\" && state == \"NORMAL\"", view = MemosView.MEMO_VIEW_METADATA_ONLY).getOrNull()
         val tags = HashSet<String>()
         resp?.memos?.forEach { memo ->
-            tags.addAll(memo.property?.tags ?: emptyList())
+            tags.addAll(memo.tags ?: emptyList())
         }
         return ApiResponse.Success(tags.toList())
     }
