@@ -194,7 +194,7 @@ class UserStateViewModel @Inject constructor(
     private fun getAccount(host: String, accessToken: String, user: MemosV1User): Account = Account.MemosV1(
         info = MemosAccount.newBuilder()
             .setHost(host)
-            .setId(user.id.toLong())
+            .setId(user.name.substringAfterLast('/').toLong())
             .setName(user.username)
             .setAvatarUrl(user.avatarUrl)
             .setAccessToken(accessToken)
