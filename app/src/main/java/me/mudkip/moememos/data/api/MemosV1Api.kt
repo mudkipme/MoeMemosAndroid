@@ -3,6 +3,8 @@ package me.mudkip.moememos.data.api
 import android.net.Uri
 import androidx.annotation.Keep
 import com.skydoves.sandwich.ApiResponse
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -71,14 +73,13 @@ interface MemosV1Api {
 @Keep
 data class MemosV1User(
     val name: String,
-    val id: Int,
     val role: MemosRole,
     val username: String,
     val email: String,
     val nickname: String,
     val avatarUrl: String,
     val description: String,
-    val rowStatus: MemosRowStatus,
+    val state: MemosV1State? = null,
     val createTime: Date,
     val updateTime: Date
 )
@@ -110,13 +111,9 @@ data class MemosV1SetMemoResourcesRequestItem(
 data class UpdateMemoRequest(
     val content: String? = null,
     val visibility: MemosVisibility? = null,
-    val rowStatus: MemosRowStatus? = null,
-    val pinned: Boolean? = null
-)
-
-@Keep
-data class ListMemoTagsResponse(
-    val tagAmounts: Map<String, Int>
+    val state: MemosV1State? = null,
+    val pinned: Boolean? = null,
+    val updateTime: Date? = null,
 )
 
 @Keep
@@ -133,15 +130,10 @@ data class CreateResourceRequest(
 )
 
 @Keep
-data class MemosMemoProperty(
-    val tags: List<String>? = null,
-)
-
-@Keep
 data class MemosV1Memo(
     val name: String,
     val uid: String,
-    val rowStatus: MemosRowStatus,
+    val state: MemosV1State? = null,
     val creator: String,
     val createTime: Date,
     val updateTime: Date,
@@ -150,7 +142,7 @@ data class MemosV1Memo(
     val visibility: MemosVisibility,
     val pinned: Boolean,
     val resources: List<MemosV1Resource>,
-    val property: MemosMemoProperty?
+    val tags: List<String>? = null
 )
 
 @Keep
@@ -180,3 +172,13 @@ data class MemosV1UserSetting(
     val appearance: String,
     val memoVisibility: MemosVisibility
 )
+
+@JsonClass(generateAdapter = false)
+enum class MemosV1State {
+    @field:Json(name = "STATE_UNSPECIFIED")
+    STATE_UNSPECIFIED,
+    @field:Json(name = "NORMAL")
+    NORMAL,
+    @field:Json(name = "ARCHIVED")
+    ARCHIVED,
+}

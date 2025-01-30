@@ -112,6 +112,10 @@ fun LoginPage(
             return@launch
         }
 
+        if (!host.text.contains("//")) {
+            host = TextFieldValue("https://${host.text}")
+        }
+
         val resp = when(loginMethod) {
             LoginMethod.USERNAME_AND_PASSWORD -> userStateViewModel.loginMemos(host.text.trim(), username.text.trim(), password.text)
             LoginMethod.ACCESS_TOKEN -> userStateViewModel.loginMemosWithAccessToken(host.text.trim(), accessToken.text.trim())
