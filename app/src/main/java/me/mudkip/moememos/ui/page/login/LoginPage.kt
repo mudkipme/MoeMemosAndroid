@@ -60,11 +60,6 @@ import me.mudkip.moememos.ui.component.Markdown
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalUserState
 
-private enum class LoginMethod {
-    USERNAME_AND_PASSWORD,
-    ACCESS_TOKEN,
-}
-
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LoginPage(

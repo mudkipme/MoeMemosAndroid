@@ -2,6 +2,7 @@ package me.mudkip.moememos.data.service
 
 import android.content.Context
 import com.skydoves.sandwich.getOrNull
+import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.EnumJsonAdapter
@@ -195,13 +196,13 @@ class AccountService @Inject constructor(
     }
 
     suspend fun detectAccountCase(host: String): UserData.AccountCase {
-        val memosV1Profile = createMemosV1Client(host, null).second.getProfile().getOrNull()
-        if (!memosV1Profile?.version.isNullOrEmpty()) {
-            return UserData.AccountCase.MEMOS_V1
-        }
         val memosV0Status = createMemosV0Client(host, null).second.status().getOrNull()
         if (!memosV0Status?.profile?.version.isNullOrEmpty()) {
             return UserData.AccountCase.MEMOS_V0
+        }
+        val memosV1Profile = createMemosV1Client(host, null).second.getProfile().getOrThrow()
+        if (memosV1Profile.version.isNotEmpty()) {
+            return UserData.AccountCase.MEMOS_V1
         }
         return UserData.AccountCase.ACCOUNT_NOT_SET
     }

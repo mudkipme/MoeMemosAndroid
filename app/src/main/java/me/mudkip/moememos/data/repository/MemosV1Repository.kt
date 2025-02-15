@@ -28,8 +28,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okio.ByteString.Companion.toByteString
 import java.util.Date
 
-private const val PAGE_SIZE = 100
-private const val ALL_PAGE_SIZE = 1000000
+private const val PAGE_SIZE = 200
 
 class MemosV1Repository(
     private val memosApi: MemosV1Api,

@@ -1,5 +1,6 @@
 package me.mudkip.moememos.viewmodel
 
+import androidx.compose.animation.core.snap
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -11,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -48,14 +50,21 @@ class MemosViewModel @Inject constructor(
         snapshotFlow { memos.toList() }
             .onEach { matrix = calculateMatrix() }
             .launchIn(viewModelScope)
+
+        accountService.currentAccount
+            .onEach { currentAccount ->
+                val currentHost = currentAccount?.toUserData()?.memosV1?.host ?: let {
+                    currentAccount?.toUserData()?.memosV0?.host
+                }
+                host = currentHost
+            }
     }
 
-    fun loadMemos() = viewModelScope.launch {
+    suspend fun loadMemos() = withContext(viewModelScope.coroutineContext) {
         memoService.repository.listMemos().suspendOnSuccess {
             memos.clear()
             memos.addAll(data)
             errorMessage = null
-            loadHost()
         }.suspendOnErrorMessage {
             errorMessage = it
         }
@@ -65,15 +74,6 @@ class MemosViewModel @Inject constructor(
         memoService.repository.listTags().suspendOnSuccess {
             tags.clear()
             tags.addAll(data)
-        }
-    }
-
-    suspend fun loadHost() = withContext(viewModelScope.coroutineContext) {
-        accountService.currentAccount.collect { currentAccount ->
-            val currentHost = currentAccount?.toUserData()?.memosV1?.host ?: let {
-                currentAccount?.toUserData()?.memosV0?.host
-            }
-            host = currentHost
         }
     }
 
