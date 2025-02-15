@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.mapSuccess
-import com.skydoves.sandwich.retrofit.raw
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.api.MemosV0SignInInput
 import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.api.MemosV1User
 import me.mudkip.moememos.data.constant.MoeMemosException
@@ -29,7 +27,6 @@ import me.mudkip.moememos.data.model.UserData
 import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnNotLogin
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
@@ -63,69 +60,6 @@ class UserStateViewModel @Inject constructor(
             currentUser = data
         }.suspendOnNotLogin {
             currentUser = null
-        }
-    }
-
-    suspend fun loginMemos(host: String, username: String, password: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
-        try {
-            when (accountService.detectAccountCase(host)) {
-                UserData.AccountCase.MEMOS_V0 -> loginMemosV0(host, username, password)
-                UserData.AccountCase.MEMOS_V1 -> loginMemosV1(host, username, password)
-                else -> throw MoeMemosException.invalidServer
-            }
-        } catch (e: Throwable) {
-            ApiResponse.exception(e)
-        }
-    }
-
-    private suspend fun loginMemosV0(host: String, username: String, password: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
-        try {
-            val hostUrl = host.toHttpUrl()
-            val (okHttpClient, client) = accountService.createMemosV0Client(host, null)
-            val resp = client.signIn(MemosV0SignInInput(username, username, password, true))
-            if (resp !is ApiResponse.Success) {
-                return@withContext resp.mapSuccess {}
-            }
-            okHttpClient.cookieJar.loadForRequest(hostUrl).forEach {
-                if (it.name == "memos.access-token") {
-                    accountService.addAccount(getAccount(host, it.value, resp.data))
-                    currentUser = resp.data.toUser()
-                    return@withContext ApiResponse.Success(Unit)
-                }
-            }
-            throw MoeMemosException.invalidAccessToken
-        } catch (e: Throwable) {
-            ApiResponse.exception(e)
-        }
-    }
-
-    private suspend fun loginMemosV1(host: String, username: String, password: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
-        try {
-            val hostUrl = host.toHttpUrl()
-            val (okHttpClient, client) = accountService.createMemosV1Client(host, null)
-            val resp = client.signIn(username, password)
-            if (resp !is ApiResponse.Success) {
-                return@withContext resp.mapSuccess {}
-            }
-            okHttpClient.cookieJar.loadForRequest(hostUrl).forEach {
-                if (it.name == "memos.access-token") {
-                    accountService.addAccount(getAccount(host, it.value, resp.data))
-                    return@withContext loadCurrentUser().mapSuccess {}
-                }
-            }
-            // The HTTP response of Memos 0.22.0 uses incorrect cookie header
-            if (resp.raw.headers("grpc-metadata-set-cookie").isNotEmpty()) {
-                val accessToken = resp.raw.headers("grpc-metadata-set-cookie").first()
-                    .substringBefore(';')
-                    .substringAfter("memos.access-token=")
-                if (accessToken.isNotEmpty()) {
-                    accountService.addAccount(getAccount(host, accessToken, resp.data))
-                    return@withContext loadCurrentUser().mapSuccess {}
-                }
-            }
-            throw MoeMemosException.invalidAccessToken
-        } catch (e: Throwable) {
-            ApiResponse.exception(e)
         }
     }
 
@@ -170,7 +104,6 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun logout(accountKey: String) = withContext(viewModelScope.coroutineContext) {
         if (currentAccount.first()?.accountKey() == accountKey) {
-            accountService.getRepository().logout()
             currentUser = null
         }
         accountService.removeAccount(accountKey)

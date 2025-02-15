@@ -1,0 +1,7 @@
+## What's Changed
+- Added support for Memos 0.24.0. Due to breaking API changes, Memos versions 0.22.0–0.23.1 are no longer supported. You can still use Memos 0.21.0 or upgrade to 0.24.0.
+- Removed username and password login.
+
+This is the last version of Moe Memos that supports Memos API-breaking changes. Future versions will maintain compatibility with Memos 0.21.0 and 0.24.0. If future Memos releases introduce breaking API changes, a server-side compatibility layer will be provided to convert them to the Memos 0.21.0 API.
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.8.4...0.8.5
