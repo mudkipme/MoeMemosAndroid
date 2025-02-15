@@ -16,7 +16,6 @@ import me.mudkip.moememos.data.api.MemosV1Resource
 import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequest
 import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequestItem
 import me.mudkip.moememos.data.api.MemosV1State
-import me.mudkip.moememos.data.api.MemosView
 import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.api.UpdateMemoRequest
 import me.mudkip.moememos.data.model.Account
@@ -29,8 +28,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okio.ByteString.Companion.toByteString
 import java.util.Date
 
-private const val PAGE_SIZE = 100
-private const val ALL_PAGE_SIZE = 1000000
+private const val PAGE_SIZE = 200
 
 class MemosV1Repository(
     private val memosApi: MemosV1Api,
@@ -38,7 +36,7 @@ class MemosV1Repository(
 ): AbstractMemoRepository() {
     private fun convertResource(resource: MemosV1Resource): Resource {
         return Resource(
-            identifier = "${resource.name}|${resource.uid}",
+            identifier = resource.name,
             date = resource.createTime.toInstant(),
             filename = resource.filename,
             uri = resource.uri(account.info.host),
@@ -48,7 +46,7 @@ class MemosV1Repository(
 
     private fun convertMemo(memo: MemosV1Memo): Memo {
         return Memo(
-            identifier = "${memo.name}|${memo.uid}",
+            identifier = memo.name,
             content = memo.content,
             date = memo.displayTime.toInstant(),
             pinned = memo.pinned,
@@ -58,12 +56,12 @@ class MemosV1Repository(
         )
     }
 
-    private suspend fun listMemosByFilter(filter: String): ApiResponse<List<Memo>> {
+    private suspend fun listMemosByFilter(state: MemosV1State, parent: String): ApiResponse<List<Memo>> {
         var nextPageToken = ""
         val memos = arrayListOf<Memo>()
 
         do {
-            val resp = memosApi.listMemos(PAGE_SIZE, nextPageToken, filter)
+            val resp = memosApi.listMemos(PAGE_SIZE, nextPageToken, state, parent)
                 .onSuccess { nextPageToken = data.nextPageToken }
                 .mapSuccess { this.memos.map { convertMemo(it) } }
             if (resp is ApiResponse.Success) {
@@ -79,29 +77,28 @@ class MemosV1Repository(
         return identifier.substringBefore('|').substringAfterLast('/')
     }
 
-    private fun getNameAndUid(identifier: String): Pair<String, String> {
-        val (name, uid) = identifier.split('|')
-        return name to uid
+    private fun getName(identifier: String): String {
+        return identifier.substringBefore('|')
     }
 
     override suspend fun listMemos(): ApiResponse<List<Memo>> {
-        return listMemosByFilter("creator == \"users/${account.info.id}\" && state == \"NORMAL\" && order_by_pinned == true")
+        return listMemosByFilter(MemosV1State.NORMAL, "users/${account.info.id}")
     }
 
     override suspend fun listArchivedMemos(): ApiResponse<List<Memo>> {
-        return listMemosByFilter("creator == \"users/${account.info.id}\" && state == \"ARCHIVED\"")
+        return listMemosByFilter(MemosV1State.ARCHIVED, "users/${account.info.id}")
     }
 
     override suspend fun listWorkspaceMemos(
         pageSize: Int,
         pageToken: String?
     ): ApiResponse<Pair<List<Memo>, String?>> {
-        val resp = memosApi.listMemos(pageSize, pageToken, "state == \"NORMAL\" && visibilities == ['PUBLIC', 'PROTECTED']")
+        val resp = memosApi.listMemos(pageSize, pageToken)
         if (resp !is ApiResponse.Success) {
             return resp.mapSuccess { emptyList<Memo>() to null }
         }
         val respData = resp.getOrThrow()
-        val users = respData.memos.map { it.creator }.toSet()
+        val users = respData.memos.map { getId(it.creator) }.toSet()
         val userResp = coroutineScope {
             users.map { userId ->
                 async { memosApi.getUser(userId).getOrNull() }
@@ -129,8 +126,7 @@ class MemosV1Repository(
         }
         return memosApi.setMemoResources(getId(resp.data.identifier), MemosV1SetMemoResourcesRequest(
             resources.map {
-                val (name, uid) = getNameAndUid(it.identifier)
-                MemosV1SetMemoResourcesRequestItem(name, uid)
+                MemosV1SetMemoResourcesRequestItem(getName(it.identifier))
             }
         )).mapSuccess { resp.data.copy(resources = resources) }
     }
@@ -154,8 +150,7 @@ class MemosV1Repository(
         }
         return memosApi.setMemoResources(getId(identifier), MemosV1SetMemoResourcesRequest(
             resources.map {
-                val (name, uid) = getNameAndUid(it.identifier)
-                MemosV1SetMemoResourcesRequestItem(name, uid)
+                MemosV1SetMemoResourcesRequestItem(getName(it.identifier))
             }
         )).mapSuccess { resp.data.copy(resources = resources) }
     }
@@ -173,12 +168,9 @@ class MemosV1Repository(
     }
 
     override suspend fun listTags(): ApiResponse<List<String>> {
-        val resp = memosApi.listMemos(ALL_PAGE_SIZE, filter = "creator == \"users/${account.info.id}\" && state == \"NORMAL\"", view = MemosView.MEMO_VIEW_METADATA_ONLY).getOrNull()
-        val tags = HashSet<String>()
-        resp?.memos?.forEach { memo ->
-            tags.addAll(memo.tags ?: emptyList())
-        }
-        return ApiResponse.Success(tags.toList())
+        return memosApi.getUserStats(account.info.id.toString()).mapSuccess {
+            tagCount.keys.toList()
+          }
     }
 
     override suspend fun deleteTag(name: String): ApiResponse<Unit> {
@@ -199,7 +191,7 @@ class MemosV1Repository(
             filename = filename,
             type = type?.toString() ?: "application/octet-stream",
             content = content.toByteString().base64(),
-            memo = memoIdentifier?.let { getNameAndUid(it).first }
+            memo = memoIdentifier?.let { getName(it) }
         )).mapSuccess { convertResource(this) }
     }
 
@@ -218,9 +210,5 @@ class MemosV1Repository(
                 defaultVisibility = memoVisibility.toMemoVisibility()
             )
         }
-    }
-
-    override suspend fun logout(): ApiResponse<Unit> {
-        return memosApi.signOut()
     }
 }

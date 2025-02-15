@@ -166,8 +166,4 @@ class MemosV0Repository (
             toUser()
         }
     }
-
-    override suspend fun logout(): ApiResponse<Unit> {
-        return memosApi.logout()
-    }
 }

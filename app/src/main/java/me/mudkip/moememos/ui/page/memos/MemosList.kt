@@ -15,9 +15,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.launch
 import me.mudkip.moememos.ui.component.MemosCard
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
@@ -35,6 +37,7 @@ fun MemosList(
     val navController = LocalRootNavController.current
     val viewModel = LocalMemos.current
     val refreshState = rememberPullToRefreshState()
+    val scope = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     val filteredMemos = remember(viewModel.memos.toList(), tag, searchString) {
         val pinned = viewModel.memos.filter { it.pinned }
@@ -66,7 +69,8 @@ fun MemosList(
         isRefreshing = isRefreshing,
         onRefresh = {
             isRefreshing = true
-            viewModel.loadMemos().invokeOnCompletion {
+            scope.launch {
+                viewModel.loadMemos()
                 isRefreshing = false
             }
         },

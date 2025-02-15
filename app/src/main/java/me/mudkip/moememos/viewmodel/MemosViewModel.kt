@@ -48,9 +48,17 @@ class MemosViewModel @Inject constructor(
         snapshotFlow { memos.toList() }
             .onEach { matrix = calculateMatrix() }
             .launchIn(viewModelScope)
+
+        accountService.currentAccount
+            .onEach { currentAccount ->
+                val currentHost = currentAccount?.toUserData()?.memosV1?.host ?: let {
+                    currentAccount?.toUserData()?.memosV0?.host
+                }
+                host = currentHost
+            }
     }
 
-    fun loadMemos() = viewModelScope.launch {
+    suspend fun loadMemos() = withContext(viewModelScope.coroutineContext) {
         memoService.repository.listMemos().suspendOnSuccess {
             memos.clear()
             memos.addAll(data)

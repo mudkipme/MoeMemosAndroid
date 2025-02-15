@@ -2,7 +2,6 @@ package me.mudkip.moememos.ui.page.login
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,15 +14,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Login
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Computer
-import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material.icons.outlined.PermIdentity
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -35,7 +29,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,7 +49,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavHostController
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
@@ -67,11 +59,6 @@ import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Markdown
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalUserState
-
-private enum class LoginMethod {
-    USERNAME_AND_PASSWORD,
-    ACCESS_TOKEN,
-}
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -85,17 +72,6 @@ fun LoginPage(
     val userStateViewModel = LocalUserState.current
     val snackbarState = remember { SnackbarHostState() }
 
-    var loginMethodMenuExpanded by remember { mutableStateOf(false) }
-    var loginMethod by remember { mutableStateOf(LoginMethod.USERNAME_AND_PASSWORD) }
-
-    var username by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue())
-    }
-
-    var password by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue())
-    }
-
     var host by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(userStateViewModel.host))
     }
@@ -105,9 +81,7 @@ fun LoginPage(
     }
 
     fun login() = coroutineScope.launch {
-        if (host.text.isBlank()
-            || (loginMethod == LoginMethod.USERNAME_AND_PASSWORD && (username.text.isBlank() || password.text.isEmpty()))
-            || (loginMethod == LoginMethod.ACCESS_TOKEN && (accessToken.text.isBlank()))) {
+        if (host.text.isBlank() || accessToken.text.isBlank()) {
             snackbarState.showSnackbar(R.string.fill_login_form.string)
             return@launch
         }
@@ -116,10 +90,7 @@ fun LoginPage(
             host = TextFieldValue("https://${host.text}")
         }
 
-        val resp = when(loginMethod) {
-            LoginMethod.USERNAME_AND_PASSWORD -> userStateViewModel.loginMemos(host.text.trim(), username.text.trim(), password.text)
-            LoginMethod.ACCESS_TOKEN -> userStateViewModel.loginMemosWithAccessToken(host.text.trim(), accessToken.text.trim())
-        }
+        val resp = userStateViewModel.loginMemosWithAccessToken(host.text.trim(), accessToken.text.trim())
         resp.suspendOnSuccess {
             navController.popBackStack()
             navController.navigate(RouteName.MEMOS) {
@@ -157,49 +128,7 @@ fun LoginPage(
         },
         bottomBar = {
             BottomAppBar(
-                actions = {
-                    Box {
-                        DropdownMenu(
-                            expanded = loginMethodMenuExpanded,
-                            onDismissRequest = { loginMethodMenuExpanded = false },
-                            properties = PopupProperties(focusable = false)
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(R.string.username_and_password.string) },
-                                onClick = {
-                                    loginMethod = LoginMethod.USERNAME_AND_PASSWORD
-                                    loginMethodMenuExpanded = false
-                                },
-                                trailingIcon = {
-                                    if (loginMethod == LoginMethod.USERNAME_AND_PASSWORD) {
-                                        Icon(
-                                            Icons.Outlined.Check,
-                                            contentDescription = R.string.selected.string
-                                        )
-                                    }
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(R.string.access_token.string) },
-                                onClick = {
-                                    loginMethod = LoginMethod.ACCESS_TOKEN
-                                    loginMethodMenuExpanded = false
-                                },
-                                trailingIcon = {
-                                    if (loginMethod == LoginMethod.ACCESS_TOKEN) {
-                                        Icon(
-                                            Icons.Outlined.Check,
-                                            contentDescription = R.string.selected.string
-                                        )
-                                    }
-                                }
-                            )
-                        }
-                        TextButton(onClick = { loginMethodMenuExpanded = true }) {
-                            Text(R.string.sign_in_method.string)
-                        }
-                    }
-                },
+                actions = {},
                 floatingActionButton = {
                     ExtendedFloatingActionButton(
                         onClick = { login() },
@@ -267,99 +196,37 @@ fun LoginPage(
                     )
                 )
 
-                if (loginMethod == LoginMethod.USERNAME_AND_PASSWORD) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onFocusEvent { focusState ->
-                                if (focusState.isFocused) {
-                                    coroutineScope.launch {
-                                        bringIntoViewRequester.bringIntoView()
-                                    }
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusEvent { focusState ->
+                            if (focusState.isFocused) {
+                                coroutineScope.launch {
+                                    bringIntoViewRequester.bringIntoView()
                                 }
-                            },
-                        value = username,
-                        onValueChange = { username = it },
-                        singleLine = true,
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Person,
-                                contentDescription = R.string.username.string
-                            )
+                            }
                         },
-                        label = { Text(R.string.username.string) },
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.None,
-                            autoCorrect = false,
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
+                    value = accessToken,
+                    onValueChange = { accessToken = it },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.PermIdentity,
+                            contentDescription = R.string.access_token.string
                         )
-                    )
-
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onFocusEvent { focusState ->
-                                if (focusState.isFocused) {
-                                    coroutineScope.launch {
-                                        bringIntoViewRequester.bringIntoView()
-                                    }
-                                }
-                            },
-                        value = password,
-                        onValueChange = { password = it },
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Password,
-                                contentDescription = R.string.password.string
-                            )
-                        },
-                        label = { Text(R.string.password.string) },
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.None,
-                            autoCorrect = false,
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Go
-                        ),
-                        keyboardActions = KeyboardActions(onGo = { login() })
-                    )
-                }
-
-                if (loginMethod == LoginMethod.ACCESS_TOKEN) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onFocusEvent { focusState ->
-                                if (focusState.isFocused) {
-                                    coroutineScope.launch {
-                                        bringIntoViewRequester.bringIntoView()
-                                    }
-                                }
-                            },
-                        value = accessToken,
-                        onValueChange = { accessToken = it },
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.PermIdentity,
-                                contentDescription = R.string.access_token.string
-                            )
-                        },
-                        label = {
-                            Text(R.string.access_token.string)
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.None,
-                            autoCorrect = false,
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Go
-                        ),
-                        keyboardActions = KeyboardActions(onGo = { login() })
-                    )
-                }
+                    },
+                    label = {
+                        Text(R.string.access_token.string)
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        autoCorrect = false,
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Go
+                    ),
+                    keyboardActions = KeyboardActions(onGo = { login() })
+                )
             }
         }
     }

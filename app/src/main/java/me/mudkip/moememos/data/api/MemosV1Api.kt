@@ -15,16 +15,6 @@ import retrofit2.http.Query
 import java.util.Date
 
 interface MemosV1Api {
-    @POST("api/v1/auth/signin")
-    suspend fun signIn(
-        @Query("username") username: String,
-        @Query("password") password: String,
-        @Query("neverExpire") neverExpire: Boolean = true
-    ): ApiResponse<MemosV1User>
-
-    @POST("api/v1/auth/signout")
-    suspend fun signOut(): ApiResponse<Unit>
-
     @POST("api/v1/auth/status")
     suspend fun authStatus(): ApiResponse<MemosV1User>
 
@@ -35,8 +25,8 @@ interface MemosV1Api {
     suspend fun listMemos(
         @Query("pageSize") pageSize: Int,
         @Query("pageToken") pageToken: String? = null,
-        @Query("filter") filter: String,
-        @Query("view") view: MemosView? = MemosView.MEMO_VIEW_FULL
+        @Query("state") state: MemosV1State? = null,
+        @Query("parent") parent: String? = null,
     ): ApiResponse<ListMemosResponse>
 
     @POST("api/v1/memos")
@@ -68,6 +58,9 @@ interface MemosV1Api {
 
     @GET("api/v1/users/{id}")
     suspend fun getUser(@Path("id") userId: String): ApiResponse<MemosV1User>
+
+    @GET("api/v1/users/{id}/stats")
+    suspend fun getUserStats(@Path("id") userId: String): ApiResponse<MemosV1Stats>
 }
 
 @Keep
@@ -103,8 +96,7 @@ data class MemosV1SetMemoResourcesRequest(
 
 @Keep
 data class MemosV1SetMemoResourcesRequestItem(
-    val name: String,
-    val uid: String
+    val name: String
 )
 
 @Keep
@@ -132,7 +124,6 @@ data class CreateResourceRequest(
 @Keep
 data class MemosV1Memo(
     val name: String,
-    val uid: String,
     val state: MemosV1State? = null,
     val creator: String,
     val createTime: Date,
@@ -148,7 +139,6 @@ data class MemosV1Memo(
 @Keep
 data class MemosV1Resource(
     val name: String,
-    val uid: String,
     val createTime: Date,
     val filename: String,
     val externalLink: String,
@@ -182,3 +172,8 @@ enum class MemosV1State {
     @field:Json(name = "ARCHIVED")
     ARCHIVED,
 }
+
+@Keep
+data class MemosV1Stats(
+    val tagCount: Map<String, Int>,
+)
