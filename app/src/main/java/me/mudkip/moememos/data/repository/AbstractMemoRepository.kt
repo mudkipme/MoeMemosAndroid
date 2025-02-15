@@ -25,5 +25,4 @@ abstract class AbstractMemoRepository {
     abstract suspend fun deleteResource(identifier: String): ApiResponse<Unit>
 
     abstract suspend fun getCurrentUser(): ApiResponse<User>
-    abstract suspend fun logout(): ApiResponse<Unit>
 }

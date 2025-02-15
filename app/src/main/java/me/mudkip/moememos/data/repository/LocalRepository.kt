@@ -84,8 +84,4 @@ class LocalRepository : AbstractMemoRepository() {
     override suspend fun getCurrentUser(): ApiResponse<User> {
         return ApiResponse.exception(MoeMemosException.notLogin)
     }
-
-    override suspend fun logout(): ApiResponse<Unit> {
-        return ApiResponse.Success(Unit)
-    }
 }

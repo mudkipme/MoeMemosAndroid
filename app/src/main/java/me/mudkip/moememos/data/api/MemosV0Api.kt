@@ -59,12 +59,6 @@ data class MemosV0PatchMemoInput(
 )
 
 interface MemosV0Api {
-    @POST("api/v1/auth/signin")
-    suspend fun signIn(@Body body: MemosV0SignInInput): ApiResponse<MemosV0User>
-
-    @POST("api/v1/auth/signout")
-    suspend fun logout(): ApiResponse<Unit>
-
     @GET("api/v1/user/me")
     suspend fun me(): ApiResponse<MemosV0User>
 
