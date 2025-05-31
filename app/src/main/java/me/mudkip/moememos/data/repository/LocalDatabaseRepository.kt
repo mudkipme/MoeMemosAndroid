@@ -182,7 +182,7 @@ class LocalDatabaseRepository(
         }
     }
 
-    override suspend fun logout(): ApiResponse<Unit> {
+    suspend fun logout(): ApiResponse<Unit> {
         return try {
             userPreferences.saveUser("local", "Local User")
             ApiResponse.Success(Unit)
