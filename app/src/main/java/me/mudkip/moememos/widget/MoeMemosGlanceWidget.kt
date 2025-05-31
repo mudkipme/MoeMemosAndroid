@@ -38,6 +38,7 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
@@ -81,9 +82,11 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                                 .thenByDescending { it.date }
                         ).take(3)
                         memos = sortedMemos
+                        error = null
                     }
                 } catch (e: Exception) {
-                    error = e.message
+                    error = e.message ?: "Unknown error"
+                    android.util.Log.e("MoeMemosWidget", "Exception in widget", e)
                 } finally {
                     isLoading = false
                 }
@@ -172,11 +175,11 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                 }
                 else -> {
                     Column(
-                        modifier = GlanceModifier.fillMaxSize()
+                        modifier = GlanceModifier.fillMaxSize(),
                     ) {
                         memos.forEach { memo ->
                             MemoItem(context, memo)
-                            Spacer(modifier = GlanceModifier.height(8.dp))
+                            Spacer(modifier = GlanceModifier.height(4.dp))
                         }
                     }
                 }
@@ -190,7 +193,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
         Box(
             modifier = GlanceModifier
                 .fillMaxWidth()
-                .padding(horizontal = 15.dp, vertical = 8.dp)
+                .padding(horizontal = 4.dp, vertical = 4.dp)
         ) {
             // Card content with rounded corners
             Column(
