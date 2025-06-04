@@ -150,8 +150,12 @@ data class MemosV1Resource(
         if (externalLink.isNotEmpty()) {
             return Uri.parse(externalLink)
         }
-        return Uri.parse(host)
-            .buildUpon().appendPath("file").appendPath(name).appendPath(filename).build()
+
+        return Uri.parse(host).buildUpon().apply {
+            appendPath("file")
+            name.split("/").forEach { path -> appendPath(path) }
+            appendPath(filename)
+        }.build()
     }
 }
 
