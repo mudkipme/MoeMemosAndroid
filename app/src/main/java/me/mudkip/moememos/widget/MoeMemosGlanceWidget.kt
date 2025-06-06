@@ -16,6 +16,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.ColorFilter
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
@@ -46,6 +47,7 @@ import kotlinx.coroutines.withContext
 import me.mudkip.moememos.MainActivity
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.string
 import java.time.Instant
@@ -97,6 +99,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
             modifier = GlanceModifier
                 .fillMaxSize()
                 .background(GlanceTheme.colors.background)
+                .clickable(actionRunCallback<OpenAppAction>())
                 .padding(16.dp)
         ) {
             // Header
@@ -175,11 +178,14 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                 }
                 else -> {
                     Column(
-                        modifier = GlanceModifier.fillMaxSize(),
+                        modifier = GlanceModifier.fillMaxWidth(),
                     ) {
-                        memos.forEach { memo ->
-                            MemoItem(context, memo)
-                            Spacer(modifier = GlanceModifier.height(4.dp))
+                        memos.forEachIndexed { index, memo ->
+                            val isLastMemo = index == memos.size - 1
+                            MemoItem(context, memo, isLastMemo)
+                            if (!isLastMemo) {
+                                Spacer(modifier = GlanceModifier.height(2.dp))
+                            }
                         }
                     }
                 }
@@ -188,12 +194,12 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun MemoItem(context: Context, memo: Memo) {
+    private fun MemoItem(context: Context, memo: Memo, isLastMemo: Boolean = false) {
         // Card-like container with rounded corners
         Box(
             modifier = GlanceModifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 4.dp)
+                .padding(2.dp, 4.dp, 2.dp, if (isLastMemo) 0.dp else 4.dp)
         ) {
             // Card content with rounded corners
             Column(
@@ -210,7 +216,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                             OpenMemoAction.MEMO_ID to memo.identifier
                         )
                     ))
-                    .padding(16.dp)
+                    .padding(12.dp, 12.dp, 12.dp, if (isLastMemo) 8.dp else 12.dp)
             ) {
                 // Memo header
                 Row(
@@ -230,13 +236,14 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                         )
                     )
                     
-                    // Add a lock icon for visibility (similar to the screenshot)
-                    Spacer(modifier = GlanceModifier.width(4.dp))
-                    Image(
-                        provider = ImageProvider(android.R.drawable.ic_lock_lock),
-                        contentDescription = "Private",
-                        modifier = GlanceModifier.size(14.dp)
-                    )
+                    if (memo.visibility != MemoVisibility.PUBLIC){
+                        Spacer(modifier = GlanceModifier.width(4.dp))
+                        Image(
+                            provider = ImageProvider(android.R.drawable.ic_lock_lock),
+                            contentDescription = "Private",
+                            modifier = GlanceModifier.size(14.dp)
+                        )
+                    }
                     
                     // Pinned indicator
                     if (memo.pinned) {
@@ -244,23 +251,25 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                         Image(
                             provider = ImageProvider(R.drawable.ic_pin),
                             contentDescription = "Pinned",
-                            modifier = GlanceModifier.size(14.dp)
+                            modifier = GlanceModifier.size(14.dp),
+                            colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurfaceVariant)
                         )
                     }
                     
                     Spacer(modifier = GlanceModifier.defaultWeight())
                 }
                 
-                Spacer(modifier = GlanceModifier.height(8.dp))
+                Spacer(modifier = GlanceModifier.height(if (isLastMemo) 4.dp else 8.dp))
                 
                 // Memo content
                 Text(
-                    text = memo.content.take(100) + if (memo.content.length > 100) "..." else "",
+                    text = memo.content.take(if (isLastMemo) 80 else 100) + 
+                           if (memo.content.length > (if (isLastMemo) 80 else 100)) "..." else "",
                     style = TextStyle(
                         color = GlanceTheme.colors.onSurface,
                         fontSize = 14.sp
                     ),
-                    maxLines = 3
+                    maxLines = if (isLastMemo) 2 else 3
                 )
             }
         }
@@ -275,6 +284,19 @@ class AddNewMemoAction : ActionCallback {
     ) {
         val intent = Intent(context, MainActivity::class.java).apply {
             action = MainActivity.ACTION_NEW_MEMO
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        context.startActivity(intent)
+    }
+}
+
+class OpenAppAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         context.startActivity(intent)
