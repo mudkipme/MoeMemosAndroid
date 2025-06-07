@@ -70,4 +70,9 @@
     <string name="accounts">Accounts</string>
     <string name="account_detail">Account Detail</string>
     <string name="switch_account">Switch Account</string>
+    
+    <!-- Widget strings -->
+    <string name="loading">Loading…</string>
+    <string name="error_unknown">Unknown error</string>
+    <string name="no_memos">No memos found</string>
 </resources>

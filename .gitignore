@@ -93,3 +93,5 @@ lint/tmp/
 
 # Kotlin 2.0
 .kotlin/
+
+.clinerules

@@ -23,14 +23,18 @@ import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
+import me.mudkip.moememos.widget.WidgetUpdater
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 @HiltViewModel
 class MemosViewModel @Inject constructor(
     private val memoService: MemoService,
-    private val accountService: AccountService
+    private val accountService: AccountService,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     var memos = mutableStateListOf<Memo>()
@@ -64,6 +68,8 @@ class MemosViewModel @Inject constructor(
             memos.addAll(data)
             errorMessage = null
             loadHost()
+            // Update widgets after loading memos
+            WidgetUpdater.updateWidgets(appContext)
         }.suspendOnErrorMessage {
             errorMessage = it
         }
@@ -94,24 +100,32 @@ class MemosViewModel @Inject constructor(
     suspend fun updateMemoPinned(memoIdentifier: String, pinned: Boolean) = withContext(viewModelScope.coroutineContext) {
         memoService.repository.updateMemo(memoIdentifier, pinned = pinned).suspendOnSuccess {
             updateMemo(data)
+            // Update widgets after pinning/unpinning a memo
+            WidgetUpdater.updateWidgets(appContext)
         }
     }
 
     suspend fun editMemo(memoIdentifier: String, content: String, resourceList: List<Resource>?, visibility: MemoVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
         memoService.repository.updateMemo(memoIdentifier, content, resourceList, visibility).suspendOnSuccess {
             updateMemo(data)
+            // Update widgets after editing a memo
+            WidgetUpdater.updateWidgets(appContext)
         }
     }
 
     suspend fun archiveMemo(memoIdentifier: String) = withContext(viewModelScope.coroutineContext) {
         memoService.repository.archiveMemo(memoIdentifier).suspendOnSuccess {
             memos.removeIf { it.identifier == memoIdentifier }
+            // Update widgets after archiving a memo
+            WidgetUpdater.updateWidgets(appContext)
         }
     }
 
     suspend fun deleteMemo(memoIdentifier: String) = withContext(viewModelScope.coroutineContext) {
         memoService.repository.deleteMemo(memoIdentifier).suspendOnSuccess {
             memos.removeIf { it.identifier == memoIdentifier }
+            // Update widgets after deleting a memo
+            WidgetUpdater.updateWidgets(appContext)
         }
     }
 

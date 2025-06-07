@@ -23,6 +23,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import me.mudkip.moememos.MainActivity
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnNotLogin
@@ -124,6 +125,15 @@ fun Navigation() {
                 when (intent.getStringExtra("action")) {
                     "compose" -> navController.navigate(RouteName.INPUT)
                     "search" -> navController.navigate(RouteName.SEARCH)
+                }
+            }
+            MainActivity.ACTION_NEW_MEMO -> {
+                navController.navigate(RouteName.INPUT)
+            }
+            MainActivity.ACTION_EDIT_MEMO -> {
+                val memoId = intent.getStringExtra(MainActivity.EXTRA_MEMO_ID)
+                if (memoId != null) {
+                    navController.navigate("${RouteName.EDIT}?memoId=$memoId")
                 }
             }
         }
