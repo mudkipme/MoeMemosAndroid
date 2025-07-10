@@ -28,6 +28,11 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,21 +50,17 @@ class MemosViewModel @Inject constructor(
         private set
     var matrix by mutableStateOf(DailyUsageStat.initialMatrix)
         private set
-    var host: String? by mutableStateOf(null)
-        private set
+
+    val host: StateFlow<String?> =
+        accountService.currentAccount
+            .map { it?.getAccountInfo()?.host }
+            .distinctUntilChanged()
+            .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     init {
         snapshotFlow { memos.toList() }
             .onEach { matrix = calculateMatrix() }
             .launchIn(viewModelScope)
-
-        accountService.currentAccount
-            .onEach { currentAccount ->
-                val currentHost = currentAccount?.toUserData()?.memosV1?.host ?: let {
-                    currentAccount?.toUserData()?.memosV0?.host
-                }
-                host = currentHost
-            }
     }
 
     suspend fun loadMemos() = withContext(viewModelScope.coroutineContext) {

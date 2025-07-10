@@ -84,7 +84,6 @@ fun MemosList(
             items(filteredMemos, key = { it.identifier }) { memo ->
                 MemosCard(
                     memo = memo,
-                    host = viewModel.host,
                     onEdit = { selectedMemo ->
                         navController.navigate("${RouteName.EDIT}?memoId=${selectedMemo.identifier}")
                     },
