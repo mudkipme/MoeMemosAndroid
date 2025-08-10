@@ -123,6 +123,21 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                     )
                 )
                 Spacer(modifier = GlanceModifier.defaultWeight())
+                // Refresh button
+                Box(
+                    modifier = GlanceModifier
+                        .size(36.dp)
+                        .clickable(actionRunCallback<RefreshWidgetAction>())
+                        .padding(4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_refresh),
+                        contentDescription = "Refresh",
+                        modifier = GlanceModifier.size(24.dp)
+                    )
+                }
+                Spacer(modifier = GlanceModifier.width(4.dp))
                 // Add new memo button
                 Box(
                     modifier = GlanceModifier
@@ -320,5 +335,16 @@ class OpenMemoAction : ActionCallback {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         context.startActivity(intent)
+    }
+}
+
+class RefreshWidgetAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        // Force widget refresh using WidgetUpdater
+        WidgetUpdater.updateWidgets(context)
     }
 }
