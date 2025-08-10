@@ -3,6 +3,8 @@ package me.mudkip.moememos.ui.component
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,7 +14,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -44,21 +50,35 @@ fun Markdown(
     val headlineMedium = MaterialTheme.typography.headlineMedium
     val headlineSmall = MaterialTheme.typography.headlineSmall
 
+    // Check if content contains #nsfw tag
+    val hasNsfwTag = remember(text) {
+        text.contains("#nsfw", ignoreCase = true)
+    }
+    
+    var isBlurred by remember(text) { mutableStateOf(hasNsfwTag) }
+
     BoxWithConstraints {
         // Check if text contains LaTeX expressions
         val hasLatex = remember(text) {
             text.contains("$$") || text.contains("$") || text.contains("\\(") || text.contains("\\[")
         }
         
-        if (hasLatex) {
-            // Use WebView for LaTeX rendering
-            WebViewLatexRenderer(
-                text = text,
-                modifier = modifier
-            )
-        } else {
-            // Use standard markdown processing for non-LaTeX content
-            val (annotatedString, inlineContent) = remember(text, maxWidth) {
+        Box(
+            modifier = if (isBlurred) {
+                modifier.clickable { isBlurred = false }
+            } else {
+                modifier
+            }
+        ) {
+            if (hasLatex) {
+                // Use WebView for LaTeX rendering
+                WebViewLatexRenderer(
+                    text = text,
+                    modifier = if (isBlurred) Modifier.blur(10.dp) else Modifier
+                )
+            } else {
+                // Use standard markdown processing for non-LaTeX content
+                val (annotatedString, inlineContent) = remember(text, this@BoxWithConstraints.maxWidth) {
                 val markdownAst = MarkdownParser(GFMFlavourDescriptor()).parse(MarkdownElementTypes.MARKDOWN_FILE, text, true)
                 val builder = AnnotatedString.Builder()
                 val inlineContent = HashMap<String, InlineTextContent>()
@@ -71,7 +91,7 @@ fun Markdown(
                     linkInteractionListener = null, // Use default interaction listener
                     onImage = { key, url ->
                         inlineContent[key] = InlineTextContent(
-                            Placeholder(maxWidth.value.sp, (maxWidth.value * 9f / 16f).sp, PlaceholderVerticalAlign.AboveBaseline),
+                            Placeholder(this@BoxWithConstraints.maxWidth.value.sp, (this@BoxWithConstraints.maxWidth.value * 9f / 16f).sp, PlaceholderVerticalAlign.AboveBaseline),
                         ) {
                             imageContent(url)
                         }
@@ -86,7 +106,7 @@ fun Markdown(
                             })
                         }
                     },
-                    maxWidth = maxWidth.value,
+                    maxWidth = this@BoxWithConstraints.maxWidth.value,
                     bulletColor = bulletColor,
                     headlineLarge = headlineLarge,
                     headlineMedium = headlineMedium,
@@ -96,12 +116,13 @@ fun Markdown(
                 Pair(builder.toAnnotatedString(), inlineContent)
             }
 
-            Text(
-                text = annotatedString,
-                modifier = modifier,
-                textAlign = textAlign,
-                inlineContent = inlineContent,
-            )
+                Text(
+                    text = annotatedString,
+                    modifier = if (isBlurred) Modifier.blur(10.dp) else Modifier,
+                    textAlign = textAlign,
+                    inlineContent = inlineContent,
+                )
+            }
         }
     }
 }
