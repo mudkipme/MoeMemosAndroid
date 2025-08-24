@@ -2,7 +2,6 @@ package me.mudkip.moememos.data.repository
 
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.getOrNull
-import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.mapSuccess
 import com.skydoves.sandwich.onSuccess
 import kotlinx.coroutines.async
@@ -18,6 +17,7 @@ import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequestItem
 import me.mudkip.moememos.data.api.MemosV1State
 import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.api.UpdateMemoRequest
+import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
@@ -51,7 +51,7 @@ class MemosV1Repository(
             date = memo.displayTime.toInstant(),
             pinned = memo.pinned,
             visibility = memo.visibility.toMemoVisibility(),
-            resources = memo.resources.map { convertResource(it) },
+            resources = memo.attachments.map { convertResource(it) },
             tags = emptyList(),
         )
     }
@@ -97,8 +97,7 @@ class MemosV1Repository(
         if (resp !is ApiResponse.Success) {
             return resp.mapSuccess { emptyList<Memo>() to null }
         }
-        val respData = resp.getOrThrow()
-        val users = respData.memos.map { getId(it.creator) }.toSet()
+        val users = resp.data.memos.map { getId(it.creator) }.toSet()
         val userResp = coroutineScope {
             users.map { userId ->
                 async { memosApi.getUser(userId).getOrNull() }
@@ -109,7 +108,7 @@ class MemosV1Repository(
         return resp
             .mapSuccess { this.memos.map {
                 convertMemo(it)
-                .copy(creator = userMap[it.creator]?.let { user -> User(user.name, user.nickname, user.createTime.toInstant()) } )
+                .copy(creator = userMap[it.creator]?.let { user -> User(user.name, user.displayName, user.createTime.toInstant()) } )
             } to this.nextPageToken.ifEmpty { null } }
     }
 
@@ -178,7 +177,7 @@ class MemosV1Repository(
     }
 
     override suspend fun listResources(): ApiResponse<List<Resource>> {
-        return memosApi.listResources().mapSuccess { this.resources.map { convertResource(it) } }
+        return memosApi.listResources().mapSuccess { this.attachments.map { convertResource(it) } }
     }
 
     override suspend fun createResource(
@@ -200,7 +199,12 @@ class MemosV1Repository(
     }
 
     override suspend fun getCurrentUser(): ApiResponse<User> {
-        val resp = memosApi.authStatus().mapSuccess { User(name, nickname, createTime.toInstant()) }
+        val resp = memosApi.authStatus().mapSuccess {
+            if (user == null) {
+                throw MoeMemosException.notLogin
+            }
+            User(user.name, user.displayName, user.createTime.toInstant())
+        }
         if (resp !is ApiResponse.Success) {
             return resp
         }
