@@ -95,7 +95,11 @@ class UserStateViewModel @Inject constructor(
             if (resp !is ApiResponse.Success) {
                 return@withContext resp.mapSuccess {}
             }
-            accountService.addAccount(getAccount(host, accessToken, resp.data))
+            val user = resp.data.user
+            if (user == null) {
+                return@withContext ApiResponse.exception(MoeMemosException.notLogin)
+            }
+            accountService.addAccount(getAccount(host, accessToken, user))
             loadCurrentUser().mapSuccess {}
         } catch (e: Throwable) {
             ApiResponse.exception(e)
