@@ -15,10 +15,10 @@ import retrofit2.http.Query
 import java.util.Date
 
 interface MemosV1Api {
-    @POST("api/v1/auth/status")
-    suspend fun authStatus(): ApiResponse<MemosV1User>
+    @POST("api/v1/auth/sessions/current")
+    suspend fun authStatus(): ApiResponse<GetCurrentSessionResponse>
 
-    @GET("api/v1/users/{id}/setting")
+    @GET("api/v1/users/{id}:getSetting")
     suspend fun getUserSetting(@Path("id") userId: String): ApiResponse<MemosV1UserSetting>
 
     @GET("api/v1/memos")
@@ -32,7 +32,7 @@ interface MemosV1Api {
     @POST("api/v1/memos")
     suspend fun createMemo(@Body body: MemosV1CreateMemoRequest): ApiResponse<MemosV1Memo>
 
-    @PATCH("api/v1/memos/{id}/resources")
+    @PATCH("api/v1/memos/{id}/attachments")
     suspend fun setMemoResources(@Path("id") memoId: String, @Body body: MemosV1SetMemoResourcesRequest): ApiResponse<Unit>
 
     @PATCH("api/v1/memos/{id}")
@@ -44,13 +44,13 @@ interface MemosV1Api {
     @DELETE("api/v1/memos/{id}/tags/{tag}")
     suspend fun deleteMemoTag(@Path("id") memoId: String, @Path("tag") tag: String, @Query("deleteRelatedMemos") deleteRelatedMemos: Boolean): ApiResponse<Unit>
 
-    @GET("api/v1/resources")
+    @GET("api/v1/attachments")
     suspend fun listResources(): ApiResponse<ListResourceResponse>
 
-    @POST("api/v1/resources")
+    @POST("api/v1/attachments")
     suspend fun createResource(@Body body: CreateResourceRequest): ApiResponse<MemosV1Resource>
 
-    @DELETE("api/v1/resources/{id}")
+    @DELETE("api/v1/attachments/{id}")
     suspend fun deleteResource(@Path("id") resourceId: String): ApiResponse<Unit>
 
     @GET("api/v1/workspace/profile")
@@ -59,7 +59,7 @@ interface MemosV1Api {
     @GET("api/v1/users/{id}")
     suspend fun getUser(@Path("id") userId: String): ApiResponse<MemosV1User>
 
-    @GET("api/v1/users/{id}/stats")
+    @GET("api/v1/users/{id}:getStats")
     suspend fun getUserStats(@Path("id") userId: String): ApiResponse<MemosV1Stats>
 }
 
@@ -69,12 +69,17 @@ data class MemosV1User(
     val role: MemosRole,
     val username: String,
     val email: String,
-    val nickname: String,
+    val displayName: String,
     val avatarUrl: String,
     val description: String,
     val state: MemosV1State? = null,
     val createTime: Date,
     val updateTime: Date
+)
+
+@Keep
+data class GetCurrentSessionResponse(
+    val user: MemosV1User?
 )
 
 @Keep
@@ -91,7 +96,7 @@ data class ListMemosResponse(
 
 @Keep
 data class MemosV1SetMemoResourcesRequest(
-    val resources: List<MemosV1SetMemoResourcesRequestItem>
+    val attachments: List<MemosV1SetMemoResourcesRequestItem>
 )
 
 @Keep
@@ -110,7 +115,7 @@ data class UpdateMemoRequest(
 
 @Keep
 data class ListResourceResponse(
-    val resources: List<MemosV1Resource>
+    val attachments: List<MemosV1Resource>
 )
 
 @Keep
@@ -132,7 +137,7 @@ data class MemosV1Memo(
     val content: String,
     val visibility: MemosVisibility,
     val pinned: Boolean,
-    val resources: List<MemosV1Resource>,
+    val attachments: List<MemosV1Resource>,
     val tags: List<String>? = null
 )
 
