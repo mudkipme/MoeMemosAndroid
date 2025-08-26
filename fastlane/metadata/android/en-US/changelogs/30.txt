@@ -1,0 +1,6 @@
+## What's Changed
+- Added support for Memos 0.25.0. Due to breaking API changes, Memos versions 0.22.0–0.24.x are no longer supported. You can continue using Memos 0.21.0 or upgrade to 0.25.0.
+
+Note: Future Memos versions may introduce breaking API changes again. If you are using a version higher than 0.25.0, it is recommended to use [Mortis](https://github.com/mudkipme/mortis) to convert the newer Memos API to the Memos 0.21.0 API and re-login in Moe Memos.
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.8.5...0.8.6

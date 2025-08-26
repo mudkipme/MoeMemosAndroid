@@ -15,7 +15,7 @@ import retrofit2.http.Query
 import java.util.Date
 
 interface MemosV1Api {
-    @POST("api/v1/auth/sessions/current")
+    @GET("api/v1/auth/sessions/current")
     suspend fun authStatus(): ApiResponse<GetCurrentSessionResponse>
 
     @GET("api/v1/users/{id}:getSetting")
