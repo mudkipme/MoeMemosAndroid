@@ -13,6 +13,12 @@ sealed class Account {
         Local -> UserData.newBuilder().setAccountKey(accountKey()).setLocal(LocalAccount.getDefaultInstance()).build()
     }
 
+    fun getAccountInfo(): MemosAccount? = when (this) {
+        is MemosV0 -> this.info
+        is MemosV1 -> this.info
+        else -> null
+    }
+
     companion object {
         fun parseUserData(userData: UserData): Account? = when (userData.accountCase) {
             UserData.AccountCase.MEMOS_V0 -> MemosV0(userData.memosV0)
