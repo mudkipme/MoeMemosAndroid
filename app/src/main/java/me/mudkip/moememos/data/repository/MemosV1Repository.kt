@@ -56,12 +56,12 @@ class MemosV1Repository(
         )
     }
 
-    private suspend fun listMemosByFilter(state: MemosV1State, parent: String): ApiResponse<List<Memo>> {
+    private suspend fun listMemosByFilter(state: MemosV1State, filter: String): ApiResponse<List<Memo>> {
         var nextPageToken = ""
         val memos = arrayListOf<Memo>()
 
         do {
-            val resp = memosApi.listMemos(PAGE_SIZE, nextPageToken, state, parent)
+            val resp = memosApi.listMemos(PAGE_SIZE, nextPageToken, state, filter)
                 .onSuccess { nextPageToken = data.nextPageToken }
                 .mapSuccess { this.memos.map { convertMemo(it) } }
             if (resp is ApiResponse.Success) {
@@ -82,11 +82,11 @@ class MemosV1Repository(
     }
 
     override suspend fun listMemos(): ApiResponse<List<Memo>> {
-        return listMemosByFilter(MemosV1State.NORMAL, "users/${account.info.id}")
+        return listMemosByFilter(MemosV1State.NORMAL, "creator_id == ${account.info.id}")
     }
 
     override suspend fun listArchivedMemos(): ApiResponse<List<Memo>> {
-        return listMemosByFilter(MemosV1State.ARCHIVED, "users/${account.info.id}")
+        return listMemosByFilter(MemosV1State.ARCHIVED, "creator_id == ${account.info.id}")
     }
 
     override suspend fun listWorkspaceMemos(
@@ -211,7 +211,7 @@ class MemosV1Repository(
 
         return memosApi.getUserSetting(getId(resp.data.identifier)).mapSuccess {
             resp.data.copy(
-                defaultVisibility = memoVisibility.toMemoVisibility()
+                defaultVisibility = generalSetting.memoVisibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE
             )
         }
     }
