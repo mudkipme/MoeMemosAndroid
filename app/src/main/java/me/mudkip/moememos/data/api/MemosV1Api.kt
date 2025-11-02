@@ -18,7 +18,7 @@ interface MemosV1Api {
     @GET("api/v1/auth/sessions/current")
     suspend fun authStatus(): ApiResponse<GetCurrentSessionResponse>
 
-    @GET("api/v1/users/{id}:getSetting")
+    @GET("api/v1/users/{id}/settings/GENERAL")
     suspend fun getUserSetting(@Path("id") userId: String): ApiResponse<MemosV1UserSetting>
 
     @GET("api/v1/memos")
@@ -26,7 +26,7 @@ interface MemosV1Api {
         @Query("pageSize") pageSize: Int,
         @Query("pageToken") pageToken: String? = null,
         @Query("state") state: MemosV1State? = null,
-        @Query("parent") parent: String? = null,
+        @Query("filter") filter: String? = null,
     ): ApiResponse<ListMemosResponse>
 
     @POST("api/v1/memos")
@@ -165,11 +165,15 @@ data class MemosV1Resource(
 }
 
 @Keep
+data class MemosV1UserSettingGeneralSetting(
+    val locale: String? = null,
+    val memoVisibility: MemosVisibility? = null,
+    val theme: String? = null
+)
+
+@Keep
 data class MemosV1UserSetting(
-    val name: String,
-    val locale: String,
-    val appearance: String,
-    val memoVisibility: MemosVisibility
+    val generalSetting: MemosV1UserSettingGeneralSetting
 )
 
 @JsonClass(generateAdapter = false)
