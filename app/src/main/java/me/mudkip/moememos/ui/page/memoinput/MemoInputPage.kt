@@ -148,7 +148,7 @@ fun MemoInputPage(
     }
 
     fun handleExit() {
-        if (text.text.isNotEmpty() && text.text != initialContent) {
+        if (text.text != initialContent || viewModel.uploadResources.size != (memo?.resources?.size ?: 0)) {
             showExitConfirmation = true
         } else {
             navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
@@ -397,7 +397,7 @@ fun MemoInputPage(
                 Spacer(modifier = Modifier.weight(1f))
 
                 IconButton(
-                    enabled = text.text.isNotEmpty(),
+                    enabled = text.text.isNotEmpty() || viewModel.uploadResources.isNotEmpty(),
                     onClick = { submit() }
                 ) {
                     Icon(Icons.AutoMirrored.Filled.Send, contentDescription = R.string.post.string)
