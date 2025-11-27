@@ -60,10 +60,6 @@ class LocalRepository : AbstractMemoRepository() {
         return ApiResponse.exception(MoeMemosException.notLogin)
     }
 
-    override suspend fun deleteTag(name: String): ApiResponse<Unit> {
-        return ApiResponse.exception(MoeMemosException.notLogin)
-    }
-
     override suspend fun listResources(): ApiResponse<List<Resource>> {
         return ApiResponse.exception(MoeMemosException.notLogin)
     }

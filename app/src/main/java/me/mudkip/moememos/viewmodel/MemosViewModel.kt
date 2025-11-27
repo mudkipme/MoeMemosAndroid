@@ -1,5 +1,6 @@
 package me.mudkip.moememos.viewmodel
 
+import android.content.Context
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -11,8 +12,14 @@ import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.model.DailyUsageStat
@@ -26,13 +33,6 @@ import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.widget.WidgetUpdater
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -79,12 +79,6 @@ class MemosViewModel @Inject constructor(
         memoService.repository.listTags().suspendOnSuccess {
             tags.clear()
             tags.addAll(data)
-        }
-    }
-
-    suspend fun deleteTag(name: String) = withContext(viewModelScope.coroutineContext) {
-        memoService.repository.deleteTag(name).suspendOnSuccess {
-            tags.remove(name)
         }
     }
 

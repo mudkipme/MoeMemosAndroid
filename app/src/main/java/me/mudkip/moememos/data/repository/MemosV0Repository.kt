@@ -5,7 +5,6 @@ import com.skydoves.sandwich.mapSuccess
 import me.mudkip.moememos.data.api.MemosRowStatus
 import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV0CreateMemoInput
-import me.mudkip.moememos.data.api.MemosV0DeleteTagInput
 import me.mudkip.moememos.data.api.MemosV0Memo
 import me.mudkip.moememos.data.api.MemosV0PatchMemoInput
 import me.mudkip.moememos.data.api.MemosV0Resource
@@ -122,10 +121,6 @@ class MemosV0Repository (
 
     override suspend fun listTags(): ApiResponse<List<String>> {
         return memosApi.getTags()
-    }
-
-    override suspend fun deleteTag(name: String): ApiResponse<Unit> {
-        return memosApi.deleteTag(MemosV0DeleteTagInput(name))
     }
 
     override suspend fun listResources(): ApiResponse<List<Resource>> {
