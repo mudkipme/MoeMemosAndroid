@@ -172,10 +172,6 @@ class MemosV1Repository(
         }
     }
 
-    override suspend fun deleteTag(name: String): ApiResponse<Unit> {
-        return memosApi.deleteMemoTag("-", name, false)
-    }
-
     override suspend fun listResources(): ApiResponse<List<Resource>> {
         return memosApi.listResources().mapSuccess { this.attachments.map { convertResource(it) } }
     }
