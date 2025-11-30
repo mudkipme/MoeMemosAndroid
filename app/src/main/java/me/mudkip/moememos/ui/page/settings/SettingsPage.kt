@@ -128,19 +128,19 @@ fun SettingsPage(
 
             item {
                 SettingItem(icon = Icons.Outlined.Web, text = R.string.website.string) {
-                    uriHandler.openUri("https://memos.moe")
+                    uriHandler.openUri("https://memos.littledaemon.dev")
                 }
             }
 
             item {
                 SettingItem(icon = Icons.Outlined.Lock, text = R.string.privacy_policy.string) {
-                    uriHandler.openUri("https://memos.moe/privacy")
+                    uriHandler.openUri("https://memos.littledaemon.dev/privacy")
                 }
             }
 
             item {
                 SettingItem(icon = Icons.Outlined.Source, text = R.string.acknowledgements.string) {
-                    uriHandler.openUri("https://memos.moe/android-acknowledgements")
+                    uriHandler.openUri("https://memos.littledaemon.dev/android-acknowledgements")
                 }
             }
 

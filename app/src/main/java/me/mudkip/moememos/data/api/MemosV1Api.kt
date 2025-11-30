@@ -53,7 +53,7 @@ interface MemosV1Api {
     @DELETE("api/v1/attachments/{id}")
     suspend fun deleteResource(@Path("id") resourceId: String): ApiResponse<Unit>
 
-    @GET("api/v1/workspace/profile")
+    @GET("api/v1/instance/profile")
     suspend fun getProfile(): ApiResponse<MemosProfile>
 
     @GET("api/v1/users/{id}")
