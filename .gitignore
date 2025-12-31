@@ -57,6 +57,7 @@ captures/
 .idea/misc.xml
 .idea/AndroidProjectSystem.xml
 .idea/copilot*
+.idea/studiobot.xml
 .idea/markdown.xml
 
 # Keystore files

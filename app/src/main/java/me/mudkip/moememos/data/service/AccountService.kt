@@ -17,6 +17,7 @@ import kotlinx.coroutines.sync.withLock
 import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV0UserSettingKey
 import me.mudkip.moememos.data.api.MemosV1Api
+import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.UserData
 import me.mudkip.moememos.data.repository.AbstractMemoRepository
@@ -156,6 +157,11 @@ class AccountService @Inject constructor(
                             EnumJsonAdapter.create(MemosV0UserSettingKey::class.java)
                                 .withUnknownFallback(MemosV0UserSettingKey.UNKNOWN)
                         )
+                        .add(
+                            MemosVisibility::class.java,
+                            EnumJsonAdapter.create(MemosVisibility::class.java)
+                                .withUnknownFallback(MemosVisibility.PRIVATE)
+                        )
                         .add(KotlinJsonAdapterFactory())
                         .build()
                 )
@@ -185,6 +191,11 @@ class AccountService @Inject constructor(
             .addConverterFactory(
                 MoshiConverterFactory.create(
                     Moshi.Builder()
+                        .add(
+                            MemosVisibility::class.java,
+                            EnumJsonAdapter.create(MemosVisibility::class.java)
+                                .withUnknownFallback(MemosVisibility.PRIVATE)
+                        )
                         .add(KotlinJsonAdapterFactory())
                         .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
                         .build()

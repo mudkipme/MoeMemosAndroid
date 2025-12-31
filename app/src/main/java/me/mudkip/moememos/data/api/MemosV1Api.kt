@@ -41,9 +41,6 @@ interface MemosV1Api {
     @DELETE("api/v1/memos/{id}")
     suspend fun deleteMemo(@Path("id") memoId: String): ApiResponse<Unit>
 
-    @DELETE("api/v1/memos/{id}/tags/{tag}")
-    suspend fun deleteMemoTag(@Path("id") memoId: String, @Path("tag") tag: String, @Query("deleteRelatedMemos") deleteRelatedMemos: Boolean): ApiResponse<Unit>
-
     @GET("api/v1/attachments")
     suspend fun listResources(): ApiResponse<ListResourceResponse>
 
