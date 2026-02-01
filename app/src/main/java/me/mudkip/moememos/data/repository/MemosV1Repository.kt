@@ -13,7 +13,6 @@ import me.mudkip.moememos.data.api.MemosV1CreateMemoRequest
 import me.mudkip.moememos.data.api.MemosV1Memo
 import me.mudkip.moememos.data.api.MemosV1Resource
 import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequest
-import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequestItem
 import me.mudkip.moememos.data.api.MemosV1State
 import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.api.UpdateMemoRequest
@@ -36,22 +35,22 @@ class MemosV1Repository(
 ): AbstractMemoRepository() {
     private fun convertResource(resource: MemosV1Resource): Resource {
         return Resource(
-            identifier = resource.name,
-            date = resource.createTime.toInstant(),
-            filename = resource.filename,
+            identifier = resource.name ?: "",
+            date = (resource.createTime ?: Date()).toInstant(),
+            filename = resource.filename ?: "",
             uri = resource.uri(account.info.host),
-            mimeType = resource.type.toMediaTypeOrNull()
+            mimeType = resource.type?.toMediaTypeOrNull()
         )
     }
 
     private fun convertMemo(memo: MemosV1Memo): Memo {
         return Memo(
             identifier = memo.name,
-            content = memo.content,
-            date = memo.displayTime.toInstant(),
-            pinned = memo.pinned,
-            visibility = memo.visibility.toMemoVisibility(),
-            resources = memo.attachments.map { convertResource(it) },
+            content = memo.content ?: "",
+            date = (memo.displayTime ?: Date()).toInstant(),
+            pinned = memo.pinned ?: false,
+            visibility = memo.visibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE,
+            resources = memo.attachments?.map { convertResource(it) } ?: emptyList(),
             tags = emptyList(),
         )
     }
@@ -62,7 +61,7 @@ class MemosV1Repository(
 
         do {
             val resp = memosApi.listMemos(PAGE_SIZE, nextPageToken, state, filter)
-                .onSuccess { nextPageToken = data.nextPageToken }
+                .onSuccess { nextPageToken = data.nextPageToken.orEmpty() }
                 .mapSuccess { this.memos.map { convertMemo(it) } }
             if (resp is ApiResponse.Success) {
                 memos.addAll(resp.data)
@@ -97,19 +96,28 @@ class MemosV1Repository(
         if (resp !is ApiResponse.Success) {
             return resp.mapSuccess { emptyList<Memo>() to null }
         }
-        val users = resp.data.memos.map { getId(it.creator) }.toSet()
+        val users = resp.data.memos.mapNotNull { it.creator }.map { getId(it) }.toSet()
         val userResp = coroutineScope {
             users.map { userId ->
                 async { memosApi.getUser(userId).getOrNull() }
             }.awaitAll()
         }.filterNotNull()
-        val userMap = mapOf(*userResp.map { it.name to it }.toTypedArray())
+        val userMap = mapOf(*userResp.map { user -> user.name to user }.toTypedArray())
 
         return resp
             .mapSuccess { this.memos.map {
-                convertMemo(it)
-                .copy(creator = userMap[it.creator]?.let { user -> User(user.name, user.displayName, user.createTime.toInstant()) } )
-            } to this.nextPageToken.ifEmpty { null } }
+                convertMemo(it).copy(
+                    creator = it.creator?.let { creator ->
+                        userMap[creator]?.let { user ->
+                            User(
+                                user.name,
+                                user.displayName ?: user.username,
+                                (user.createTime ?: Date()).toInstant()
+                            )
+                        }
+                    }
+                )
+            } to this.nextPageToken?.ifEmpty { null } }
     }
 
     override suspend fun createMemo(
@@ -123,11 +131,13 @@ class MemosV1Repository(
         if (resp !is ApiResponse.Success || resources.isEmpty()) {
             return resp
         }
-        return memosApi.setMemoResources(getId(resp.data.identifier), MemosV1SetMemoResourcesRequest(
-            resources.map {
-                MemosV1SetMemoResourcesRequestItem(getName(it.identifier))
-            }
-        )).mapSuccess { resp.data.copy(resources = resources) }
+        return memosApi.setMemoResources(
+            getId(resp.data.identifier),
+            MemosV1SetMemoResourcesRequest(
+                name = getName(resp.data.identifier),
+                attachments = resources.map { MemosV1Resource(name = getName(it.identifier)) }
+            )
+        ).mapSuccess { resp.data.copy(resources = resources) }
     }
 
     override suspend fun updateMemo(
@@ -147,11 +157,13 @@ class MemosV1Repository(
         if (resp !is ApiResponse.Success || resources == null || resources.map { it.identifier }.toSet() == resp.data.resources.map { it.identifier }.toSet()) {
             return resp
         }
-        return memosApi.setMemoResources(getId(identifier), MemosV1SetMemoResourcesRequest(
-            resources.map {
-                MemosV1SetMemoResourcesRequestItem(getName(it.identifier))
-            }
-        )).mapSuccess { resp.data.copy(resources = resources) }
+        return memosApi.setMemoResources(
+            getId(identifier),
+            MemosV1SetMemoResourcesRequest(
+                name = getName(identifier),
+                attachments = resources.map { MemosV1Resource(name = getName(it.identifier)) }
+            )
+        ).mapSuccess { resp.data.copy(resources = resources) }
     }
 
     override suspend fun deleteMemo(identifier: String): ApiResponse<Unit> {
@@ -195,11 +207,15 @@ class MemosV1Repository(
     }
 
     override suspend fun getCurrentUser(): ApiResponse<User> {
-        val resp = memosApi.authStatus().mapSuccess {
+        val resp = memosApi.getCurrentUser().mapSuccess {
             if (user == null) {
                 throw MoeMemosException.notLogin
             }
-            User(user.name, user.displayName, user.createTime.toInstant())
+            User(
+                user.name,
+                user.displayName ?: user.username,
+                (user.createTime ?: Date()).toInstant()
+            )
         }
         if (resp !is ApiResponse.Success) {
             return resp
@@ -207,7 +223,7 @@ class MemosV1Repository(
 
         return memosApi.getUserSetting(getId(resp.data.identifier)).mapSuccess {
             resp.data.copy(
-                defaultVisibility = generalSetting.memoVisibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE
+                defaultVisibility = generalSetting?.memoVisibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE
             )
         }
     }

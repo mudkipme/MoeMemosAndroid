@@ -13,10 +13,11 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.util.Date
+import androidx.core.net.toUri
 
 interface MemosV1Api {
-    @GET("api/v1/auth/sessions/current")
-    suspend fun authStatus(): ApiResponse<GetCurrentSessionResponse>
+    @GET("api/v1/auth/me")
+    suspend fun getCurrentUser(): ApiResponse<GetCurrentUserResponse>
 
     @GET("api/v1/users/{id}/settings/GENERAL")
     suspend fun getUserSetting(@Path("id") userId: String): ApiResponse<MemosV1UserSetting>
@@ -65,17 +66,17 @@ data class MemosV1User(
     val name: String,
     val role: MemosRole,
     val username: String,
-    val email: String,
-    val displayName: String,
-    val avatarUrl: String,
-    val description: String,
-    val state: MemosV1State? = null,
-    val createTime: Date,
-    val updateTime: Date
+    val email: String? = null,
+    val displayName: String? = null,
+    val avatarUrl: String? = null,
+    val description: String? = null,
+    val state: MemosV1State,
+    val createTime: Date? = null,
+    val updateTime: Date? = null
 )
 
 @Keep
-data class GetCurrentSessionResponse(
+data class GetCurrentUserResponse(
     val user: MemosV1User?
 )
 
@@ -88,17 +89,13 @@ data class MemosV1CreateMemoRequest(
 @Keep
 data class ListMemosResponse(
     val memos: List<MemosV1Memo>,
-    val nextPageToken: String
+    val nextPageToken: String?
 )
 
 @Keep
 data class MemosV1SetMemoResourcesRequest(
-    val attachments: List<MemosV1SetMemoResourcesRequestItem>
-)
-
-@Keep
-data class MemosV1SetMemoResourcesRequestItem(
-    val name: String
+    val name: String,
+    val attachments: List<MemosV1Resource>
 )
 
 @Keep
@@ -127,33 +124,33 @@ data class CreateResourceRequest(
 data class MemosV1Memo(
     val name: String,
     val state: MemosV1State? = null,
-    val creator: String,
-    val createTime: Date,
-    val updateTime: Date,
-    val displayTime: Date,
-    val content: String,
-    val visibility: MemosVisibility,
-    val pinned: Boolean,
-    val attachments: List<MemosV1Resource>,
+    val creator: String? = null,
+    val createTime: Date? = null,
+    val updateTime: Date? = null,
+    val displayTime: Date? = null,
+    val content: String? = null,
+    val visibility: MemosVisibility? = null,
+    val pinned: Boolean? = null,
+    val attachments: List<MemosV1Resource>? = null,
     val tags: List<String>? = null
 )
 
 @Keep
 data class MemosV1Resource(
-    val name: String,
-    val createTime: Date,
-    val filename: String,
-    val externalLink: String,
-    val type: String,
-    val size: Int,
-    val memo: String?
+    val name: String? = null,
+    val createTime: Date? = null,
+    val filename: String? = null,
+    val externalLink: String? = null,
+    val type: String? = null,
+    val size: String? = null,
+    val memo: String? = null
 ) {
     fun uri(host: String): Uri {
-        if (externalLink.isNotEmpty()) {
-            return Uri.parse(externalLink)
+        if (!externalLink.isNullOrEmpty()) {
+            return externalLink.toUri()
         }
-        return Uri.parse(host)
-            .buildUpon().appendPath("file").appendPath(name).appendPath(filename).build()
+        return host.toUri()
+            .buildUpon().appendPath("file").appendEncodedPath(name ?: "").appendPath(filename ?: "").build()
     }
 }
 
@@ -166,7 +163,7 @@ data class MemosV1UserSettingGeneralSetting(
 
 @Keep
 data class MemosV1UserSetting(
-    val generalSetting: MemosV1UserSettingGeneralSetting
+    val generalSetting: MemosV1UserSettingGeneralSetting?
 )
 
 @JsonClass(generateAdapter = false)
