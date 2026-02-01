@@ -58,7 +58,6 @@ enum class MemosRowStatus {
 
 @Keep
 data class MemosProfile(
-    val mode: String,
     val version: String
 )
 

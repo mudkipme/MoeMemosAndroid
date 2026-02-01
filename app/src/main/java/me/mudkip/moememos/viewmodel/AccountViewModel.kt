@@ -75,7 +75,7 @@ class AccountViewModel @AssistedInject constructor(
                 }
             }
             is RemoteApi.MemosV1 -> {
-                val user = memosApi.api.authStatus().getOrNull()?.user
+                val user = memosApi.api.getCurrentUser().getOrNull()?.user
                 val profile = memosApi.api.getProfile().getOrNull()
                 if (user != null && profile != null) {
                     userAndProfile = UserAndProfile.MemosV1(user, profile)
