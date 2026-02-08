@@ -64,4 +64,7 @@
     <string name="accounts">Konten</string>
     <string name="account_detail">Kontodetail</string>
     <string name="switch_account">Konto wechseln</string>
+    <string name="loading">Wird geladen…</string>
+    <string name="error_unknown">Unbekannter Fehler</string>
+    <string name="no_memos">Keine Memos gefunden</string>
 </resources>

@@ -63,7 +63,14 @@
     <string name="memo_visibility_protected">Visibilité aux Membres</string>
     <string name="memo_visibility_private">Privé</string>
     <string name="explore">Explorer</string>
+    <string name="copy_link">Copier le lien</string>
     <string name="delete_this_tag">Supprimer cette étiquette ?</string>
     <string name="expand">Agrandir</string>
     <string name="collapse">Rétracter</string>
+    <string name="accounts">Comptes</string>
+    <string name="account_detail">Détails du compte</string>
+    <string name="switch_account">Changer de compte</string>
+    <string name="loading">Chargement…</string>
+    <string name="error_unknown">Erreur inconnue</string>
+    <string name="no_memos">Aucun memo trouvé</string>
 </resources>

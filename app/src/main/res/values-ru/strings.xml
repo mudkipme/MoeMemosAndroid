@@ -66,4 +66,10 @@
     <string name="delete_this_tag">Удалить этот тег?</string>
     <string name="expand">Развернуть</string>
     <string name="collapse">Скрыть</string>
+    <string name="accounts">Аккаунты</string>
+    <string name="account_detail">Сведения об аккаунте</string>
+    <string name="switch_account">Сменить аккаунт</string>
+    <string name="loading">Загрузка…</string>
+    <string name="error_unknown">Неизвестная ошибка</string>
+    <string name="no_memos">Заметки не найдены</string>
 </resources>

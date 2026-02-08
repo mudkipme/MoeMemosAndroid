@@ -16,8 +16,6 @@ buildscript {
         datastore = "1.2.0"
         // https://github.com/skydoves/sandwich/releases
         sandwich = "2.2.1"
-        // https://github.com/square/moshi/tags
-        moshi = "1.15.2"
         // https://developer.android.com/jetpack/androidx/releases/paging
         paging_version = "3.4.0"
         // https://developer.android.com/jetpack/androidx/releases/navigation

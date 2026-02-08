@@ -6,7 +6,7 @@
     <string name="memos">靈感</string>
     <string name="menu">選單</string>
     <string name="search_hint">搜點什麼…</string>
-    <string name="new_memo">新靈感</string>
+    <string name="new_memo">新 MEMO</string>
     <string name="compose">撰寫</string>
     <string name="remove">刪除</string>
     <string name="resources">資源</string>
@@ -53,9 +53,19 @@
     <string name="invalid_access_token">不可用的 Access Token</string>
     <string name="pin">置頂</string>
     <string name="share">分享</string>
+    <string name="copy_link">複製連結</string>
     <string name="archive">歸檔</string>
     <string name="memo_visibility_public">訪客可見</string>
     <string name="memo_visibility_protected">本地使用者可見</string>
     <string name="memo_visibility_private">僅自己可見</string>
     <string name="explore">探索</string>
+    <string name="delete_this_tag">刪除此標籤？</string>
+    <string name="expand">展開</string>
+    <string name="collapse">收合</string>
+    <string name="accounts">帳戶</string>
+    <string name="account_detail">帳戶詳情</string>
+    <string name="switch_account">切換帳戶</string>
+    <string name="loading">載入中…</string>
+    <string name="error_unknown">未知錯誤</string>
+    <string name="no_memos">找不到 MEMO</string>
 </resources>

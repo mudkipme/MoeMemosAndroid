@@ -63,7 +63,14 @@
     <string name="memo_visibility_protected">Yerel üyelere görünür</string>
     <string name="memo_visibility_private">Sadece sizin için görünür</string>
     <string name="explore">Keşfet</string>
+    <string name="copy_link">Bağlantıyı kopyala</string>
     <string name="delete_this_tag">Bu etiketi silmek istiyor musunuz?</string>
     <string name="expand">Genişlet</string>
     <string name="collapse">Daralt</string>
+    <string name="accounts">Hesaplar</string>
+    <string name="account_detail">Hesap ayrıntıları</string>
+    <string name="switch_account">Hesap değiştir</string>
+    <string name="loading">Yükleniyor…</string>
+    <string name="error_unknown">Bilinmeyen hata</string>
+    <string name="no_memos">Not bulunamadı</string>
 </resources>

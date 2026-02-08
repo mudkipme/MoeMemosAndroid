@@ -7,23 +7,18 @@ import com.skydoves.sandwich.getOrNull
 import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import com.skydoves.sandwich.suspendOnSuccess
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.EnumJsonAdapter
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.serialization.json.Json
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.mudkip.moememos.data.api.MemosV0Api
-import me.mudkip.moememos.data.api.MemosV0UserSettingKey
 import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.local.MoeMemosDatabase
 import me.mudkip.moememos.data.local.UserPreferences
 import me.mudkip.moememos.data.local.FileStorage
-import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.UserData
 import me.mudkip.moememos.data.repository.AbstractMemoRepository
@@ -32,11 +27,10 @@ import me.mudkip.moememos.data.repository.MemosV0Repository
 import me.mudkip.moememos.data.repository.MemosV1Repository
 import me.mudkip.moememos.ext.settingsDataStore
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.Date
-import java.time.Instant
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,6 +42,12 @@ class AccountService @Inject constructor(
     private val fileStorage: FileStorage,
     private val userPreferences: UserPreferences
 ) {
+    private val networkJson = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+        explicitNulls = false
+    }
+
     var httpClient: OkHttpClient = okHttpClient
         private set
     val accounts = context.settingsDataStore.data.map { settings ->
@@ -190,23 +190,7 @@ class AccountService @Inject constructor(
         return client to Retrofit.Builder()
             .baseUrl(host)
             .client(client)
-            .addConverterFactory(
-                MoshiConverterFactory.create(
-                    Moshi.Builder()
-                        .add(
-                            MemosV0UserSettingKey::class.java,
-                            EnumJsonAdapter.create(MemosV0UserSettingKey::class.java)
-                                .withUnknownFallback(MemosV0UserSettingKey.UNKNOWN)
-                        )
-                        .add(
-                            MemosVisibility::class.java,
-                            EnumJsonAdapter.create(MemosVisibility::class.java)
-                                .withUnknownFallback(MemosVisibility.PRIVATE)
-                        )
-                        .add(KotlinJsonAdapterFactory())
-                        .build()
-                )
-            )
+            .addConverterFactory(networkJson.asConverterFactory("application/json".toMediaType()))
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(MemosV0Api::class.java)
@@ -227,20 +211,7 @@ class AccountService @Inject constructor(
         return client to Retrofit.Builder()
             .baseUrl(host)
             .client(client)
-            .addConverterFactory(
-                MoshiConverterFactory.create(
-                    Moshi.Builder()
-                        .add(
-                            MemosVisibility::class.java,
-                            EnumJsonAdapter.create(MemosVisibility::class.java)
-                                .withUnknownFallback(MemosVisibility.PRIVATE)
-                        )
-                        .add(KotlinJsonAdapterFactory())
-                        .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
-                        .add(Instant::class.java, Rfc3339DateJsonAdapter().nullSafe())
-                        .build()
-                )
-            )
+            .addConverterFactory(networkJson.asConverterFactory("application/json".toMediaType()))
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(MemosV1Api::class.java)
