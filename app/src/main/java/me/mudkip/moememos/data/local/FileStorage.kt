@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 class FileStorage @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     private val filesDir: File
         get() = File(context.filesDir, "resources").also { it.mkdirs() }

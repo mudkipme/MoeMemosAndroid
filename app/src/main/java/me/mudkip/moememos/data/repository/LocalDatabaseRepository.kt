@@ -169,10 +169,6 @@ class LocalDatabaseRepository(
         return ApiResponse.Success(emptyList()) // Local storage doesn't support tags yet
     }
 
-    override suspend fun deleteTag(name: String): ApiResponse<Unit> {
-        return ApiResponse.Success(Unit) // Local storage doesn't support tags yet
-    }
-
     override suspend fun listResources(): ApiResponse<List<Resource>> {
         return try {
             val resources = memoDao.getAllResources()

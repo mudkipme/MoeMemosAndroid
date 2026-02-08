@@ -12,14 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.ui.component.SideDrawer
 
 @Composable
-fun MemosPage(
-    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-) {
+fun MemosPage() {
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val memosNavController = rememberNavController()
@@ -30,7 +28,7 @@ fun MemosPage(
         }
     }
 
-    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+    if (windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)) {
         PermanentNavigationDrawer(
             drawerContent = {
                 PermanentDrawerSheet {

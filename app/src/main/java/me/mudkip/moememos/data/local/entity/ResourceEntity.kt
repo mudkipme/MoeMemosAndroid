@@ -2,11 +2,13 @@ package me.mudkip.moememos.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.Instant
 
 @Entity(
     tableName = "resources",
+    indices = [Index(value = ["memoId"])],
     foreignKeys = [
         ForeignKey(
             entity = MemoEntity::class,

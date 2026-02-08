@@ -27,8 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MemoInputViewModel @Inject constructor(
-    @ApplicationContext
-    application: Context,
+    @ApplicationContext application: Context,
     private val memoService: MemoService
 ) : AndroidViewModel(application as Application) {
     private val context = application
@@ -57,13 +56,14 @@ class MemoInputViewModel @Inject constructor(
 
     fun updateDraft(content: String) = runBlocking {
         context.settingsDataStore.updateData { settings ->
-            val currentUser =
-                settings.usersList.firstOrNull { it.accountKey == settings.currentUser }
-                    ?: return@updateData settings
-            val user = currentUser.toBuilder().apply {
-                this.settings = this.settings.toBuilder().setDraft(content).build()
-            }.build()
-            settings.toBuilder().setUsers(settings.usersList.indexOf(currentUser), user).build()
+            val index = settings.usersList.indexOfFirst { it.accountKey == settings.currentUser }
+            if (index == -1) {
+                return@updateData settings
+            }
+            val users = settings.usersList.toMutableList()
+            val user = users[index]
+            users[index] = user.copy(settings = user.settings.copy(draft = content))
+            settings.copy(usersList = users)
         }
     }
 

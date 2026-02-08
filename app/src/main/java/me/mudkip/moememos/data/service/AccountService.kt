@@ -42,8 +42,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AccountService @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val okHttpClient: OkHttpClient,
     private val database: MoeMemosDatabase,
     private val fileStorage: FileStorage,
@@ -128,9 +127,7 @@ class AccountService @Inject constructor(
         mutex.withLock {
             val account = accounts.first().firstOrNull { it.accountKey() == accountKey }
             context.settingsDataStore.updateData { settings ->
-                settings.toBuilder().apply {
-                    this.currentUser = accountKey
-                }.build()
+                settings.copy(currentUser = accountKey)
             }
             updateCurrentAccount(account)
         }
@@ -139,13 +136,16 @@ class AccountService @Inject constructor(
     suspend fun addAccount(account: Account) {
         mutex.withLock {
             context.settingsDataStore.updateData { settings ->
-                var builder = settings.toBuilder()
-                val index =
-                    settings.usersList.indexOfFirst { it.accountKey == account.accountKey() }
+                val users = settings.usersList.toMutableList()
+                val index = users.indexOfFirst { it.accountKey == account.accountKey() }
                 if (index != -1) {
-                    builder = builder.removeUsers(index)
+                    users.removeAt(index)
                 }
-                builder.addUsers(account.toUserData()).setCurrentUser(account.accountKey()).build()
+                users.add(account.toUserData())
+                settings.copy(
+                    usersList = users,
+                    currentUser = account.accountKey(),
+                )
             }
             updateCurrentAccount(account)
         }
@@ -154,16 +154,20 @@ class AccountService @Inject constructor(
     suspend fun removeAccount(accountKey: String) {
         mutex.withLock {
             context.settingsDataStore.updateData { settings ->
-                var builder = settings.toBuilder()
-                val index = settings.usersList.indexOfFirst { it.accountKey == accountKey }
+                val users = settings.usersList.toMutableList()
+                val index = users.indexOfFirst { it.accountKey == accountKey }
                 if (index != -1) {
-                    builder = builder.removeUsers(index)
+                    users.removeAt(index)
                 }
-                if (settings.currentUser == accountKey) {
-                    builder =
-                        builder.setCurrentUser(accounts.first().firstOrNull()?.accountKey() ?: "")
+                val newCurrentUser = if (settings.currentUser == accountKey) {
+                    users.firstOrNull()?.accountKey ?: ""
+                } else {
+                    settings.currentUser
                 }
-                builder.build()
+                settings.copy(
+                    usersList = users,
+                    currentUser = newCurrentUser,
+                )
             }
             updateCurrentAccount(currentAccount.first())
         }

@@ -41,7 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -190,7 +190,7 @@ fun LoginPage(
                     },
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.None,
-                        autoCorrect = false,
+                        autoCorrectEnabled = false,
                         keyboardType = KeyboardType.Uri,
                         imeAction = ImeAction.Next
                     )
@@ -221,7 +221,7 @@ fun LoginPage(
                     },
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.None,
-                        autoCorrect = false,
+                        autoCorrectEnabled = false,
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Go
                     ),
