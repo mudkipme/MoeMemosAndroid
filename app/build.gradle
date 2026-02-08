@@ -9,14 +9,14 @@ plugins {
 }
 
 android {
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "me.mudkip.moememos"
         minSdk 26
-        targetSdk 34
-        versionCode 31
-        versionName "0.8.7"
+        targetSdk 35
+        versionCode 33
+        versionName "0.8.8"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

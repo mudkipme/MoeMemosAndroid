@@ -1,0 +1,6 @@
+## What's Changed
+- Added support for Memos 0.26.0. Due to breaking API changes, Memos versions 0.22.0–0.25.3 are no longer supported. You can continue using Memos 0.21.0 or upgrade to 0.26.0.
+- Fixed the background color issue of Glance cards by @crisqyxw.
+- Updated German localization by @Evergreen200.
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.8.7...0.8.8

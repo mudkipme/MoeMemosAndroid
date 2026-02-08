@@ -103,10 +103,10 @@ fun AccountPage(
                                 }
                             }
                             if (memosV1User != null) {
-                                Text(memosV1User.displayName,
+                                Text(memosV1User.displayName ?: "",
                                     style = MaterialTheme.typography.headlineSmall
                                 )
-                                if (memosV1User.displayName != memosV1User.email && memosV1User.email.isNotEmpty()) {
+                                if (memosV1User.displayName != memosV1User.email && !memosV1User.email.isNullOrEmpty()) {
                                     Text(memosV1User.email,
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.outline

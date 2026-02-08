@@ -91,7 +91,7 @@ class UserStateViewModel @Inject constructor(
 
     private suspend fun loginMemosV1WithAccessToken(host: String, accessToken: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
         try {
-            val resp = accountService.createMemosV1Client(host, accessToken).second.authStatus()
+            val resp = accountService.createMemosV1Client(host, accessToken).second.getCurrentUser()
             if (resp !is ApiResponse.Success) {
                 return@withContext resp.mapSuccess {}
             }
@@ -133,7 +133,7 @@ class UserStateViewModel @Inject constructor(
             .setHost(host)
             .setId(user.name.substringAfterLast('/').toLong())
             .setName(user.username)
-            .setAvatarUrl(user.avatarUrl)
+            .setAvatarUrl(user.avatarUrl ?: "")
             .setAccessToken(accessToken)
             .build()
     )
