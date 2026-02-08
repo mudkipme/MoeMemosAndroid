@@ -69,6 +69,11 @@
     <string name="accounts">Аккаунты</string>
     <string name="account_detail">Сведения об аккаунте</string>
     <string name="switch_account">Сменить аккаунт</string>
+    <string name="local_account">Локальный аккаунт</string>
+    <string name="add_local_account">Добавить локальный аккаунт</string>
+    <string name="add_memos_account">Добавить аккаунт Memos</string>
+    <string name="local_account_description">Хранить заметки только на этом устройстве.</string>
+    <string name="memos_account_description">Подключитесь к серверу Memos для синхронизации данных.</string>
     <string name="loading">Загрузка…</string>
     <string name="error_unknown">Неизвестная ошибка</string>
     <string name="no_memos">Заметки не найдены</string>

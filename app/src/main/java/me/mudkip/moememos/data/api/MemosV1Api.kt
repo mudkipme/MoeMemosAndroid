@@ -1,6 +1,7 @@
 package me.mudkip.moememos.data.api
 
 import android.net.Uri
+import androidx.core.net.toUri
 import com.skydoves.sandwich.ApiResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,7 +12,6 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
-import androidx.core.net.toUri
 import java.time.Instant
 
 interface MemosV1Api {

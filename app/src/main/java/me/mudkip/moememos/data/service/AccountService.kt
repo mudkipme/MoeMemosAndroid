@@ -8,17 +8,17 @@ import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.serialization.json.Json
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.json.Json
 import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV1Api
+import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.local.MoeMemosDatabase
 import me.mudkip.moememos.data.local.UserPreferences
-import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.UserData
 import me.mudkip.moememos.data.repository.AbstractMemoRepository
@@ -235,11 +235,13 @@ class AccountService @Inject constructor(
         }
     }
 
-    fun getLocalRepository(): AbstractMemoRepository {
+    suspend fun getLocalRepository(): AbstractMemoRepository {
+        val account = currentAccount.first()
         return LocalDatabaseRepository(
             database.memoDao(),
             fileStorage,
-            userPreferences
+            userPreferences,
+            account
         )
     }
 

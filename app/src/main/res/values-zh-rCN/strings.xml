@@ -64,6 +64,11 @@
     <string name="accounts">账户</string>
     <string name="account_detail">账户详情</string>
     <string name="switch_account">切换账户</string>
+    <string name="local_account">本地账户</string>
+    <string name="add_local_account">添加本地账户</string>
+    <string name="add_memos_account">添加 Memos 账户</string>
+    <string name="local_account_description">仅在此设备上保存 memo。</string>
+    <string name="memos_account_description">连接到 Memos 服务器以同步数据。</string>
     <string name="loading">加载中…</string>
     <string name="error_unknown">未知错误</string>
     <string name="no_memos">未找到 MEMO</string>

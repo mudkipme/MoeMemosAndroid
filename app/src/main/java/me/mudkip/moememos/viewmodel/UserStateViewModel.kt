@@ -118,6 +118,15 @@ class UserStateViewModel @Inject constructor(
         loadCurrentUser()
     }
 
+    suspend fun addLocalAccount(): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
+        try {
+            accountService.addAccount(Account.Local)
+            loadCurrentUser().mapSuccess {}
+        } catch (e: Throwable) {
+            ApiResponse.exception(e)
+        }
+    }
+
     private fun getAccount(host: String, accessToken: String, user: MemosV0User): Account = Account.MemosV0(
         info = MemosAccount(
             host = host,

@@ -70,6 +70,11 @@
     <string name="accounts">Accounts</string>
     <string name="account_detail">Account Detail</string>
     <string name="switch_account">Switch Account</string>
+    <string name="local_account">Local Account</string>
+    <string name="add_local_account">Add Local Account</string>
+    <string name="add_memos_account">Add Memos Account</string>
+    <string name="local_account_description">Store memos only on this device.</string>
+    <string name="memos_account_description">Connect to a Memos server to sync data.</string>
     
     <!-- Widget strings -->
     <string name="loading">Loading…</string>

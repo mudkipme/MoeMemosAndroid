@@ -1,14 +1,19 @@
 package me.mudkip.moememos.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import me.mudkip.moememos.data.model.MemoVisibility
 import java.time.Instant
 
-@Entity(tableName = "memos")
+@Entity(
+    tableName = "memos",
+    indices = [Index(value = ["accountKey"])]
+)
 data class MemoEntity(
     @PrimaryKey
     val identifier: String,
+    val accountKey: String,
     val content: String,
     val date: Instant,
     val visibility: MemoVisibility,

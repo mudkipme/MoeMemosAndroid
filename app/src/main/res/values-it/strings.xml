@@ -70,6 +70,11 @@
     <string name="accounts">Account</string>
     <string name="account_detail">Dettaglio account</string>
     <string name="switch_account">Cambia account</string>
+    <string name="local_account">Account locale</string>
+    <string name="add_local_account">Aggiungi account locale</string>
+    <string name="add_memos_account">Aggiungi account Memos</string>
+    <string name="local_account_description">Salva i memo solo su questo dispositivo.</string>
+    <string name="memos_account_description">Connettiti a un server Memos per sincronizzare i dati.</string>
     <string name="loading">Caricamento…</string>
     <string name="error_unknown">Errore sconosciuto</string>
     <string name="no_memos">Nessun memo trovato</string>

@@ -13,7 +13,7 @@ import me.mudkip.moememos.data.local.entity.ResourceEntity
 
 @Database(
     entities = [MemoEntity::class, ResourceEntity::class],
-    version = 5
+    version = 6
 )
 @TypeConverters(Converters::class)
 abstract class MoeMemosDatabase : RoomDatabase() {
@@ -30,7 +30,7 @@ abstract class MoeMemosDatabase : RoomDatabase() {
                     MoeMemosDatabase::class.java,
                     "moememos_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .build()
                 INSTANCE = instance
                 instance
@@ -58,6 +58,15 @@ abstract class MoeMemosDatabase : RoomDatabase() {
         private val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE memos ADD COLUMN lastModified INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE memos ADD COLUMN accountKey TEXT NOT NULL DEFAULT 'local'")
+                db.execSQL("ALTER TABLE resources ADD COLUMN accountKey TEXT NOT NULL DEFAULT 'local'")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_memos_accountKey ON memos(accountKey)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_resources_accountKey ON resources(accountKey)")
             }
         }
     }
