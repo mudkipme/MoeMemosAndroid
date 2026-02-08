@@ -16,7 +16,7 @@ private val Context.userPreferencesStore: DataStore<Preferences> by preferencesD
 
 @Singleton
 class UserPreferences @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     private val userId = stringPreferencesKey("user_id")
     private val userName = stringPreferencesKey("user_name")

@@ -25,7 +25,7 @@ import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okio.ByteString.Companion.toByteString
-import java.util.Date
+import java.time.Instant
 
 private const val PAGE_SIZE = 200
 
@@ -36,7 +36,7 @@ class MemosV1Repository(
     private fun convertResource(resource: MemosV1Resource): Resource {
         return Resource(
             identifier = resource.name ?: "",
-            date = (resource.createTime ?: Date()).toInstant(),
+            date = resource.createTime ?: Instant.now(),
             filename = resource.filename ?: "",
             uri = resource.uri(account.info.host),
             mimeType = resource.type?.toMediaTypeOrNull()
@@ -47,7 +47,7 @@ class MemosV1Repository(
         return Memo(
             identifier = memo.name,
             content = memo.content ?: "",
-            date = (memo.displayTime ?: Date()).toInstant(),
+            date = memo.displayTime ?: Instant.now(),
             pinned = memo.pinned ?: false,
             visibility = memo.visibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE,
             resources = memo.attachments?.map { convertResource(it) } ?: emptyList(),
@@ -112,7 +112,7 @@ class MemosV1Repository(
                             User(
                                 user.name,
                                 user.displayName ?: user.username,
-                                (user.createTime ?: Date()).toInstant()
+                                user.createTime ?: Instant.now()
                             )
                         }
                     }
@@ -152,7 +152,7 @@ class MemosV1Repository(
             content = content,
             visibility = visibility?.let { MemosVisibility.fromMemoVisibility(it) },
             pinned = pinned,
-            updateTime = Date(),
+            updateTime = Instant.now(),
         )).mapSuccess { convertMemo(this) }
         if (resp !is ApiResponse.Success || resources == null || resources.map { it.identifier }.toSet() == resp.data.resources.map { it.identifier }.toSet()) {
             return resp
@@ -214,7 +214,7 @@ class MemosV1Repository(
             User(
                 user.name,
                 user.displayName ?: user.username,
-                (user.createTime ?: Date()).toInstant()
+                user.createTime ?: Instant.now()
             )
         }
         if (resp !is ApiResponse.Success) {

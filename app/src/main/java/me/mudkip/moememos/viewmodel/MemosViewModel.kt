@@ -39,7 +39,7 @@ import javax.inject.Inject
 class MemosViewModel @Inject constructor(
     private val memoService: MemoService,
     private val accountService: AccountService,
-    @ApplicationContext private val appContext: Context
+    @param:ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     var memos = mutableStateListOf<Memo>()

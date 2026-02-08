@@ -2,10 +2,13 @@ package me.mudkip.moememos.data.repository
 
 import android.net.Uri
 import com.skydoves.sandwich.ApiResponse
+import me.mudkip.moememos.data.constant.MoeMemosException
+import me.mudkip.moememos.data.local.FileStorage
+import me.mudkip.moememos.data.local.UserPreferences
 import me.mudkip.moememos.data.local.dao.MemoDao
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.ResourceEntity
-import me.mudkip.moememos.data.local.FileStorage
+import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
@@ -14,8 +17,6 @@ import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.time.Instant
 import java.util.UUID
-import me.mudkip.moememos.data.local.UserPreferences
-import me.mudkip.moememos.data.model.Account
 
 class LocalDatabaseRepository(
     private val memoDao: MemoDao,
@@ -23,10 +24,11 @@ class LocalDatabaseRepository(
     private val userPreferences: UserPreferences,
     private val account: Account? = null
 ) : AbstractMemoRepository() {
+    private val accountKey = account?.accountKey() ?: Account.Local.accountKey()
     
     override suspend fun listMemos(): ApiResponse<List<Memo>> {
         return try {
-            val memos = memoDao.getAllMemos()
+            val memos = memoDao.getAllMemos(accountKey)
                 .filter { !it.isDeleted }  // Filter out deleted memos
                 .map { entity ->
                     convertToMemo(entity)
@@ -53,6 +55,7 @@ class LocalDatabaseRepository(
             val now = Instant.now()
             val memo = MemoEntity(
                 identifier = UUID.randomUUID().toString(),
+                accountKey = accountKey,
                 content = content,
                 date = now,
                 visibility = visibility,
@@ -74,6 +77,7 @@ class LocalDatabaseRepository(
                     // Resource is already local, just link it
                     val resourceEntity = ResourceEntity(
                         identifier = resource.identifier,
+                        accountKey = accountKey,
                         date = resource.date,
                         filename = resource.filename,
                         mimeType = resource.mimeType?.toString(),
@@ -92,7 +96,7 @@ class LocalDatabaseRepository(
 
     override suspend fun listArchivedMemos(): ApiResponse<List<Memo>> {
         return try {
-            val memos = memoDao.getArchivedMemos().map { entity ->
+            val memos = memoDao.getArchivedMemos(accountKey).map { entity ->
                 convertToMemo(entity)
             }
             ApiResponse.Success(memos)
@@ -106,14 +110,14 @@ class LocalDatabaseRepository(
         pageToken: String?
     ): ApiResponse<Pair<List<Memo>, String?>> {
         return try {
-            val memos = memoDao.getAllMemos().map { entity ->
+            val memos = memoDao.getAllMemos(accountKey).map { entity ->
                 Memo(
                     identifier = entity.identifier,
                     content = entity.content,
                     date = entity.date,
                     pinned = entity.pinned,
                     visibility = entity.visibility,
-                    resources = memoDao.getMemoResources(entity.identifier).map { convertToResource(it) },
+                    resources = memoDao.getMemoResources(entity.identifier, accountKey).map { convertToResource(it) },
                     tags = emptyList(), // Local storage doesn't support tags yet
                     creator = if (entity.creatorId != null && entity.creatorName != null) {
                         User(entity.creatorId, entity.creatorName)
@@ -135,7 +139,8 @@ class LocalDatabaseRepository(
         pinned: Boolean?
     ): ApiResponse<Memo> {
         return try {
-            val existingMemo = memoDao.getMemoById(identifier) ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+            val existingMemo = memoDao.getMemoById(identifier, accountKey)
+                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
             
             val updatedMemo = existingMemo.copy(
                 content = content ?: existingMemo.content,
@@ -149,7 +154,7 @@ class LocalDatabaseRepository(
             
             if (resources != null) {
                 // Delete existing resources
-                memoDao.getMemoResources(identifier).forEach {
+                memoDao.getMemoResources(identifier, accountKey).forEach {
                     memoDao.deleteResource(it)
                 }
                 
@@ -169,13 +174,9 @@ class LocalDatabaseRepository(
         return ApiResponse.Success(emptyList()) // Local storage doesn't support tags yet
     }
 
-    override suspend fun deleteTag(name: String): ApiResponse<Unit> {
-        return ApiResponse.Success(Unit) // Local storage doesn't support tags yet
-    }
-
     override suspend fun listResources(): ApiResponse<List<Resource>> {
         return try {
-            val resources = memoDao.getAllResources()
+            val resources = memoDao.getAllResources(accountKey)
             ApiResponse.Success(resources.map { convertToResource(it) })
         } catch (e: Exception) {
             ApiResponse.Failure.Exception(e)
@@ -193,7 +194,8 @@ class LocalDatabaseRepository(
 
     override suspend fun deleteMemo(identifier: String): ApiResponse<Unit> {
         return try {
-            val memo = memoDao.getMemoById(identifier) ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+            val memo = memoDao.getMemoById(identifier, accountKey)
+                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
             // Mark as deleted and unsynced instead of immediate deletion
             val deletedMemo = memo.copy(isDeleted = true, needsSync = true)
             memoDao.insertMemo(deletedMemo)
@@ -210,9 +212,14 @@ class LocalDatabaseRepository(
         memoIdentifier: String?
     ): ApiResponse<Resource> {
         return try {
-            val uri = fileStorage.saveFile(content, UUID.randomUUID().toString() + "_" + filename)
+            val uri = fileStorage.saveFile(
+                accountKey = accountKey,
+                content = content,
+                filename = UUID.randomUUID().toString() + "_" + filename
+            )
             val resource = ResourceEntity(
                 identifier = UUID.randomUUID().toString(),
+                accountKey = accountKey,
                 date = Instant.now(),
                 filename = filename,
                 uri = uri.toString(),
@@ -228,7 +235,7 @@ class LocalDatabaseRepository(
 
     override suspend fun deleteResource(identifier: String): ApiResponse<Unit> {
         return try {
-            val resource = memoDao.getResourceById(identifier) 
+            val resource = memoDao.getResourceById(identifier, accountKey)
                 ?: return ApiResponse.Failure.Exception(Exception("Resource not found"))
             fileStorage.deleteFile(Uri.parse(resource.uri))
             memoDao.deleteResource(resource)
@@ -254,13 +261,16 @@ class LocalDatabaseRepository(
                         name = account.info.name
                     ))
                 }
+                Account.Local -> {
+                    ApiResponse.Success(User("local", "Local Account"))
+                }
                 else -> {
                     // Fallback to stored preferences
                     val user = userPreferences.getUser()
                     if (user != null) {
                         ApiResponse.Success(User(user.first, user.second))
                     } else {
-                        ApiResponse.Failure.Exception(Exception("No user found"))
+                        ApiResponse.Failure.Exception(MoeMemosException.notLogin)
                     }
                 }
             }
@@ -271,7 +281,7 @@ class LocalDatabaseRepository(
 
     override suspend fun archiveMemo(identifier: String): ApiResponse<Unit> {
         return try {
-            val memo = memoDao.getMemoById(identifier) 
+            val memo = memoDao.getMemoById(identifier, accountKey)
                 ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
             val archivedMemo = memo.copy(
                 archived = true,
@@ -287,7 +297,7 @@ class LocalDatabaseRepository(
 
     override suspend fun restoreMemo(identifier: String): ApiResponse<Unit> {
         return try {
-            val memo = memoDao.getMemoById(identifier) 
+            val memo = memoDao.getMemoById(identifier, accountKey)
                 ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
             val restoredMemo = memo.copy(
                 archived = false,
@@ -302,11 +312,11 @@ class LocalDatabaseRepository(
     }
 
     suspend fun getUnsyncedMemos(): List<MemoEntity> {
-        return memoDao.getUnsyncedMemos()
+        return memoDao.getUnsyncedMemos(accountKey)
     }
 
     suspend fun storeSyncedMemos(memos: List<Memo>) {
-        val existingMemos = memoDao.getAllMemos().associateBy { it.identifier }
+        val existingMemos = memoDao.getAllMemos(accountKey).associateBy { it.identifier }
         
         memos.forEach { memo ->
             val existingMemo = existingMemos[memo.identifier]
@@ -324,6 +334,7 @@ class LocalDatabaseRepository(
             // Create or update memo
             val memoEntity = MemoEntity(
                 identifier = memo.identifier,
+                accountKey = accountKey,
                 content = memo.content,
                 date = memo.date,
                 visibility = memo.visibility,
@@ -338,12 +349,13 @@ class LocalDatabaseRepository(
             memoDao.insertMemo(memoEntity)
             
             // Handle resources
-            memoDao.getMemoResources(memo.identifier).forEach {
+            memoDao.getMemoResources(memo.identifier, accountKey).forEach {
                 memoDao.deleteResource(it)
             }
             memo.resources.forEach { resource ->
                 val resourceEntity = ResourceEntity(
                     identifier = resource.identifier,
+                    accountKey = accountKey,
                     date = resource.date,
                     filename = resource.filename,
                     mimeType = resource.mimeType?.toString(),
@@ -356,7 +368,7 @@ class LocalDatabaseRepository(
     }
 
     private suspend fun convertToMemo(entity: MemoEntity): Memo {
-        val resources = memoDao.getMemoResources(entity.identifier).map { convertToResource(it) }
+        val resources = memoDao.getMemoResources(entity.identifier, accountKey).map { convertToResource(it) }
         return Memo(
             identifier = entity.identifier,
             content = entity.content,
@@ -384,6 +396,7 @@ class LocalDatabaseRepository(
     private fun convertToResourceEntity(resource: Resource, memoId: String): ResourceEntity {
         return ResourceEntity(
             identifier = resource.identifier,
+            accountKey = accountKey,
             date = resource.date,
             filename = resource.filename,
             mimeType = resource.mimeType?.toString(),
@@ -393,7 +406,7 @@ class LocalDatabaseRepository(
     }
 
     suspend fun permanentlyDeleteMemo(identifier: String) {
-        val memo = memoDao.getMemoById(identifier) ?: return
+        val memo = memoDao.getMemoById(identifier, accountKey) ?: return
         memoDao.deleteMemo(memo)
     }
 

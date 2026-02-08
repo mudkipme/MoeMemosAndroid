@@ -184,8 +184,10 @@ fun extractPreviewContent(markdownText: String, maxLength: Int = 140): Pair<Stri
         if (remainingLength <= 0 && firstImage != null) break
     }
 
-    if (firstImage != null && !result.contains(firstImage!!)) {
-        result.append(firstImage)
+    firstImage?.let { image ->
+        if (!result.contains(image)) {
+            result.append(image)
+        }
     }
 
     return Pair(result.toString(), remainingLength <= 0)

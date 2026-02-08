@@ -118,24 +118,33 @@ class UserStateViewModel @Inject constructor(
         loadCurrentUser()
     }
 
+    suspend fun addLocalAccount(): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
+        try {
+            accountService.addAccount(Account.Local)
+            loadCurrentUser().mapSuccess {}
+        } catch (e: Throwable) {
+            ApiResponse.exception(e)
+        }
+    }
+
     private fun getAccount(host: String, accessToken: String, user: MemosV0User): Account = Account.MemosV0(
-        info = MemosAccount.newBuilder()
-            .setHost(host)
-            .setId(user.id)
-            .setName(user.username)
-            .setAvatarUrl(user.avatarUrl)
-            .setAccessToken(accessToken)
-            .build()
+        info = MemosAccount(
+            host = host,
+            accessToken = accessToken,
+            id = user.id,
+            name = user.username ?: user.displayName,
+            avatarUrl = user.avatarUrl ?: "",
+        )
     )
 
     private fun getAccount(host: String, accessToken: String, user: MemosV1User): Account = Account.MemosV1(
-        info = MemosAccount.newBuilder()
-            .setHost(host)
-            .setId(user.name.substringAfterLast('/').toLong())
-            .setName(user.username)
-            .setAvatarUrl(user.avatarUrl ?: "")
-            .setAccessToken(accessToken)
-            .build()
+        info = MemosAccount(
+            host = host,
+            accessToken = accessToken,
+            id = user.name.substringAfterLast('/').toLong(),
+            name = user.username,
+            avatarUrl = user.avatarUrl ?: "",
+        )
     )
 }
 

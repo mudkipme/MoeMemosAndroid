@@ -6,11 +6,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import me.mudkip.moememos.data.local.MoeMemosDatabase
 import me.mudkip.moememos.data.local.FileStorage
+import me.mudkip.moememos.data.local.MoeMemosDatabase
+import me.mudkip.moememos.data.local.UserPreferences
 import me.mudkip.moememos.data.local.dao.MemoDao
 import me.mudkip.moememos.data.repository.LocalDatabaseRepository
-import me.mudkip.moememos.data.local.UserPreferences
 import javax.inject.Singleton
 
 @Module

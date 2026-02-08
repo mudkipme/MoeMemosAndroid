@@ -1,31 +1,30 @@
 package me.mudkip.moememos.data.api
 
-import androidx.annotation.Keep
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import me.mudkip.moememos.data.model.MemoVisibility
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class MemosRole {
-    @field:Json(name = "ROLE_UNSPECIFIED")
+    @SerialName("ROLE_UNSPECIFIED")
     ROLE_UNSPECIFIED,
-    @field:Json(name = "HOST")
+    @SerialName("HOST")
     HOST,
-    @field:Json(name = "ADMIN")
+    @SerialName("ADMIN")
     ADMIN,
-    @field:Json(name = "USER")
+    @SerialName("USER")
     USER
 }
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class MemosVisibility {
-    @field:Json(name = "VISIBILITY_UNSPECIFIED")
+    @SerialName("VISIBILITY_UNSPECIFIED")
     VISIBILITY_UNSPECIFIED,
-    @field:Json(name = "PRIVATE")
+    @SerialName("PRIVATE")
     PRIVATE,
-    @field:Json(name = "PROTECTED")
+    @SerialName("PROTECTED")
     PROTECTED,
-    @field:Json(name = "PUBLIC")
+    @SerialName("PUBLIC")
     PUBLIC;
 
     fun toMemoVisibility(): MemoVisibility = when (this) {
@@ -44,29 +43,29 @@ enum class MemosVisibility {
     }
 }
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class MemosRowStatus {
-    @field:Json(name = "ROW_STATUS_UNSPECIFIED")
+    @SerialName("ROW_STATUS_UNSPECIFIED")
     ROW_STATUS_UNSPECIFIED,
-    @field:Json(name = "NORMAL")
+    @SerialName("NORMAL")
     NORMAL,
-    @field:Json(name = "ARCHIVED")
+    @SerialName("ARCHIVED")
     ARCHIVED,
-    @field:Json(name = "ACTIVE")
+    @SerialName("ACTIVE")
     ACTIVE,
 }
 
-@Keep
+@Serializable
 data class MemosProfile(
     val version: String
 )
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class MemosView {
-    @field:Json(name = "MEMO_VIEW_UNSPECIFIED")
+    @SerialName("MEMO_VIEW_UNSPECIFIED")
     MEMO_VIEW_UNSPECIFIED,
-    @field:Json(name = "MEMO_VIEW_FULL")
+    @SerialName("MEMO_VIEW_FULL")
     MEMO_VIEW_FULL,
-    @field:Json(name = "MEMO_VIEW_METADATA_ONLY")
+    @SerialName("MEMO_VIEW_METADATA_ONLY")
     MEMO_VIEW_METADATA_ONLY,
 }
