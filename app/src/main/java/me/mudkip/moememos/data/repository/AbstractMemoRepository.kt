@@ -1,5 +1,6 @@
 package me.mudkip.moememos.data.repository
 
+import android.net.Uri
 import com.skydoves.sandwich.ApiResponse
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
@@ -10,7 +11,6 @@ import okhttp3.MediaType
 abstract class AbstractMemoRepository {
     abstract suspend fun listMemos(): ApiResponse<List<Memo>>
     abstract suspend fun listArchivedMemos(): ApiResponse<List<Memo>>
-    abstract suspend fun listWorkspaceMemos(pageSize: Int, pageToken: String?): ApiResponse<Pair<List<Memo>, String?>>
     abstract suspend fun createMemo(content: String, visibility: MemoVisibility, resources: List<Resource>, tags: List<String>? = null): ApiResponse<Memo>
     abstract suspend fun updateMemo(identifier: String, content: String? = null, resources: List<Resource>? = null, visibility: MemoVisibility? = null, tags: List<String>? = null, pinned: Boolean? = null): ApiResponse<Memo>
     abstract suspend fun deleteMemo(identifier: String): ApiResponse<Unit>
@@ -24,4 +24,12 @@ abstract class AbstractMemoRepository {
     abstract suspend fun deleteResource(identifier: String): ApiResponse<Unit>
 
     abstract suspend fun getCurrentUser(): ApiResponse<User>
+
+    open suspend fun cacheResourceFile(identifier: String, downloadedUri: Uri): ApiResponse<Unit> {
+        return ApiResponse.Success(Unit)
+    }
+
+    open suspend fun sync(): ApiResponse<Unit> {
+        return ApiResponse.Success(Unit)
+    }
 }

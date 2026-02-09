@@ -1,6 +1,7 @@
 package me.mudkip.moememos.data.api
 
 import android.net.Uri
+import androidx.core.net.toUri
 import com.skydoves.sandwich.ApiResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -29,7 +30,8 @@ data class MemosV0SignInInput(
 data class MemosV0CreateMemoInput(
     val content: String,
     val visibility: MemosVisibility? = null,
-    val resourceIdList: List<Long>? = null
+    val resourceIdList: List<Long>? = null,
+    val pinned: Boolean? = null
 )
 
 @Serializable
@@ -187,24 +189,24 @@ data class MemosV0Resource(
 ) {
     fun uri(host: String): Uri {
         if (!externalLink.isNullOrEmpty()) {
-            return Uri.parse(externalLink)
+            return externalLink.toUri()
         }
         if (!uid.isNullOrEmpty()) {
-            return Uri.parse(host)
+            return host.toUri()
                 .buildUpon().appendPath("o").appendPath("r")
                 .appendPath(uid.toString()).build()
         }
         if (!name.isNullOrEmpty()) {
-            return Uri.parse(host)
+            return host.toUri()
                 .buildUpon().appendPath("o").appendPath("r")
                 .appendPath(name.toString()).build()
         }
         if (!publicId.isNullOrEmpty()) {
-            return Uri.parse(host)
+            return host.toUri()
                 .buildUpon().appendPath("o").appendPath("r")
                 .appendPath(id.toString()).appendPath(publicId).build()
         }
-        return Uri.parse(host)
+        return host.toUri()
             .buildUpon().appendPath("o").appendPath("r")
             .appendPath(id.toString()).appendPath(filename).build()
     }

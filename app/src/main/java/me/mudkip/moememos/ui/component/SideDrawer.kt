@@ -23,6 +23,7 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,10 +35,12 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
+import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
+import me.mudkip.moememos.viewmodel.LocalUserState
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
@@ -59,6 +62,9 @@ fun SideDrawer(
     }
     val scope = rememberCoroutineScope()
     val memosViewModel = LocalMemos.current
+    val userStateViewModel = LocalUserState.current
+    val currentAccount by userStateViewModel.currentAccount.collectAsState()
+    val hasExplore = currentAccount !is Account.Local
     val rootNavController = LocalRootNavController.current
 
     LazyColumn {
@@ -119,22 +125,24 @@ fun SideDrawer(
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
             )
         }
-        item {
-            NavigationDrawerItem(
-                label = { Text(R.string.explore.string) },
-                icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
-                selected = memosNavController.currentDestination?.route == RouteName.EXPLORE,
-                onClick = {
-                    scope.launch {
-                        memosNavController.navigate(RouteName.EXPLORE) {
-                            launchSingleTop = true
-                            restoreState = true
+        if (hasExplore) {
+            item {
+                NavigationDrawerItem(
+                    label = { Text(R.string.explore.string) },
+                    icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+                    selected = memosNavController.currentDestination?.route == RouteName.EXPLORE,
+                    onClick = {
+                        scope.launch {
+                            memosNavController.navigate(RouteName.EXPLORE) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                            drawerState?.close()
                         }
-                        drawerState?.close()
-                    }
-                },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-            )
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+            }
         }
         item {
             NavigationDrawerItem(

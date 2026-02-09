@@ -8,7 +8,11 @@ import java.time.Instant
 
 @Entity(
     tableName = "resources",
-    indices = [Index(value = ["memoId"]), Index(value = ["accountKey"])],
+    indices = [
+        Index(value = ["memoId"]),
+        Index(value = ["accountKey"]),
+        Index(value = ["accountKey", "remoteId"])
+    ],
     foreignKeys = [
         ForeignKey(
             entity = MemoEntity::class,
@@ -21,10 +25,12 @@ import java.time.Instant
 data class ResourceEntity(
     @PrimaryKey
     val identifier: String,
+    val remoteId: String? = null,
     val accountKey: String,
     val date: Instant,
     val filename: String,
     val uri: String,
+    val localUri: String? = null,
     val mimeType: String?,
     val memoId: String
 ) 

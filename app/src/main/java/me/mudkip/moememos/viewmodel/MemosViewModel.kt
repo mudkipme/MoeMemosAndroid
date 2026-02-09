@@ -1,6 +1,7 @@
 package me.mudkip.moememos.viewmodel
 
 import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -28,6 +29,7 @@ import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.data.service.MemoService
+import me.mudkip.moememos.ext.getErrorMessage
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.widget.WidgetUpdater
@@ -63,15 +65,38 @@ class MemosViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    suspend fun loadMemos() = withContext(viewModelScope.coroutineContext) {
+    private suspend fun loadMemosFromRepository() {
         memoService.repository.listMemos().suspendOnSuccess {
             memos.clear()
             memos.addAll(data)
             errorMessage = null
-            // Update widgets after loading memos
             WidgetUpdater.updateWidgets(appContext)
         }.suspendOnErrorMessage {
             errorMessage = it
+        }
+    }
+
+    suspend fun loadMemos(syncAfterLoad: Boolean = true) = withContext(viewModelScope.coroutineContext) {
+        loadMemosFromRepository()
+        if (syncAfterLoad) {
+            viewModelScope.launch {
+                val syncResult = memoService.sync(false)
+                if (syncResult is ApiResponse.Success) {
+                    loadMemosFromRepository()
+                } else {
+                    errorMessage = syncResult.getErrorMessage()
+                }
+            }
+        }
+    }
+
+    suspend fun refreshMemos() = withContext(viewModelScope.coroutineContext) {
+        loadMemosFromRepository()
+        val syncResult = memoService.sync(true)
+        if (syncResult is ApiResponse.Success) {
+            loadMemosFromRepository()
+        } else {
+            errorMessage = syncResult.getErrorMessage()
         }
     }
 
@@ -112,6 +137,10 @@ class MemosViewModel @Inject constructor(
             // Update widgets after deleting a memo
             WidgetUpdater.updateWidgets(appContext)
         }
+    }
+
+    fun cacheResourceFile(resourceIdentifier: String, downloadedUri: Uri) = viewModelScope.launch {
+        memoService.repository.cacheResourceFile(resourceIdentifier, downloadedUri)
     }
 
     private fun updateMemo(memo: Memo) {

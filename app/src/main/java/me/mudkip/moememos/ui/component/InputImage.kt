@@ -45,7 +45,7 @@ fun InputImage(
 
     Box {
         AsyncImage(
-            model = resource.uri.toString(),
+            model = (resource.localUri ?: resource.uri).toString(),
             imageLoader = ImageLoader.Builder(context).okHttpClient(userStateViewModel.okHttpClient).build(),
             contentDescription = null,
             modifier = Modifier

@@ -20,8 +20,14 @@ interface MemoDao {
     """)
     suspend fun getAllMemos(accountKey: String): List<MemoEntity>
 
+    @Query("SELECT * FROM memos WHERE accountKey = :accountKey")
+    suspend fun getAllMemosForSync(accountKey: String): List<MemoEntity>
+
     @Query("SELECT * FROM memos WHERE identifier = :identifier AND accountKey = :accountKey")
     suspend fun getMemoById(identifier: String, accountKey: String): MemoEntity?
+
+    @Query("SELECT * FROM memos WHERE remoteId = :remoteId AND accountKey = :accountKey")
+    suspend fun getMemoByRemoteId(remoteId: String, accountKey: String): MemoEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMemo(memo: MemoEntity)
@@ -44,9 +50,7 @@ interface MemoDao {
     @Query("SELECT * FROM resources WHERE identifier = :identifier AND accountKey = :accountKey")
     suspend fun getResourceById(identifier: String, accountKey: String): ResourceEntity?
 
-    @Query("SELECT * FROM memos WHERE accountKey = :accountKey AND needsSync = 1")
-    suspend fun getUnsyncedMemos(accountKey: String): List<MemoEntity>
+    @Query("SELECT * FROM resources WHERE remoteId = :remoteId AND accountKey = :accountKey")
+    suspend fun getResourceByRemoteId(remoteId: String, accountKey: String): ResourceEntity?
 
-    @Query("UPDATE memos SET needsSync = :needsSync WHERE identifier = :identifier AND accountKey = :accountKey")
-    suspend fun updateMemoSyncStatus(identifier: String, needsSync: Boolean, accountKey: String)
 }

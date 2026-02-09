@@ -70,7 +70,7 @@ fun MemosList(
         onRefresh = {
             isRefreshing = true
             scope.launch {
-                viewModel.loadMemos()
+                viewModel.refreshMemos()
                 isRefreshing = false
             }
         },
