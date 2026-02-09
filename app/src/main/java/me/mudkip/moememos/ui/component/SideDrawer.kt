@@ -32,6 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
@@ -44,6 +46,7 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
+import java.net.URLEncoder
 import java.util.Locale
 
 @Composable
@@ -66,6 +69,20 @@ fun SideDrawer(
     val currentAccount by userStateViewModel.currentAccount.collectAsState()
     val hasExplore = currentAccount !is Account.Local
     val rootNavController = LocalRootNavController.current
+    val navBackStackEntry by memosNavController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    fun isSelected(route: String): Boolean {
+        return currentDestination?.hierarchy?.any { it.route == route } == true
+    }
+
+    fun isTagSelected(tag: String): Boolean {
+        if (!isSelected("${RouteName.TAG}/{tag}")) return false
+
+        val currentTag = navBackStackEntry?.arguments?.getString("tag")
+        val encodedTag = URLEncoder.encode(tag, "UTF-8")
+        return currentTag == tag || currentTag == encodedTag
+    }
 
     LazyColumn {
         item {
@@ -112,7 +129,7 @@ fun SideDrawer(
             NavigationDrawerItem(
                 label = { Text(R.string.memos.string) },
                 icon = { Icon(Icons.Outlined.GridView, contentDescription = null) },
-                selected = memosNavController.currentDestination?.route == RouteName.MEMOS,
+                selected = isSelected(RouteName.MEMOS),
                 onClick = {
                     scope.launch {
                         memosNavController.navigate(RouteName.MEMOS) {
@@ -130,7 +147,7 @@ fun SideDrawer(
                 NavigationDrawerItem(
                     label = { Text(R.string.explore.string) },
                     icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
-                    selected = memosNavController.currentDestination?.route == RouteName.EXPLORE,
+                    selected = isSelected(RouteName.EXPLORE),
                     onClick = {
                         scope.launch {
                             memosNavController.navigate(RouteName.EXPLORE) {
@@ -162,7 +179,7 @@ fun SideDrawer(
             NavigationDrawerItem(
                 label = { Text(R.string.archived.string) },
                 icon = { Icon(Icons.Outlined.Inventory2, contentDescription = null) },
-                selected = memosNavController.currentDestination?.route == RouteName.ARCHIVED,
+                selected = isSelected(RouteName.ARCHIVED),
                 onClick = {
                     scope.launch {
                         memosNavController.navigate(RouteName.ARCHIVED) {
@@ -206,6 +223,7 @@ fun SideDrawer(
             item {
                 TagDrawerItem(
                     tag = tag,
+                    selected = isTagSelected(tag),
                     memosNavController = memosNavController,
                     drawerState = drawerState
                 )

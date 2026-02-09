@@ -19,6 +19,7 @@ import java.net.URLEncoder
 @Composable
 fun TagDrawerItem(
     tag: String,
+    selected: Boolean,
     memosNavController: NavHostController,
     drawerState: DrawerState? = null
 ) {
@@ -27,7 +28,7 @@ fun TagDrawerItem(
     NavigationDrawerItem(
         label = { Text(tag) },
         icon = { Icon(Icons.Outlined.Tag, contentDescription = null) },
-        selected = false,
+        selected = selected,
         onClick = {
             scope.launch {
                 memosNavController.navigate("${RouteName.TAG}/${URLEncoder.encode(tag, "UTF-8")}") {

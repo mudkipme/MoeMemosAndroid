@@ -10,6 +10,7 @@ import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.User
+import me.mudkip.moememos.util.extractCustomTags
 import okhttp3.MediaType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -186,7 +187,7 @@ class LocalDatabaseRepository(
         return try {
             val tags = memoDao.getAllMemos(accountKey)
                 .asSequence()
-                .flatMap { TAG_REGEX.findAll(it.content).map { match -> match.groupValues[1] } }
+                .flatMap { extractCustomTags(it.content).asSequence() }
                 .filter { it.isNotBlank() }
                 .toSet()
                 .sorted()
@@ -264,9 +265,6 @@ class LocalDatabaseRepository(
         }
     }
 
-    companion object {
-        private val TAG_REGEX = Regex("(?:^|\\s)#([\\w/-]+)")
-    }
 }
 
 private fun MemoWithResources.toMemoEntity(): MemoEntity {

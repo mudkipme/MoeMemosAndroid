@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,6 +67,7 @@ fun AccountPage(
     val selectedAccount by viewModel.selectedAccountState.collectAsState()
     val currentAccount by userStateViewModel.currentAccount.collectAsState()
     val account = selectedAccount
+    val isLocalAccount = selectedAccountKey == Account.Local().accountKey() || account is Account.Local
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -83,7 +85,43 @@ fun AccountPage(
         },
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
-            if (userAndProfile != null) {
+            if (isLocalAccount) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(15.dp)
+                    ) {
+                        Column(Modifier.padding(15.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Home,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(end = 8.dp)
+                                        .clip(CircleShape),
+                                )
+                                Text(
+                                    R.string.local_account.string,
+                                    style = MaterialTheme.typography.headlineSmall
+                                )
+                            }
+                            Text(
+                                R.string.local_account_description.string,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.outline,
+                                modifier = Modifier.padding(top = 6.dp)
+                            )
+                            Text(
+                                R.string.local_account_non_removable.string,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline,
+                                modifier = Modifier.padding(top = 10.dp)
+                            )
+                        }
+                    }
+                }
+            } else if (userAndProfile != null) {
                 item {
                     Card(
                         modifier = Modifier
@@ -172,32 +210,34 @@ fun AccountPage(
                 }
             }
 
-            item {
-                FilledTonalButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            userStateViewModel.logout(selectedAccountKey)
-                            if (userStateViewModel.currentAccount.first() == null) {
-                                navController.navigate(RouteName.ADD_ACCOUNT) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        inclusive = true
+            if (!isLocalAccount) {
+                item {
+                    FilledTonalButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                userStateViewModel.logout(selectedAccountKey)
+                                if (userStateViewModel.currentAccount.first() == null) {
+                                    navController.navigate(RouteName.ADD_ACCOUNT) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            inclusive = true
+                                        }
                                     }
+                                } else {
+                                    navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                                 }
-                            } else {
-                                navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                             }
-                        }
-                    },
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.error
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
-                    contentPadding = PaddingValues(10.dp)
-                ) {
-                    Text(R.string.sign_out.string)
+                        },
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.error
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+                        contentPadding = PaddingValues(10.dp)
+                    ) {
+                        Text(R.string.sign_out.string)
+                    }
                 }
             }
         }
