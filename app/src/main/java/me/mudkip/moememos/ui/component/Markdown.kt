@@ -23,6 +23,8 @@ import com.mikepenz.markdown.compose.elements.highlightedCodeFence
 import com.mikepenz.markdown.m3.Markdown as M3Markdown
 import com.mikepenz.markdown.model.ImageData
 import com.mikepenz.markdown.model.ImageTransformer
+import com.mikepenz.markdown.model.markdownAnnotator
+import com.mikepenz.markdown.model.markdownAnnotatorConfig
 import com.mikepenz.markdown.model.rememberMarkdownState
 
 @Composable
@@ -55,6 +57,9 @@ fun Markdown(
         markdownState = markdownState,
         modifier = modifier,
         imageTransformer = imageTransformer,
+        annotator = markdownAnnotator(
+            config = markdownAnnotatorConfig(eolAsNewLine = true)
+        ),
         components = markdownComponents(
             codeFence = highlightedCodeFence,
             codeBlock = highlightedCodeBlock,
