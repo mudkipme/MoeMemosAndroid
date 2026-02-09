@@ -16,12 +16,16 @@ import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,9 +34,15 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.CheckBox
+import androidx.compose.material.icons.outlined.FormatBold
+import androidx.compose.material.icons.outlined.FormatItalic
+import androidx.compose.material.icons.outlined.FormatListBulleted
+import androidx.compose.material.icons.outlined.FormatListNumbered
+import androidx.compose.material.icons.outlined.FormatStrikethrough
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Tag
+import androidx.compose.material.icons.outlined.Title
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -42,9 +52,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -66,9 +78,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -93,6 +107,73 @@ import me.mudkip.moememos.util.extractCustomTags
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
+
+private enum class MarkdownFormat(val label: String, val prefix: String, val suffix: String = "", val isLinePrefix: Boolean = false) {
+    H1("H1", "# ", isLinePrefix = true),
+    H2("H2", "## ", isLinePrefix = true),
+    H3("H3", "### ", isLinePrefix = true),
+    BOLD("B", "**", "**"),
+    ITALIC("I", "*", "*"),
+    STRIKETHROUGH("S", "~~", "~~"),
+    BULLET("•", "- ", isLinePrefix = true),
+    NUMBERED("1.", "1. ", isLinePrefix = true)
+}
+
+@Composable
+private fun FormattingToolbar(onFormat: (MarkdownFormat) -> Unit) {
+    Surface(
+        tonalElevation = 3.dp,
+        shadowElevation = 2.dp
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                MarkdownFormat.entries.forEach { format ->
+                    IconButton(
+                        onClick = { onFormat(format) },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        when (format) {
+                            MarkdownFormat.BOLD -> Icon(
+                                Icons.Outlined.FormatBold,
+                                contentDescription = format.label
+                            )
+                            MarkdownFormat.ITALIC -> Icon(
+                                Icons.Outlined.FormatItalic,
+                                contentDescription = format.label
+                            )
+                            MarkdownFormat.STRIKETHROUGH -> Icon(
+                                Icons.Outlined.FormatStrikethrough,
+                                contentDescription = format.label
+                            )
+                            MarkdownFormat.BULLET -> Icon(
+                                Icons.Outlined.FormatListBulleted,
+                                contentDescription = format.label
+                            )
+                            MarkdownFormat.NUMBERED -> Icon(
+                                Icons.Outlined.FormatListNumbered,
+                                contentDescription = format.label
+                            )
+                            MarkdownFormat.H1, MarkdownFormat.H2, MarkdownFormat.H3 -> {
+                                Text(
+                                    text = format.label,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            HorizontalDivider()
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -252,6 +333,65 @@ fun MemoInputPage(
         return false
     }
 
+    fun applyMarkdownFormat(format: MarkdownFormat) {
+        if (format.isLinePrefix) {
+            // For line-based formatting (headers, lists)
+            val contentBefore = text.text.substring(0, text.selection.min)
+            val lastLineBreak = contentBefore.indexOfLast { it == '\n' }
+            val nextLineBreak = text.text.indexOf('\n', lastLineBreak + 1)
+            val currentLine = text.text.substring(
+                lastLineBreak + 1,
+                if (nextLineBreak == -1) text.text.length else nextLineBreak
+            )
+            val contentBeforeCurrentLine = contentBefore.substring(0, lastLineBreak + 1)
+            val contentAfterCurrentLine = if (nextLineBreak == -1) "" else text.text.substring(nextLineBreak)
+
+            // Check if the line already has this prefix and remove it
+            if (currentLine.startsWith(format.prefix)) {
+                val newLine = currentLine.substring(format.prefix.length)
+                val offset = -format.prefix.length
+                text = text.copy(
+                    contentBeforeCurrentLine + newLine + contentAfterCurrentLine,
+                    TextRange(text.selection.start + offset, text.selection.end + offset)
+                )
+            } else {
+                // Add the prefix
+                text = text.copy(
+                    contentBeforeCurrentLine + format.prefix + currentLine + contentAfterCurrentLine,
+                    TextRange(text.selection.start + format.prefix.length, text.selection.end + format.prefix.length)
+                )
+            }
+        } else {
+            // For wrap formatting (bold, italic, strikethrough)
+            if (text.selection.min != text.selection.max) {
+                // Text is selected - wrap it
+                val selectedText = text.text.substring(text.selection.min, text.selection.max)
+                val newText = text.text.substring(0, text.selection.min) +
+                        format.prefix + selectedText + format.suffix +
+                        text.text.substring(text.selection.max)
+
+                // Position cursor after the formatted text
+                val newPosition = text.selection.max + format.prefix.length + format.suffix.length
+                text = text.copy(
+                    newText,
+                    TextRange(newPosition, newPosition)
+                )
+            } else {
+                // No selection - insert formatting markers at cursor
+                val newText = text.text.substring(0, text.selection.min) +
+                        format.prefix + format.suffix +
+                        text.text.substring(text.selection.min)
+
+                // Position cursor between the markers
+                val cursorPosition = text.selection.min + format.prefix.length
+                text = text.copy(
+                    newText,
+                    TextRange(cursorPosition, cursorPosition)
+                )
+            }
+        }
+    }
+
     val pickImage = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
         uri?.let { uploadImage(it) }
     }
@@ -273,22 +413,27 @@ fun MemoInputPage(
     Scaffold(
         modifier = Modifier.imePadding(),
         topBar = {
-            TopAppBar(
-                title = {
-                    if (memo == null) {
-                        Text(R.string.compose.string)
-                    } else {
-                        Text(R.string.edit.string)
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        handleExit()
-                    }) {
-                        Icon(Icons.Filled.Close, contentDescription = R.string.close.string)
-                    }
-                },
-            )
+            Column {
+                TopAppBar(
+                    title = {
+                        if (memo == null) {
+                            Text(R.string.compose.string)
+                        } else {
+                            Text(R.string.edit.string)
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            handleExit()
+                        }) {
+                            Icon(Icons.Filled.Close, contentDescription = R.string.close.string)
+                        }
+                    },
+                )
+                FormattingToolbar(onFormat = { format ->
+                    applyMarkdownFormat(format)
+                })
+            }
         },
         bottomBar = {
             BottomAppBar {
