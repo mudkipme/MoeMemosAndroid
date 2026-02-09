@@ -13,10 +13,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import coil.ImageLoader
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.AsyncImage
-import coil.imageLoader
+import coil3.ImageLoader
+import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.AsyncImage
+import coil3.imageLoader
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import timber.log.Timber
@@ -40,7 +41,15 @@ fun MemoImage(
 
     AsyncImage(
         model = url,
-        imageLoader = ImageLoader.Builder(context).okHttpClient(userStateViewModel.okHttpClient).build(),
+        imageLoader = ImageLoader.Builder(context)
+            .components {
+                add(
+                    OkHttpNetworkFetcherFactory(
+                        callFactory = { userStateViewModel.okHttpClient }
+                    )
+                )
+            }
+            .build(),
         contentDescription = null,
         modifier = modifier.clickable {
             val fileToOpen = diskCacheFile ?: modelFile

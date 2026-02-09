@@ -24,8 +24,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
-import coil.ImageLoader
-import coil.compose.AsyncImage
+import coil3.ImageLoader
+import coil3.compose.AsyncImage
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Resource
@@ -46,7 +47,15 @@ fun InputImage(
     Box {
         AsyncImage(
             model = (resource.localUri ?: resource.uri).toString(),
-            imageLoader = ImageLoader.Builder(context).okHttpClient(userStateViewModel.okHttpClient).build(),
+            imageLoader = ImageLoader.Builder(context)
+                .components {
+                    add(
+                        OkHttpNetworkFetcherFactory(
+                            callFactory = { userStateViewModel.okHttpClient }
+                        )
+                    )
+                }
+                .build(),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxHeight()

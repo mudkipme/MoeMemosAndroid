@@ -69,7 +69,8 @@ dependencies {
     implementation "com.github.skydoves:sandwich:$sandwich"
     implementation "com.github.skydoves:sandwich-retrofit:$sandwich"
     implementation "com.github.skydoves:sandwich-retrofit-serialization:$sandwich"
-    implementation "io.coil-kt:coil-compose:$coil_version"
+    implementation "io.coil-kt.coil3:coil-compose:$coil_version"
+    implementation "io.coil-kt.coil3:coil-network-okhttp:$coil_version"
     implementation "org.jetbrains:markdown:$markdown_version"
 
     implementation "com.google.dagger:hilt-android:$hilt_version"
