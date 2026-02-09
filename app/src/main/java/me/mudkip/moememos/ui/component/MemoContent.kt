@@ -28,7 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.local.entity.ResourceEntity
+import me.mudkip.moememos.data.model.MemoRepresentable
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalUserState
 import org.intellij.markdown.IElementType
@@ -42,7 +43,7 @@ import kotlin.math.ceil
 
 @Composable
 fun MemoContent(
-    memo: Memo,
+    memo: MemoRepresentable,
     previewMode: Boolean = false,
     checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit = { _, _, _ -> }
 ) {
@@ -253,10 +254,10 @@ private fun isPreviewWhitespaceToken(node: ASTNode): Boolean {
 }
 
 @Composable
-fun MemoResourceContent(memo: Memo) {
+fun MemoResourceContent(memo: MemoRepresentable) {
     val cols = 3
 
-    val imageList = memo.resources.filter { it.mimeType?.type == "image" }
+    val imageList = memo.resources.filter { it.mimeType?.startsWith("image/") == true }
     if (imageList.isNotEmpty()) {
         val rows = ceil(imageList.size.toFloat() / cols).toInt()
         for (rowIndex in 0 until rows) {
@@ -266,12 +267,12 @@ fun MemoResourceContent(memo: Memo) {
                     if (index < imageList.size) {
                         Box(modifier = Modifier.fillMaxWidth(1f / (cols - colIndex))) {
                             MemoImage(
-                                url = (imageList[index].localUri ?: imageList[index].uri).toString(),
+                                url = imageList[index].localUri ?: imageList[index].uri,
                                 modifier = Modifier
                                     .aspectRatio(1f)
                                     .padding(2.dp)
                                     .clip(RoundedCornerShape(4.dp)),
-                                resourceIdentifier = imageList[index].identifier
+                                resourceIdentifier = (imageList[index] as? ResourceEntity)?.identifier
                             )
                         }
                     } else {
@@ -281,7 +282,7 @@ fun MemoResourceContent(memo: Memo) {
             }
         }
     }
-    memo.resources.filterNot { it.mimeType?.type == "image" }.forEach { resource ->
+    memo.resources.filterNot { it.mimeType?.startsWith("image/") == true }.forEach { resource ->
         Attachment(resource)
     }
 }

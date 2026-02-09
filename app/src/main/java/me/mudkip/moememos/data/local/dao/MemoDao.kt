@@ -5,8 +5,11 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import me.mudkip.moememos.data.local.entity.MemoEntity
+import me.mudkip.moememos.data.local.entity.MemoWithResources
 import me.mudkip.moememos.data.local.entity.ResourceEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MemoDao {
@@ -19,6 +22,14 @@ interface MemoDao {
         ORDER BY pinned DESC, date DESC
     """)
     suspend fun getAllMemos(accountKey: String): List<MemoEntity>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM memos
+        WHERE accountKey = :accountKey AND archived = 0 AND isDeleted = 0
+        ORDER BY pinned DESC, date DESC
+    """)
+    fun observeAllMemos(accountKey: String): Flow<List<MemoWithResources>>
 
     @Query("SELECT * FROM memos WHERE accountKey = :accountKey")
     suspend fun getAllMemosForSync(accountKey: String): List<MemoEntity>

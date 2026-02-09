@@ -13,19 +13,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.model.ResourceRepresentable
 import me.mudkip.moememos.ext.string
 
 @Composable
 fun Attachment(
-    resource: Resource
+    resource: ResourceRepresentable
 ) {
     val uriHandler = LocalUriHandler.current
 
     AssistChip(
         modifier = Modifier.padding(bottom = 10.dp),
         onClick = {
-            uriHandler.openUri((resource.localUri ?: resource.uri).toString())
+            uriHandler.openUri(resource.localUri ?: resource.uri)
         },
         label = { Text(resource.filename) },
         leadingIcon = {

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "abd2121571445a7faf995eea3e487544",
+    "identityHash": "b1ee38b54aad30d83c9468dcb5ec1ff5",
     "entities": [
       {
         "tableName": "memos",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifier` TEXT NOT NULL, `remoteId` TEXT, `accountKey` TEXT NOT NULL, `content` TEXT NOT NULL, `date` INTEGER NOT NULL, `visibility` TEXT NOT NULL, `creatorId` TEXT, `creatorName` TEXT, `pinned` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `needsSync` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `lastModified` INTEGER NOT NULL, `lastSyncedAt` INTEGER, PRIMARY KEY(`identifier`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifier` TEXT NOT NULL, `remoteId` TEXT, `accountKey` TEXT NOT NULL, `content` TEXT NOT NULL, `date` INTEGER NOT NULL, `visibility` TEXT NOT NULL, `pinned` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `needsSync` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `lastModified` INTEGER NOT NULL, `lastSyncedAt` INTEGER, PRIMARY KEY(`identifier`))",
         "fields": [
           {
             "fieldPath": "identifier",
@@ -42,16 +42,6 @@
             "columnName": "visibility",
             "affinity": "TEXT",
             "notNull": true
-          },
-          {
-            "fieldPath": "creatorId",
-            "columnName": "creatorId",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "creatorName",
-            "columnName": "creatorName",
-            "affinity": "TEXT"
           },
           {
             "fieldPath": "pinned",
@@ -119,7 +109,7 @@
       },
       {
         "tableName": "resources",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifier` TEXT NOT NULL, `remoteId` TEXT, `accountKey` TEXT NOT NULL, `date` INTEGER NOT NULL, `filename` TEXT NOT NULL, `uri` TEXT NOT NULL, `localUri` TEXT, `mimeType` TEXT, `memoId` TEXT NOT NULL, PRIMARY KEY(`identifier`), FOREIGN KEY(`memoId`) REFERENCES `memos`(`identifier`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifier` TEXT NOT NULL, `remoteId` TEXT, `accountKey` TEXT NOT NULL, `date` INTEGER NOT NULL, `filename` TEXT NOT NULL, `uri` TEXT NOT NULL, `localUri` TEXT, `mimeType` TEXT, `memoId` TEXT, PRIMARY KEY(`identifier`), FOREIGN KEY(`memoId`) REFERENCES `memos`(`identifier`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "identifier",
@@ -169,8 +159,7 @@
           {
             "fieldPath": "memoId",
             "columnName": "memoId",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -226,7 +215,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'abd2121571445a7faf995eea3e487544')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b1ee38b54aad30d83c9468dcb5ec1ff5')"
     ]
   }
 }

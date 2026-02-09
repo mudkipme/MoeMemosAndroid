@@ -59,7 +59,7 @@ fun ResourceListPage(
         ) {
             items(viewModel.resources, key = { it.identifier }) { resource ->
                 MemoImage(
-                    url = (resource.localUri ?: resource.uri).toString(),
+                    url = resource.localUri ?: resource.uri,
                     resourceIdentifier = resource.identifier,
                     modifier = Modifier
                         .fillMaxWidth()

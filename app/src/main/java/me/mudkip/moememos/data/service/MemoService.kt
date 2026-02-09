@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.mudkip.moememos.data.repository.AbstractMemoRepository
+import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.model.SyncStatus
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,6 +29,10 @@ class MemoService @Inject constructor(
 
     val syncStatus: Flow<SyncStatus> = accountService.currentAccount.flatMapLatest {
         accountService.getRepository().syncStatus
+    }
+
+    val memos: Flow<List<MemoEntity>> = accountService.currentAccount.flatMapLatest {
+        accountService.getRepository().observeMemos()
     }
 
     suspend fun sync(force: Boolean): ApiResponse<Unit> {

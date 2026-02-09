@@ -29,14 +29,14 @@ import coil3.compose.AsyncImage
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
 
 @Composable
 fun InputImage(
-    resource: Resource,
+    resource: ResourceEntity,
     inputViewModel: MemoInputViewModel
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -46,7 +46,7 @@ fun InputImage(
 
     Box {
         AsyncImage(
-            model = (resource.localUri ?: resource.uri).toString(),
+            model = resource.localUri ?: resource.uri,
             imageLoader = ImageLoader.Builder(context)
                 .components {
                     add(

@@ -1,8 +1,10 @@
 package me.mudkip.moememos.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import me.mudkip.moememos.data.model.MemoRepresentable
 import me.mudkip.moememos.data.model.MemoVisibility
 import java.time.Instant
 
@@ -16,17 +18,18 @@ import java.time.Instant
 data class MemoEntity(
     @PrimaryKey
     val identifier: String,
-    val remoteId: String? = null,
+    override val remoteId: String? = null,
     val accountKey: String,
-    val content: String,
-    val date: Instant,
-    val visibility: MemoVisibility,
-    val creatorId: String?,
-    val creatorName: String?,
-    val pinned: Boolean,
-    val archived: Boolean = false,
+    override val content: String,
+    override val date: Instant,
+    override val visibility: MemoVisibility,
+    override val pinned: Boolean,
+    override val archived: Boolean = false,
     val needsSync: Boolean = true,
     val isDeleted: Boolean = false,
     val lastModified: Instant = Instant.now(),
     val lastSyncedAt: Instant? = null
-) 
+) : MemoRepresentable {
+    @Ignore
+    override var resources: List<ResourceEntity> = emptyList()
+}

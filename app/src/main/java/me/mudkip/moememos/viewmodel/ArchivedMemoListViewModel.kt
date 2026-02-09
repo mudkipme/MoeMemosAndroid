@@ -11,7 +11,7 @@ import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class ArchivedMemoListViewModel @Inject constructor(
     private val memoService: MemoService
 ) : ViewModel() {
-    var memos = mutableStateListOf<Memo>()
+    var memos = mutableStateListOf<MemoEntity>()
         private set
 
     var errorMessage: String? by mutableStateOf(null)

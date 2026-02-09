@@ -1,6 +1,5 @@
 package me.mudkip.moememos.data.repository
 
-import androidx.core.net.toUri
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.getOrNull
 import com.skydoves.sandwich.mapSuccess
@@ -23,7 +22,6 @@ import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okio.ByteString.Companion.toByteString
 import java.time.Instant
 
@@ -35,18 +33,16 @@ class MemosV1Repository(
 ): RemoteRepository() {
     private fun convertResource(resource: MemosV1Resource): Resource {
         return Resource(
-            identifier = resource.name ?: "",
-            remoteId = resource.name ?: "",
+            remoteId = requireNotNull(resource.name),
             date = resource.createTime ?: Instant.now(),
             filename = resource.filename ?: "",
-            uri = resource.uri(account.info.host),
-            mimeType = resource.type?.toMediaTypeOrNull()
+            uri = resource.uri(account.info.host).toString(),
+            mimeType = resource.type
         )
     }
 
     private fun convertMemo(memo: MemosV1Memo): Memo {
         return Memo(
-            identifier = memo.name,
             remoteId = memo.name,
             content = memo.content ?: "",
             date = memo.displayTime ?: Instant.now(),
@@ -55,8 +51,7 @@ class MemosV1Repository(
             resources = memo.attachments?.map { convertResource(it) } ?: emptyList(),
             tags = emptyList(),
             archived = memo.state == MemosV1State.ARCHIVED,
-            updatedAt = memo.updateTime,
-            needsSync = false
+            updatedAt = memo.updateTime
         )
     }
 

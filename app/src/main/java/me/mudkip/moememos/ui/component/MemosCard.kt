@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
@@ -60,8 +60,8 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 
 @Composable
 fun MemosCard(
-    memo: Memo,
-    onEdit: (Memo) -> Unit,
+    memo: MemoEntity,
+    onEdit: (MemoEntity) -> Unit,
     previewMode: Boolean = false,
     showSyncStatus: Boolean = false
 ) {
@@ -154,7 +154,7 @@ fun MemosCard(
 
 @Composable
 fun MemosCardActionButton(
-    memo: Memo,
+    memo: MemoEntity,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -235,7 +235,7 @@ fun MemosCardActionButton(
                 text = { Text(R.string.copy_link.string) },
                 onClick = {
                     memosViewModel.host.value?.let { host ->
-                        val memoUrl = "$host/${memo.identifier}"
+                        val memoUrl = "$host/${memo.remoteId ?: memo.identifier}"
                         val sendIntent = Intent().apply {
                             action = Intent.ACTION_SEND
                             putExtra(Intent.EXTRA_TEXT, memoUrl)
