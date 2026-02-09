@@ -18,7 +18,6 @@ import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.time.Instant
@@ -29,18 +28,16 @@ class MemosV0Repository (
 ) : RemoteRepository() {
     private fun convertResource(resource: MemosV0Resource): Resource {
         return Resource(
-            identifier = resource.id.toString(),
             remoteId = resource.id.toString(),
             date = Instant.ofEpochSecond(resource.createdTs),
             filename = resource.filename,
-            uri = resource.uri(account.info.host),
-            mimeType = resource.type.toMediaTypeOrNull()
+            uri = resource.uri(account.info.host).toString(),
+            mimeType = resource.type
         )
     }
 
     private fun convertMemo(memo: MemosV0Memo): Memo {
         return Memo(
-            identifier = memo.id.toString(),
             remoteId = memo.id.toString(),
             content = memo.content,
             date = Instant.ofEpochSecond(memo.createdTs),
@@ -50,8 +47,7 @@ class MemosV0Repository (
             tags = emptyList(),
             creator = memo.creatorName?.let { User(memo.creatorId.toString(), it) },
             archived = memo.rowStatus == MemosRowStatus.ARCHIVED,
-            updatedAt = Instant.ofEpochSecond(memo.updatedTs),
-            needsSync = false
+            updatedAt = Instant.ofEpochSecond(memo.updatedTs)
         )
     }
 

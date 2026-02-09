@@ -2,23 +2,28 @@ package me.mudkip.moememos.ui.component
 
 import androidx.core.net.toUri
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.mikepenz.markdown.coil3.Coil3ImageTransformerImpl
 import com.mikepenz.markdown.compose.components.markdownComponents
+import com.mikepenz.markdown.compose.elements.MarkdownCheckBox
 import com.mikepenz.markdown.compose.elements.highlightedCodeBlock
 import com.mikepenz.markdown.compose.elements.highlightedCodeFence
 import com.mikepenz.markdown.m3.Markdown as M3Markdown
-import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.ImageData
 import com.mikepenz.markdown.model.ImageTransformer
 import com.mikepenz.markdown.model.rememberMarkdownState
-import org.intellij.markdown.ast.getTextInNode
 
 @Composable
 fun Markdown(
@@ -26,11 +31,8 @@ fun Markdown(
     modifier: Modifier = Modifier,
     textAlign: TextAlign? = null,
     imageBaseUrl: String? = null,
-    checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit = { _, _, _ -> }
+    checkboxChange: ((checked: Boolean, startOffset: Int, endOffset: Int) -> Unit)? = null
 ) {
-    val bodyTextStyle = MaterialTheme.typography.bodyLarge.let {
-        if (textAlign == null) it else it.copy(textAlign = textAlign)
-    }
     val imageTransformer = remember(imageBaseUrl) {
         object : ImageTransformer {
             @Composable
@@ -53,24 +55,31 @@ fun Markdown(
         markdownState = markdownState,
         modifier = modifier,
         imageTransformer = imageTransformer,
-        typography = markdownTypography(
-            text = bodyTextStyle,
-            paragraph = bodyTextStyle,
-            ordered = bodyTextStyle,
-            bullet = bodyTextStyle,
-            list = bodyTextStyle
-        ),
         components = markdownComponents(
             codeFence = highlightedCodeFence,
             codeBlock = highlightedCodeBlock,
-            checkbox = { model ->
-                val checkboxText = model.node.getTextInNode(model.content).toString()
-                val checked = checkboxText.length > 1 && checkboxText[1] != ' '
-                Checkbox(
-                    checked = checked,
-                    onCheckedChange = {
-                        checkboxChange(it, model.node.startOffset, model.node.endOffset)
-                    }
+            checkbox = { it ->
+                val node = it.node
+                MarkdownCheckBox(
+                    content = it.content,
+                    node = it.node,
+                    style = it.typography.text,
+                    checkedIndicator = { checked, modifier ->
+                        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                            Checkbox(
+                                checked = checked,
+                                onCheckedChange = if (checkboxChange != null) {
+                                    { checkboxChange(!checked, node.startOffset, node.endOffset) }
+                                } else {
+                                    null
+                                },
+                                modifier = modifier.semantics {
+                                    role = Role.Companion.Checkbox
+                                    stateDescription = if (checked) "Checked" else "Unchecked"
+                                },
+                            )
+                        }
+                    },
                 )
             }
         )

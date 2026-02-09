@@ -622,7 +622,7 @@ fun MemoInputPage(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(viewModel.uploadResources.toList(), { it.identifier }) { resource ->
-                        if (resource.mimeType?.type == "image") {
+                        if (resource.mimeType?.startsWith("image/") == true) {
                             InputImage(resource = resource, inputViewModel = viewModel)
                         } else {
                             Attachment(resource = resource)

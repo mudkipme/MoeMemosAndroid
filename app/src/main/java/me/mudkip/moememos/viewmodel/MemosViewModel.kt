@@ -16,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -23,16 +24,15 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.mudkip.moememos.data.local.entity.MemoEntity
+import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.DailyUsageStat
-import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
-import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.SyncStatus
 import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.getErrorMessage
 import me.mudkip.moememos.ext.string
-import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.widget.WidgetUpdater
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -45,7 +45,7 @@ class MemosViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
-    var memos = mutableStateListOf<Memo>()
+    var memos = mutableStateListOf<MemoEntity>()
         private set
     var tags = mutableStateListOf<String>()
         private set
@@ -67,38 +67,56 @@ class MemosViewModel @Inject constructor(
         snapshotFlow { memos.toList() }
             .onEach { matrix = calculateMatrix() }
             .launchIn(viewModelScope)
-    }
 
-    private suspend fun loadMemosFromRepository() {
-        memoService.repository.listMemos().suspendOnSuccess {
-            memos.clear()
-            memos.addAll(data)
-            errorMessage = null
-            WidgetUpdater.updateWidgets(appContext)
-        }.suspendOnErrorMessage {
-            errorMessage = it
+        viewModelScope.launch {
+            loadMemosSnapshot()
+
+            memoService.syncStatus
+                .map { it.syncing }
+                .distinctUntilChanged()
+                .collectLatest { syncing ->
+                    if (syncing) {
+                        return@collectLatest
+                    }
+                    memoService.memos.collectLatest { latestMemos ->
+                        applyMemos(latestMemos)
+                    }
+                }
         }
     }
 
+    private suspend fun loadMemosSnapshot() {
+        when (val response = memoService.repository.listMemos()) {
+            is ApiResponse.Success -> {
+                applyMemos(response.data)
+            }
+            else -> {
+                errorMessage = response.getErrorMessage()
+            }
+        }
+    }
+
+    private fun applyMemos(latestMemos: List<MemoEntity>) {
+        memos.clear()
+        memos.addAll(latestMemos)
+        errorMessage = null
+    }
+
     suspend fun loadMemos(syncAfterLoad: Boolean = true) = withContext(viewModelScope.coroutineContext) {
-        loadMemosFromRepository()
         if (syncAfterLoad) {
-            viewModelScope.launch {
-                val syncResult = memoService.sync(false)
-                if (syncResult is ApiResponse.Success) {
-                    loadMemosFromRepository()
-                } else {
-                    errorMessage = syncResult.getErrorMessage()
-                }
+            val syncResult = memoService.sync(false)
+            if (syncResult is ApiResponse.Success) {
+                WidgetUpdater.updateWidgets(appContext)
+            } else {
+                errorMessage = syncResult.getErrorMessage()
             }
         }
     }
 
     suspend fun refreshMemos() = withContext(viewModelScope.coroutineContext) {
-        loadMemosFromRepository()
         val syncResult = memoService.sync(true)
         if (syncResult is ApiResponse.Success) {
-            loadMemosFromRepository()
+            WidgetUpdater.updateWidgets(appContext)
         } else {
             errorMessage = syncResult.getErrorMessage()
         }
@@ -119,7 +137,7 @@ class MemosViewModel @Inject constructor(
         }
     }
 
-    suspend fun editMemo(memoIdentifier: String, content: String, resourceList: List<Resource>?, visibility: MemoVisibility): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+    suspend fun editMemo(memoIdentifier: String, content: String, resourceList: List<ResourceEntity>?, visibility: MemoVisibility): ApiResponse<MemoEntity> = withContext(viewModelScope.coroutineContext) {
         memoService.repository.updateMemo(memoIdentifier, content, resourceList, visibility).suspendOnSuccess {
             updateMemo(data)
             // Update widgets after editing a memo
@@ -147,7 +165,7 @@ class MemosViewModel @Inject constructor(
         memoService.repository.cacheResourceFile(resourceIdentifier, downloadedUri)
     }
 
-    private fun updateMemo(memo: Memo) {
+    private fun updateMemo(memo: MemoEntity) {
         val index = memos.indexOfFirst { it.identifier == memo.identifier }
         if (index != -1) {
             memos[index] = memo

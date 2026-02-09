@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.local.entity.MemoEntity
+import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.MemoVisibility
-import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.settingsDataStore
 import me.mudkip.moememos.widget.WidgetUpdater
@@ -34,9 +34,9 @@ class MemoInputViewModel @Inject constructor(
     val draft = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.settings?.draft
     }
-    var uploadResources = mutableStateListOf<Resource>()
+    var uploadResources = mutableStateListOf<ResourceEntity>()
 
-    suspend fun createMemo(content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+    suspend fun createMemo(content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<MemoEntity> = withContext(viewModelScope.coroutineContext) {
         val response = memoService.repository.createMemo(content, visibility, uploadResources, tags)
         // Update widgets when a new memo is created
         response.suspendOnSuccess {
@@ -45,7 +45,7 @@ class MemoInputViewModel @Inject constructor(
         response
     }
 
-    suspend fun editMemo(identifier: String, content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<Memo> = withContext(viewModelScope.coroutineContext) {
+    suspend fun editMemo(identifier: String, content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<MemoEntity> = withContext(viewModelScope.coroutineContext) {
         val response = memoService.repository.updateMemo(identifier, content, uploadResources, visibility, tags)
         // Update widgets when a memo is edited
         response.suspendOnSuccess {
@@ -67,7 +67,7 @@ class MemoInputViewModel @Inject constructor(
         }
     }
 
-    suspend fun upload(bitmap: Bitmap, memoIdentifier: String?): ApiResponse<Resource> = withContext(viewModelScope.coroutineContext) {
+    suspend fun upload(bitmap: Bitmap, memoIdentifier: String?): ApiResponse<ResourceEntity> = withContext(viewModelScope.coroutineContext) {
         val bos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos)
         val bytes = bos.toByteArray()

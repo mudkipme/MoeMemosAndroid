@@ -45,7 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.MainActivity
 import me.mudkip.moememos.R
-import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.service.MemoService
 import java.time.Instant
@@ -68,7 +68,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
 
     @Composable
     private fun WidgetContent(context: Context, memoService: MemoService) {
-        var memos by remember { mutableStateOf<List<Memo>>(emptyList()) }
+        var memos by remember { mutableStateOf<List<MemoEntity>>(emptyList()) }
         var isLoading by remember { mutableStateOf(true) }
         var error by remember { mutableStateOf<String?>(null) }
 
@@ -78,7 +78,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                     memoService.repository.listMemos().suspendOnSuccess {
                         // Get pinned memos first, then most recent
                         val sortedMemos = data.sortedWith(
-                            compareByDescending<Memo> { it.pinned }
+                            compareByDescending<MemoEntity> { it.pinned }
                                 .thenByDescending { it.date }
                         ).take(3)
                         memos = sortedMemos
@@ -192,7 +192,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun MemoItem(context: Context, memo: Memo, isLastMemo: Boolean = false) {
+    private fun MemoItem(context: Context, memo: MemoEntity, isLastMemo: Boolean = false) {
         // Card-like container with rounded corners
         Box(
             modifier = GlanceModifier
