@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Archive
+import androidx.compose.material.icons.outlined.CloudDone
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Link
@@ -61,7 +63,8 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 fun MemosCard(
     memo: Memo,
     onEdit: (Memo) -> Unit,
-    previewMode: Boolean = false
+    previewMode: Boolean = false,
+    showSyncStatus: Boolean = false
 ) {
     val memosViewModel = LocalMemos.current
     val scope = rememberCoroutineScope()
@@ -102,6 +105,20 @@ fun MemosCard(
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.outline
                     )
+                    if (showSyncStatus) {
+                        Icon(
+                            imageVector = if (memo.needsSync) Icons.Outlined.CloudOff else Icons.Outlined.CloudDone,
+                            contentDescription = if (memo.needsSync) R.string.memo_sync_pending.string else R.string.memo_sync_synced.string,
+                            modifier = Modifier
+                                .padding(start = 5.dp)
+                                .size(20.dp),
+                            tint = if (memo.needsSync) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            }
+                        )
+                    }
                     if (LocalUserState.current.currentUser?.defaultVisibility != memo.visibility) {
                         Icon(
                             memo.visibility.icon,

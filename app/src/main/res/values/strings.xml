@@ -75,6 +75,10 @@
     <string name="add_memos_account">Add Memos Account</string>
     <string name="local_account_description">Store memos only on this device.</string>
     <string name="memos_account_description">Connect to a Memos server to sync data.</string>
+    <string name="sync_status_sync_now">Sync now</string>
+    <string name="sync_status_unsynced">Unsynced changes</string>
+    <string name="memo_sync_pending">Memo not synced</string>
+    <string name="memo_sync_synced">Memo synced</string>
     
     <!-- Widget strings -->
     <string name="loading">Loading…</string>

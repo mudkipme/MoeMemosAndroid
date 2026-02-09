@@ -1,12 +1,9 @@
 package me.mudkip.moememos.data.service
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import com.skydoves.sandwich.getOrNull
 import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
-import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -18,13 +15,14 @@ import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.local.MoeMemosDatabase
-import me.mudkip.moememos.data.local.UserPreferences
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.UserData
 import me.mudkip.moememos.data.repository.AbstractMemoRepository
 import me.mudkip.moememos.data.repository.LocalDatabaseRepository
 import me.mudkip.moememos.data.repository.MemosV0Repository
 import me.mudkip.moememos.data.repository.MemosV1Repository
+import me.mudkip.moememos.data.repository.RemoteRepository
+import me.mudkip.moememos.data.repository.SyncingRepository
 import me.mudkip.moememos.ext.settingsDataStore
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
@@ -40,7 +38,6 @@ class AccountService @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val database: MoeMemosDatabase,
     private val fileStorage: FileStorage,
-    private val userPreferences: UserPreferences
 ) {
     private val networkJson = Json {
         ignoreUnknownKeys = true
@@ -50,18 +47,22 @@ class AccountService @Inject constructor(
 
     var httpClient: OkHttpClient = okHttpClient
         private set
+
     val accounts = context.settingsDataStore.data.map { settings ->
         settings.usersList.mapNotNull { Account.parseUserData(it) }
     }
+
     val currentAccount = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }
             ?.let { Account.parseUserData(it) }
     }
+
     private var repository: AbstractMemoRepository = LocalDatabaseRepository(
         database.memoDao(),
         fileStorage,
-        userPreferences
     )
+
+    private var remoteRepository: RemoteRepository? = null
 
     private val mutex = Mutex()
 
@@ -71,54 +72,27 @@ class AccountService @Inject constructor(
         }
     }
 
-    private fun isOnline(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork
-        val capabilities = connectivityManager.getNetworkCapabilities(network)
-        return capabilities != null && (
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-        )
-    }
-
     private fun updateCurrentAccount(account: Account?) {
-        if (!isOnline()) {
-            // Use LocalDatabaseRepository but maintain the current account
-            this.repository = LocalDatabaseRepository(
-                database.memoDao(),
-                fileStorage,
-                userPreferences,
-                account  // Pass the current account instead of null
-            )
-            httpClient = okHttpClient
-            return
-        }
-
         when (account) {
-            null -> {
-                this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage, userPreferences, null)
+            null,
+            Account.Local -> {
+                this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage)
+                this.remoteRepository = null
                 httpClient = okHttpClient
             }
             is Account.MemosV0 -> {
-                val (client, memosApi) = createMemosV0Client(
-                    account.info.host,
-                    account.info.accessToken
-                )
-                this.repository = MemosV0Repository(memosApi, account)
+                val (client, memosApi) = createMemosV0Client(account.info.host, account.info.accessToken)
+                val remote = MemosV0Repository(memosApi, account)
+                this.repository = SyncingRepository(database.memoDao(), fileStorage, remote, account)
+                this.remoteRepository = remote
                 this.httpClient = client
             }
             is Account.MemosV1 -> {
-                val (client, memosApi) = createMemosV1Client(
-                    account.info.host,
-                    account.info.accessToken
-                )
-                this.repository = MemosV1Repository(memosApi, account)
+                val (client, memosApi) = createMemosV1Client(account.info.host, account.info.accessToken)
+                val remote = MemosV1Repository(memosApi, account)
+                this.repository = SyncingRepository(database.memoDao(), fileStorage, remote, account)
+                this.remoteRepository = remote
                 this.httpClient = client
-            }
-            Account.Local -> {
-                this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage, userPreferences, account)
-                httpClient = okHttpClient
             }
         }
     }
@@ -197,7 +171,7 @@ class AccountService @Inject constructor(
     }
 
     fun createMemosV1Client(host: String, accessToken: String?): Pair<OkHttpClient, MemosV1Api> {
-        val client = httpClient.newBuilder().apply {
+        val client = okHttpClient.newBuilder().apply {
             if (accessToken != null) {
                 addInterceptor { chain ->
                     val request = chain.request().newBuilder()
@@ -235,52 +209,9 @@ class AccountService @Inject constructor(
         }
     }
 
-    suspend fun getLocalRepository(): AbstractMemoRepository {
-        val account = currentAccount.first()
-        return LocalDatabaseRepository(
-            database.memoDao(),
-            fileStorage,
-            userPreferences,
-            account
-        )
-    }
-
-    suspend fun syncMemos() {
-        val localRepository = getLocalRepository() as LocalDatabaseRepository
-        val onlineRepository = getRepository()
-        
-        // First handle local memos that need syncing
-        val localMemos = localRepository.getUnsyncedMemos()
-        val syncedIdentifiers = mutableSetOf<String>() // Track synced memo identifiers
-        
-        for (localMemo in localMemos) {
-            if (localMemo.isDeleted) {
-                onlineRepository.deleteMemo(localMemo.identifier).suspendOnSuccess {
-                    localRepository.permanentlyDeleteMemo(localMemo.identifier)
-                }
-            } else {
-                // New local memo - create online
-                onlineRepository.createMemo(
-                    content = localMemo.content,
-                    visibility = localMemo.visibility,
-                    resources = emptyList(),
-                    tags = null
-                ).suspendOnSuccess {
-                    // Delete the local memo with temporary UUID
-                    localRepository.permanentlyDeleteMemo(localMemo.identifier)
-                    // Create new local memo with server ID
-                    localRepository.storeSyncedMemos(listOf(data))
-                    syncedIdentifiers.add(data.identifier)
-                }
-            }
-        }
-        
-        // Then sync online memos to local, excluding ones we just synced
-        onlineRepository.listMemos().suspendOnSuccess { 
-            val filteredMemos = data.filterNot { memo ->
-                syncedIdentifiers.contains(memo.identifier)
-            }
-            localRepository.storeSyncedMemos(filteredMemos)
+    suspend fun getRemoteRepository(): RemoteRepository? {
+        mutex.withLock {
+            return remoteRepository
         }
     }
 }

@@ -8,11 +8,15 @@ import java.time.Instant
 
 @Entity(
     tableName = "memos",
-    indices = [Index(value = ["accountKey"])]
+    indices = [
+        Index(value = ["accountKey"]),
+        Index(value = ["accountKey", "remoteId"])
+    ]
 )
 data class MemoEntity(
     @PrimaryKey
     val identifier: String,
+    val remoteId: String? = null,
     val accountKey: String,
     val content: String,
     val date: Instant,
@@ -23,5 +27,6 @@ data class MemoEntity(
     val archived: Boolean = false,
     val needsSync: Boolean = true,
     val isDeleted: Boolean = false,
-    val lastModified: Instant = Instant.now()
+    val lastModified: Instant = Instant.now(),
+    val lastSyncedAt: Instant? = null
 ) 

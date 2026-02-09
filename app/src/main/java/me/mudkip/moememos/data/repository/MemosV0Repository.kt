@@ -26,10 +26,11 @@ import java.time.Instant
 class MemosV0Repository (
     private val memosApi: MemosV0Api,
     private val account: Account.MemosV0,
-) : AbstractMemoRepository() {
+) : RemoteRepository() {
     private fun convertResource(resource: MemosV0Resource): Resource {
         return Resource(
             identifier = resource.id.toString(),
+            remoteId = resource.id.toString(),
             date = Instant.ofEpochSecond(resource.createdTs),
             filename = resource.filename,
             uri = resource.uri(account.info.host),
@@ -40,13 +41,17 @@ class MemosV0Repository (
     private fun convertMemo(memo: MemosV0Memo): Memo {
         return Memo(
             identifier = memo.id.toString(),
+            remoteId = memo.id.toString(),
             content = memo.content,
             date = Instant.ofEpochSecond(memo.createdTs),
             pinned = memo.pinned,
             visibility = memo.visibility.toMemoVisibility(),
             resources = memo.resourceList?.map { convertResource(it) } ?: emptyList(),
             tags = emptyList(),
-            creator = memo.creatorName?.let { User(memo.creatorId.toString(), it) }
+            creator = memo.creatorName?.let { User(memo.creatorId.toString(), it) },
+            archived = memo.rowStatus == MemosRowStatus.ARCHIVED,
+            updatedAt = Instant.ofEpochSecond(memo.updatedTs),
+            needsSync = false
         )
     }
 
@@ -65,10 +70,10 @@ class MemosV0Repository (
     override suspend fun createMemo(
         content: String,
         visibility: MemoVisibility,
-        resources: List<Resource>,
+        resourceRemoteIds: List<String>,
         tags: List<String>?
     ): ApiResponse<Memo> {
-        val result = memosApi.createMemo(MemosV0CreateMemoInput(content, resourceIdList = resources.map { it.identifier.toLong() }, visibility = MemosVisibility.fromMemoVisibility(visibility))).mapSuccess {
+        val result = memosApi.createMemo(MemosV0CreateMemoInput(content, resourceIdList = resourceRemoteIds.map { it.toLong() }, visibility = MemosVisibility.fromMemoVisibility(visibility))).mapSuccess {
             convertMemo(this)
         }
         tags?.forEach { tag ->
@@ -78,45 +83,53 @@ class MemosV0Repository (
     }
 
     override suspend fun updateMemo(
-        identifier: String,
+        remoteId: String,
         content: String?,
-        resources: List<Resource>?,
+        resourceRemoteIds: List<String>?,
         visibility: MemoVisibility?,
         tags: List<String>?,
-        pinned: Boolean?
+        pinned: Boolean?,
+        archived: Boolean?
     ): ApiResponse<Memo> {
+        var touched = false
         var result: ApiResponse<Memo> = ApiResponse.exception(MoeMemosException.invalidParameter)
         pinned?.let {
-            result = memosApi.updateMemoOrganizer(identifier.toLong(), MemosV0UpdateMemoOrganizerInput(pinned = it)).mapSuccess {
+            touched = true
+            result = memosApi.updateMemoOrganizer(remoteId.toLong(), MemosV0UpdateMemoOrganizerInput(pinned = it)).mapSuccess {
                 convertMemo(this)
             }
             if (result !is ApiResponse.Success<Memo>) {
                 return result
             }
         }
-        content?.let {
+        if (content != null || visibility != null || resourceRemoteIds != null || archived != null) {
+            touched = true
             val memosVisibility = visibility?.let { v -> MemosVisibility.fromMemoVisibility(v) }
-            val resourceIdList = resources?.map { resource -> resource.identifier.toLong() }
-            result = memosApi.patchMemo(identifier.toLong(), MemosV0PatchMemoInput(id = identifier.toLong(), content = it, visibility = memosVisibility, resourceIdList = resourceIdList)).mapSuccess {
+            val resourceIdList = resourceRemoteIds?.map { it.toLong() }
+            val rowStatus = archived?.let { isArchived ->
+                if (isArchived) MemosRowStatus.ARCHIVED else MemosRowStatus.NORMAL
+            }
+            result = memosApi.patchMemo(
+                remoteId.toLong(),
+                MemosV0PatchMemoInput(
+                    id = remoteId.toLong(),
+                    content = content,
+                    visibility = memosVisibility,
+                    resourceIdList = resourceIdList,
+                    rowStatus = rowStatus
+                )
+            ).mapSuccess {
                 convertMemo(this)
             }
         }
         tags?.forEach { tag ->
             memosApi.updateTag(MemosV0UpdateTagInput(tag))
         }
-        return result
+        return if (touched) result else ApiResponse.exception(MoeMemosException.invalidParameter)
     }
 
-    override suspend fun deleteMemo(identifier: String): ApiResponse<Unit> {
-        return memosApi.deleteMemo(identifier.toLong())
-    }
-
-    override suspend fun archiveMemo(identifier: String): ApiResponse<Unit> {
-        return memosApi.patchMemo(identifier.toLong(), MemosV0PatchMemoInput(id = identifier.toLong(), rowStatus = MemosRowStatus.ARCHIVED)).mapSuccess {}
-    }
-
-    override suspend fun restoreMemo(identifier: String): ApiResponse<Unit> {
-        return memosApi.patchMemo(identifier.toLong(), MemosV0PatchMemoInput(id = identifier.toLong(), rowStatus = MemosRowStatus.NORMAL)).mapSuccess {}
+    override suspend fun deleteMemo(remoteId: String): ApiResponse<Unit> {
+        return memosApi.deleteMemo(remoteId.toLong())
     }
 
     override suspend fun listTags(): ApiResponse<List<String>> {
@@ -133,7 +146,7 @@ class MemosV0Repository (
         filename: String,
         type: MediaType?,
         content: ByteArray,
-        memoIdentifier: String?
+        memoRemoteId: String?
     ): ApiResponse<Resource> {
         val file = MultipartBody.Part.createFormData("file", filename, content.toRequestBody(type))
         return memosApi.uploadResource(file).mapSuccess {
@@ -141,8 +154,8 @@ class MemosV0Repository (
         }
     }
 
-    override suspend fun deleteResource(identifier: String): ApiResponse<Unit> {
-        return memosApi.deleteResource(identifier.toLong())
+    override suspend fun deleteResource(remoteId: String): ApiResponse<Unit> {
+        return memosApi.deleteResource(remoteId.toLong())
     }
 
     override suspend fun listWorkspaceMemos(

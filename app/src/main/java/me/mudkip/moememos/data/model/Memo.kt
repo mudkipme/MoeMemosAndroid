@@ -10,11 +10,15 @@ enum class MemoVisibility {
 
 data class Memo(
     val identifier: String,
+    val remoteId: String? = null,
     val content: String,
     val date: Instant,
     val pinned: Boolean,
     val visibility: MemoVisibility,
     val resources: List<Resource>,
     val tags: List<String>,
-    val creator: User? = null
+    val creator: User? = null,
+    val archived: Boolean = false,
+    val updatedAt: Instant? = null,
+    val needsSync: Boolean = false
 )

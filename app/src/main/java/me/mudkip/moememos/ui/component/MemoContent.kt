@@ -1,6 +1,6 @@
 package me.mudkip.moememos.ui.component
 
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,9 +62,9 @@ fun MemoContent(
             Markdown(
                 memo.content,
                 imageContent = { url ->
-                    var uri = Uri.parse(url)
+                    var uri = url.toUri()
                     if (uri.scheme == null) {
-                        uri = Uri.parse(LocalUserState.current.host).buildUpon()
+                        uri = LocalUserState.current.host.toUri().buildUpon()
                             .path(url).build()
                     }
 
@@ -82,9 +82,9 @@ fun MemoContent(
             Markdown(
                 text,
                 imageContent = { url ->
-                    var uri = Uri.parse(url)
+                    var uri = url.toUri()
                     if (uri.scheme == null) {
-                        uri = Uri.parse(LocalUserState.current.host).buildUpon()
+                        uri = LocalUserState.current.host.toUri().buildUpon()
                             .path(url).build()
                     }
 
@@ -207,12 +207,12 @@ fun MemoResourceContent(memo: Memo) {
                     if (index < imageList.size) {
                         Box(modifier = Modifier.fillMaxWidth(1f / (cols - colIndex))) {
                             MemoImage(
-                                url = imageList[index].uri
-                                    .toString(),
+                                url = (imageList[index].localUri ?: imageList[index].uri).toString(),
                                 modifier = Modifier
                                     .aspectRatio(1f)
                                     .padding(2.dp)
-                                    .clip(RoundedCornerShape(4.dp))
+                                    .clip(RoundedCornerShape(4.dp)),
+                                resourceIdentifier = imageList[index].identifier
                             )
                         }
                     } else {

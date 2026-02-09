@@ -1,16 +1,27 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 5,
-    "identityHash": "f4ef372ab72d1727d02ca4507e17ff07",
+    "version": 1,
+    "identityHash": "abd2121571445a7faf995eea3e487544",
     "entities": [
       {
         "tableName": "memos",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifier` TEXT NOT NULL, `content` TEXT NOT NULL, `date` INTEGER NOT NULL, `visibility` TEXT NOT NULL, `creatorId` TEXT, `creatorName` TEXT, `pinned` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `needsSync` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `lastModified` INTEGER NOT NULL, PRIMARY KEY(`identifier`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifier` TEXT NOT NULL, `remoteId` TEXT, `accountKey` TEXT NOT NULL, `content` TEXT NOT NULL, `date` INTEGER NOT NULL, `visibility` TEXT NOT NULL, `creatorId` TEXT, `creatorName` TEXT, `pinned` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `needsSync` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `lastModified` INTEGER NOT NULL, `lastSyncedAt` INTEGER, PRIMARY KEY(`identifier`))",
         "fields": [
           {
             "fieldPath": "identifier",
             "columnName": "identifier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remoteId",
+            "columnName": "remoteId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "accountKey",
+            "columnName": "accountKey",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -71,6 +82,11 @@
             "columnName": "lastModified",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "lastSyncedAt",
+            "columnName": "lastSyncedAt",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -78,15 +94,47 @@
           "columnNames": [
             "identifier"
           ]
-        }
+        },
+        "indices": [
+          {
+            "name": "index_memos_accountKey",
+            "unique": false,
+            "columnNames": [
+              "accountKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_memos_accountKey` ON `${TABLE_NAME}` (`accountKey`)"
+          },
+          {
+            "name": "index_memos_accountKey_remoteId",
+            "unique": false,
+            "columnNames": [
+              "accountKey",
+              "remoteId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_memos_accountKey_remoteId` ON `${TABLE_NAME}` (`accountKey`, `remoteId`)"
+          }
+        ]
       },
       {
         "tableName": "resources",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifier` TEXT NOT NULL, `date` INTEGER NOT NULL, `filename` TEXT NOT NULL, `uri` TEXT NOT NULL, `mimeType` TEXT, `memoId` TEXT NOT NULL, PRIMARY KEY(`identifier`), FOREIGN KEY(`memoId`) REFERENCES `memos`(`identifier`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifier` TEXT NOT NULL, `remoteId` TEXT, `accountKey` TEXT NOT NULL, `date` INTEGER NOT NULL, `filename` TEXT NOT NULL, `uri` TEXT NOT NULL, `localUri` TEXT, `mimeType` TEXT, `memoId` TEXT NOT NULL, PRIMARY KEY(`identifier`), FOREIGN KEY(`memoId`) REFERENCES `memos`(`identifier`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "identifier",
             "columnName": "identifier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remoteId",
+            "columnName": "remoteId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "accountKey",
+            "columnName": "accountKey",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -107,6 +155,11 @@
             "columnName": "uri",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "localUri",
+            "columnName": "localUri",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "mimeType",
@@ -135,6 +188,25 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_resources_memoId` ON `${TABLE_NAME}` (`memoId`)"
+          },
+          {
+            "name": "index_resources_accountKey",
+            "unique": false,
+            "columnNames": [
+              "accountKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_resources_accountKey` ON `${TABLE_NAME}` (`accountKey`)"
+          },
+          {
+            "name": "index_resources_accountKey_remoteId",
+            "unique": false,
+            "columnNames": [
+              "accountKey",
+              "remoteId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_resources_accountKey_remoteId` ON `${TABLE_NAME}` (`accountKey`, `remoteId`)"
           }
         ],
         "foreignKeys": [
@@ -154,7 +226,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f4ef372ab72d1727d02ca4507e17ff07')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'abd2121571445a7faf995eea3e487544')"
     ]
   }
 }

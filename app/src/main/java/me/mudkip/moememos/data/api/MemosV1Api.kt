@@ -32,9 +32,6 @@ interface MemosV1Api {
     @POST("api/v1/memos")
     suspend fun createMemo(@Body body: MemosV1CreateMemoRequest): ApiResponse<MemosV1Memo>
 
-    @PATCH("api/v1/memos/{id}/attachments")
-    suspend fun setMemoResources(@Path("id") memoId: String, @Body body: MemosV1SetMemoResourcesRequest): ApiResponse<Unit>
-
     @PATCH("api/v1/memos/{id}")
     suspend fun updateMemo(@Path("id") memoId: String, @Body body: UpdateMemoRequest): ApiResponse<MemosV1Memo>
 
@@ -84,19 +81,14 @@ data class GetCurrentUserResponse(
 @Serializable
 data class MemosV1CreateMemoRequest(
     val content: String,
-    val visibility: MemosVisibility?
+    val visibility: MemosVisibility?,
+    val attachments: List<MemosV1Resource>?
 )
 
 @Serializable
 data class ListMemosResponse(
     val memos: List<MemosV1Memo>,
     val nextPageToken: String?
-)
-
-@Serializable
-data class MemosV1SetMemoResourcesRequest(
-    val name: String,
-    val attachments: List<MemosV1Resource>
 )
 
 @Serializable
@@ -107,6 +99,7 @@ data class UpdateMemoRequest(
     val pinned: Boolean? = null,
     @Serializable(with = Rfc3339InstantSerializer::class)
     val updateTime: Instant? = null,
+    val attachments: List<MemosV1Resource>? = null
 )
 
 @Serializable
