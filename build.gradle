@@ -35,11 +35,13 @@ buildscript {
         // https://developer.android.com/jetpack/androidx/releases/work
         work_version = "2.11.1"
         // https://github.com/coil-kt/coil/releases
-        coil_version = "2.7.0"
+        coil_version = "3.3.0"
         // https://github.com/google/dagger/releases
         hilt_version = "2.59.1"
         // https://github.com/JetBrains/markdown/releases
         markdown_version = "0.7.3"
+        // https://github.com/mikepenz/multiplatform-markdown-renderer/releases
+        markdown_renderer_version = "0.39.2"
         // https://github.com/swiftzer/semver/releases
         semver_version = "2.1.0"
     }

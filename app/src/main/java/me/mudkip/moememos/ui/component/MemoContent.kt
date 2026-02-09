@@ -1,13 +1,11 @@
 package me.mudkip.moememos.ui.component
 
-import androidx.core.net.toUri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,8 +31,11 @@ import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.viewmodel.LocalUserState
+import org.intellij.markdown.IElementType
 import org.intellij.markdown.MarkdownElementTypes
+import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
 import kotlin.math.ceil
@@ -61,41 +62,13 @@ fun MemoContent(
         if (viewContentExpand) {
             Markdown(
                 memo.content,
-                imageContent = { url ->
-                    var uri = url.toUri()
-                    if (uri.scheme == null) {
-                        uri = LocalUserState.current.host.toUri().buildUpon()
-                            .path(url).build()
-                    }
-
-                    MemoImage(
-                        url = uri.toString(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                },
+                imageBaseUrl = LocalUserState.current.host,
                 checkboxChange = checkboxChange
             )
         } else {
             Markdown(
                 text,
-                imageContent = { url ->
-                    var uri = url.toUri()
-                    if (uri.scheme == null) {
-                        uri = LocalUserState.current.host.toUri().buildUpon()
-                            .path(url).build()
-                    }
-
-                    MemoImage(
-                        url = uri.toString(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                },
+                imageBaseUrl = LocalUserState.current.host,
                 checkboxChange = checkboxChange
             )
         }
@@ -128,7 +101,14 @@ fun MemoContent(
     }
 }
 
-fun extractPreviewContent(markdownText: String, maxLength: Int = 140): Pair<String, Boolean> {
+private const val PREVIEW_UNBREAKABLE_COST = 100
+private enum class PreviewAppendKind {
+    NONE,
+    TEXT,
+    UNBREAKABLE
+}
+
+fun extractPreviewContent(markdownText: String, maxLength: Int = 500): Pair<String, Boolean> {
     val node = MarkdownParser(GFMFlavourDescriptor()).parse(
         MarkdownElementTypes.MARKDOWN_FILE,
         markdownText,
@@ -136,61 +116,140 @@ fun extractPreviewContent(markdownText: String, maxLength: Int = 140): Pair<Stri
     )
 
     val result = StringBuilder()
-    var firstImage: String? = null
-
-    fun extractNodeContent(child: ASTNode, remainingLength: Int): Int {
-        when (child.type) {
-            MarkdownElementTypes.PARAGRAPH,
-            MarkdownElementTypes.EMPH,
-            MarkdownElementTypes.STRONG,
-            MarkdownElementTypes.LIST_ITEM,
-            MarkdownElementTypes.ORDERED_LIST,
-            MarkdownElementTypes.UNORDERED_LIST -> {
-                var innerRemainingLength = remainingLength
-                for (grandChild in child.children) {
-                    innerRemainingLength = extractNodeContent(grandChild, innerRemainingLength)
-                    if (innerRemainingLength <= 0 && firstImage != null) break
-                }
-                return innerRemainingLength
-            }
-
-            MarkdownElementTypes.INLINE_LINK,
-            MarkdownElementTypes.FULL_REFERENCE_LINK,
-            MarkdownElementTypes.SHORT_REFERENCE_LINK -> {
-                val content = markdownText.substring(child.startOffset, child.endOffset)
-                result.append(content)
-                return if (remainingLength - content.length < 0) 0 else
-                    remainingLength - content.length
-            }
-
-            MarkdownElementTypes.IMAGE -> {
-                if (firstImage == null) {
-                    firstImage = markdownText.substring(child.startOffset, child.endOffset)
-                }
-                return remainingLength
-            }
-
-            else -> {
-                val content = markdownText.substring(child.startOffset, child.endOffset)
-                result.append(content.take(remainingLength))
-                return remainingLength - content.take(remainingLength).length
-            }
-        }
-    }
-
     var remainingLength = maxLength
-    for (child in node.children) {
-        remainingLength = extractNodeContent(child, remainingLength)
-        if (remainingLength <= 0 && firstImage != null) break
+    var truncated = false
+    var lastAppendKind = PreviewAppendKind.NONE
+
+    fun appendNodeText(child: ASTNode): Boolean {
+        if (remainingLength <= 0) {
+            truncated = true
+            return false
+        }
+        val content = markdownText.substring(child.startOffset, child.endOffset)
+        if (content.isEmpty()) {
+            return true
+        }
+        if (content.length <= remainingLength) {
+            result.append(content)
+            remainingLength -= content.length
+            lastAppendKind = PreviewAppendKind.TEXT
+            return true
+        }
+        result.append(content.take(remainingLength))
+        remainingLength = 0
+        truncated = true
+        lastAppendKind = PreviewAppendKind.TEXT
+        return false
     }
 
-    firstImage?.let { image ->
-        if (!result.contains(image)) {
-            result.append(image)
+    fun appendUnbreakableNode(child: ASTNode): Boolean {
+        if (remainingLength < PREVIEW_UNBREAKABLE_COST) {
+            truncated = true
+            return false
+        }
+        result.append(markdownText.substring(child.startOffset, child.endOffset))
+        remainingLength -= PREVIEW_UNBREAKABLE_COST
+        lastAppendKind = PreviewAppendKind.UNBREAKABLE
+        return true
+    }
+
+    lateinit var extractNodeContent: (ASTNode) -> Boolean
+    lateinit var extractBlockContent: (ASTNode) -> Boolean
+
+    extractNodeContent = { child ->
+        if (isUnbreakablePreviewNode(child)) {
+            appendUnbreakableNode(child)
+        } else if (child.children.isEmpty()) {
+            appendNodeText(child)
+        } else {
+            var allSuccess = true
+            for (grandChild in child.children) {
+                val success = if (isBreakablePreviewBlock(grandChild.type)) {
+                    extractBlockContent(grandChild)
+                } else {
+                    extractNodeContent(grandChild)
+                }
+                if (!success) {
+                    allSuccess = false
+                    break
+                }
+            }
+            allSuccess
         }
     }
 
-    return Pair(result.toString(), remainingLength <= 0)
+    extractBlockContent = { child ->
+        var allSuccess = true
+        val isParagraph = child.type == MarkdownElementTypes.PARAGRAPH
+        for (grandChild in child.children) {
+            val success = if (isParagraph) {
+                extractNodeContent(grandChild)
+            } else if (isBreakablePreviewBlock(grandChild.type)) {
+                extractBlockContent(grandChild)
+            } else if (isPreviewWhitespaceToken(grandChild) || grandChild.children.isEmpty()) {
+                appendNodeText(grandChild)
+            } else {
+                appendUnbreakableNode(grandChild)
+            }
+            if (!success) {
+                allSuccess = false
+                break
+            }
+        }
+        allSuccess
+    }
+
+    for (child in node.children) {
+        val success = if (isBreakablePreviewBlock(child.type)) {
+            extractBlockContent(child)
+        } else if (isPreviewWhitespaceToken(child)) {
+            appendNodeText(child)
+        } else {
+            appendUnbreakableNode(child)
+        }
+        if (!success) {
+            break
+        }
+    }
+
+    if (truncated && lastAppendKind == PreviewAppendKind.TEXT) {
+        val preview = result.toString().trimEnd()
+        val withEllipsis = if (preview.endsWith("…")) preview else "$preview…"
+        return Pair(withEllipsis, true)
+    }
+
+    return Pair(result.toString(), truncated)
+}
+
+private fun isBreakablePreviewBlock(type: IElementType): Boolean {
+    return type == MarkdownElementTypes.MARKDOWN_FILE ||
+        type == MarkdownElementTypes.PARAGRAPH ||
+        type == MarkdownElementTypes.LIST_ITEM ||
+        type == MarkdownElementTypes.BLOCK_QUOTE ||
+        type == MarkdownElementTypes.ORDERED_LIST ||
+        type == MarkdownElementTypes.UNORDERED_LIST
+}
+
+private fun isUnbreakablePreviewNode(node: ASTNode): Boolean {
+    return node.type == MarkdownElementTypes.IMAGE ||
+        node.type == MarkdownElementTypes.CODE_BLOCK ||
+        node.type == MarkdownElementTypes.CODE_FENCE ||
+        node.type == GFMElementTypes.TABLE ||
+        node.type == MarkdownElementTypes.ATX_1 ||
+        node.type == MarkdownElementTypes.ATX_2 ||
+        node.type == MarkdownElementTypes.ATX_3 ||
+        node.type == MarkdownElementTypes.ATX_4 ||
+        node.type == MarkdownElementTypes.ATX_5 ||
+        node.type == MarkdownElementTypes.ATX_6 ||
+        node.type == MarkdownElementTypes.SETEXT_1 ||
+        node.type == MarkdownElementTypes.SETEXT_2 ||
+        node.type == MarkdownTokenTypes.HORIZONTAL_RULE ||
+        node.type == MarkdownElementTypes.LINK_DEFINITION ||
+        node.type.toString().contains("HTML")
+}
+
+private fun isPreviewWhitespaceToken(node: ASTNode): Boolean {
+    return node.type == MarkdownTokenTypes.EOL || node.type == MarkdownTokenTypes.WHITE_SPACE
 }
 
 @Composable
