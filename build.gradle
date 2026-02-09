@@ -40,6 +40,8 @@ buildscript {
         hilt_version = "2.59.1"
         // https://github.com/JetBrains/markdown/releases
         markdown_version = "0.7.3"
+        // https://github.com/mikepenz/multiplatform-markdown-renderer/releases
+        markdown_renderer_version = "0.39.2"
         // https://github.com/swiftzer/semver/releases
         semver_version = "2.1.0"
     }

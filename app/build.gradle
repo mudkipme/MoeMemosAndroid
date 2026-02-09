@@ -72,6 +72,9 @@ dependencies {
     implementation "io.coil-kt.coil3:coil-compose:$coil_version"
     implementation "io.coil-kt.coil3:coil-network-okhttp:$coil_version"
     implementation "org.jetbrains:markdown:$markdown_version"
+    implementation "com.mikepenz:multiplatform-markdown-renderer-m3:$markdown_renderer_version"
+    implementation "com.mikepenz:multiplatform-markdown-renderer-code:$markdown_renderer_version"
+    implementation "com.mikepenz:multiplatform-markdown-renderer-coil3:$markdown_renderer_version"
 
     implementation "com.google.dagger:hilt-android:$hilt_version"
     ksp "com.google.dagger:hilt-compiler:$hilt_version"

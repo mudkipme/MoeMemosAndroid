@@ -1,13 +1,11 @@
 package me.mudkip.moememos.ui.component
 
-import androidx.core.net.toUri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -61,41 +59,13 @@ fun MemoContent(
         if (viewContentExpand) {
             Markdown(
                 memo.content,
-                imageContent = { url ->
-                    var uri = url.toUri()
-                    if (uri.scheme == null) {
-                        uri = LocalUserState.current.host.toUri().buildUpon()
-                            .path(url).build()
-                    }
-
-                    MemoImage(
-                        url = uri.toString(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                },
+                imageBaseUrl = LocalUserState.current.host,
                 checkboxChange = checkboxChange
             )
         } else {
             Markdown(
                 text,
-                imageContent = { url ->
-                    var uri = url.toUri()
-                    if (uri.scheme == null) {
-                        uri = LocalUserState.current.host.toUri().buildUpon()
-                            .path(url).build()
-                    }
-
-                    MemoImage(
-                        url = uri.toString(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                },
+                imageBaseUrl = LocalUserState.current.host,
                 checkboxChange = checkboxChange
             )
         }
