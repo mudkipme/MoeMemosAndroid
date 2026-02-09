@@ -28,6 +28,7 @@ import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.SyncStatus
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.ext.getErrorMessage
+import me.mudkip.moememos.util.extractCustomTags
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.File
@@ -226,7 +227,7 @@ class SyncingRepository(
         return try {
             val tags = memoDao.getAllMemos(accountKey)
                 .asSequence()
-                .flatMap { TAG_REGEX.findAll(it.content).map { match -> match.groupValues[1] } }
+                .flatMap { extractCustomTags(it.content).asSequence() }
                 .filter { it.isNotBlank() }
                 .toSet()
                 .sorted()
@@ -872,9 +873,6 @@ class SyncingRepository(
         }
     }
 
-    companion object {
-        private val TAG_REGEX = Regex("(?:^|\\s)#([\\w/-]+)")
-    }
 }
 
 private fun MemoWithResources.toMemoEntity(): MemoEntity {
