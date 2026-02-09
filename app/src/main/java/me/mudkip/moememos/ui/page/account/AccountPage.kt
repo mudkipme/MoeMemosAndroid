@@ -27,9 +27,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.skydoves.sandwich.onSuccess
 import kotlinx.coroutines.flow.first
@@ -103,10 +103,10 @@ fun AccountPage(
                                 }
                             }
                             if (memosV1User != null) {
-                                Text(memosV1User.displayName,
+                                Text(memosV1User.displayName ?: "",
                                     style = MaterialTheme.typography.headlineSmall
                                 )
-                                if (memosV1User.displayName != memosV1User.email && memosV1User.email.isNotEmpty()) {
+                                if (memosV1User.displayName != memosV1User.email && !memosV1User.email.isNullOrEmpty()) {
                                     Text(memosV1User.email,
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.outline
@@ -178,7 +178,7 @@ fun AccountPage(
                         coroutineScope.launch {
                             userStateViewModel.logout(selectedAccountKey)
                             if (userStateViewModel.currentAccount.first() == null) {
-                                navController.navigate(RouteName.LOGIN) {
+                                navController.navigate(RouteName.ADD_ACCOUNT) {
                                     popUpTo(navController.graph.startDestinationId) {
                                         inclusive = true
                                     }

@@ -4,50 +4,68 @@ import android.content.Context
 import com.skydoves.sandwich.getOrNull
 import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.EnumJsonAdapter
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.json.Json
 import me.mudkip.moememos.data.api.MemosV0Api
-import me.mudkip.moememos.data.api.MemosV0UserSettingKey
 import me.mudkip.moememos.data.api.MemosV1Api
+import me.mudkip.moememos.data.local.FileStorage
+import me.mudkip.moememos.data.local.MoeMemosDatabase
 import me.mudkip.moememos.data.model.Account
+import me.mudkip.moememos.data.model.LocalAccount
+import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.model.UserData
 import me.mudkip.moememos.data.repository.AbstractMemoRepository
-import me.mudkip.moememos.data.repository.LocalRepository
+import me.mudkip.moememos.data.repository.LocalDatabaseRepository
 import me.mudkip.moememos.data.repository.MemosV0Repository
 import me.mudkip.moememos.data.repository.MemosV1Repository
+import me.mudkip.moememos.data.repository.RemoteRepository
+import me.mudkip.moememos.data.repository.SyncingRepository
 import me.mudkip.moememos.ext.settingsDataStore
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.Date
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AccountService @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
-    private val okHttpClient: OkHttpClient
+    @param:ApplicationContext private val context: Context,
+    private val okHttpClient: OkHttpClient,
+    private val database: MoeMemosDatabase,
+    private val fileStorage: FileStorage,
 ) {
+    private val networkJson = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+        explicitNulls = false
+    }
+
     var httpClient: OkHttpClient = okHttpClient
         private set
+
     val accounts = context.settingsDataStore.data.map { settings ->
         settings.usersList.mapNotNull { Account.parseUserData(it) }
     }
+
     val currentAccount = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }
             ?.let { Account.parseUserData(it) }
     }
-    private var repository: AbstractMemoRepository = LocalRepository()
+
+    private var repository: AbstractMemoRepository = LocalDatabaseRepository(
+        database.memoDao(),
+        fileStorage,
+        Account.Local(LocalAccount())
+    )
+
+    private var remoteRepository: RemoteRepository? = null
 
     private val mutex = Mutex()
 
@@ -59,29 +77,43 @@ class AccountService @Inject constructor(
 
     private fun updateCurrentAccount(account: Account?) {
         when (account) {
-            is Account.MemosV0 -> {
-                val memosAccount = account.info
-                val (client, memosApi) = createMemosV0Client(
-                    memosAccount.host,
-                    memosAccount.accessToken
-                )
-                this.repository = MemosV0Repository(memosApi, account)
-                this.httpClient = client
-            }
-
-            is Account.MemosV1 -> {
-                val memosAccount = account.info
-                val (client, memosApi) = createMemosV1Client(
-                    memosAccount.host,
-                    memosAccount.accessToken
-                )
-                this.repository = MemosV1Repository(memosApi, account)
-                this.httpClient = client
-            }
-
-            else -> {
-                this.repository = LocalRepository()
+            null -> {
+                this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage, Account.Local(LocalAccount()))
+                this.remoteRepository = null
                 httpClient = okHttpClient
+            }
+            is Account.Local -> {
+                this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage, account)
+                this.remoteRepository = null
+                httpClient = okHttpClient
+            }
+            is Account.MemosV0 -> {
+                val (client, memosApi) = createMemosV0Client(account.info.host, account.info.accessToken)
+                val remote = MemosV0Repository(memosApi, account)
+                this.repository = SyncingRepository(
+                    database.memoDao(),
+                    fileStorage,
+                    remote,
+                    account
+                ) { user ->
+                    updateAccountFromSyncedUser(account.accountKey(), user)
+                }
+                this.remoteRepository = remote
+                this.httpClient = client
+            }
+            is Account.MemosV1 -> {
+                val (client, memosApi) = createMemosV1Client(account.info.host, account.info.accessToken)
+                val remote = MemosV1Repository(memosApi, account)
+                this.repository = SyncingRepository(
+                    database.memoDao(),
+                    fileStorage,
+                    remote,
+                    account
+                ) { user ->
+                    updateAccountFromSyncedUser(account.accountKey(), user)
+                }
+                this.remoteRepository = remote
+                this.httpClient = client
             }
         }
     }
@@ -90,9 +122,7 @@ class AccountService @Inject constructor(
         mutex.withLock {
             val account = accounts.first().firstOrNull { it.accountKey() == accountKey }
             context.settingsDataStore.updateData { settings ->
-                settings.toBuilder().apply {
-                    this.currentUser = accountKey
-                }.build()
+                settings.copy(currentUser = accountKey)
             }
             updateCurrentAccount(account)
         }
@@ -101,13 +131,16 @@ class AccountService @Inject constructor(
     suspend fun addAccount(account: Account) {
         mutex.withLock {
             context.settingsDataStore.updateData { settings ->
-                var builder = settings.toBuilder()
-                val index =
-                    settings.usersList.indexOfFirst { it.accountKey == account.accountKey() }
+                val users = settings.usersList.toMutableList()
+                val index = users.indexOfFirst { it.accountKey == account.accountKey() }
                 if (index != -1) {
-                    builder = builder.removeUsers(index)
+                    users.removeAt(index)
                 }
-                builder.addUsers(account.toUserData()).setCurrentUser(account.accountKey()).build()
+                users.add(account.toUserData())
+                settings.copy(
+                    usersList = users,
+                    currentUser = account.accountKey(),
+                )
             }
             updateCurrentAccount(account)
         }
@@ -116,18 +149,38 @@ class AccountService @Inject constructor(
     suspend fun removeAccount(accountKey: String) {
         mutex.withLock {
             context.settingsDataStore.updateData { settings ->
-                var builder = settings.toBuilder()
-                val index = settings.usersList.indexOfFirst { it.accountKey == accountKey }
+                val users = settings.usersList.toMutableList()
+                val index = users.indexOfFirst { it.accountKey == accountKey }
                 if (index != -1) {
-                    builder = builder.removeUsers(index)
+                    users.removeAt(index)
                 }
-                if (settings.currentUser == accountKey) {
-                    builder =
-                        builder.setCurrentUser(accounts.first().firstOrNull()?.accountKey() ?: "")
+                val newCurrentUser = if (settings.currentUser == accountKey) {
+                    users.firstOrNull()?.accountKey ?: ""
+                } else {
+                    settings.currentUser
                 }
-                builder.build()
+                settings.copy(
+                    usersList = users,
+                    currentUser = newCurrentUser,
+                )
             }
             updateCurrentAccount(currentAccount.first())
+        }
+    }
+
+    private suspend fun updateAccountFromSyncedUser(accountKey: String, user: User) {
+        mutex.withLock {
+            context.settingsDataStore.updateData { settings ->
+                val index = settings.usersList.indexOfFirst { it.accountKey == accountKey }
+                if (index == -1) {
+                    return@updateData settings
+                }
+                val current = Account.parseUserData(settings.usersList[index]) ?: return@updateData settings
+                val updated = current.withUser(user)
+                val users = settings.usersList.toMutableList()
+                users[index] = updated.toUserData()
+                settings.copy(usersList = users)
+            }
         }
     }
 
@@ -148,48 +201,28 @@ class AccountService @Inject constructor(
         return client to Retrofit.Builder()
             .baseUrl(host)
             .client(client)
-            .addConverterFactory(
-                MoshiConverterFactory.create(
-                    Moshi.Builder()
-                        .add(
-                            MemosV0UserSettingKey::class.java,
-                            EnumJsonAdapter.create(MemosV0UserSettingKey::class.java)
-                                .withUnknownFallback(MemosV0UserSettingKey.UNKNOWN)
-                        )
-                        .add(KotlinJsonAdapterFactory())
-                        .build()
-                )
-            )
+            .addConverterFactory(networkJson.asConverterFactory("application/json".toMediaType()))
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(MemosV0Api::class.java)
     }
 
     fun createMemosV1Client(host: String, accessToken: String?): Pair<OkHttpClient, MemosV1Api> {
-        var client = okHttpClient
-
-        if (!accessToken.isNullOrEmpty()) {
-            client = client.newBuilder().addNetworkInterceptor { chain ->
-                var request = chain.request()
-                if (request.url.host == host.toHttpUrlOrNull()?.host) {
-                    request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken")
+        val client = okHttpClient.newBuilder().apply {
+            if (accessToken != null) {
+                addInterceptor { chain ->
+                    val request = chain.request().newBuilder()
+                        .addHeader("Authorization", "Bearer $accessToken")
                         .build()
+                    chain.proceed(request)
                 }
-                chain.proceed(request)
-            }.build()
-        }
+            }
+        }.build()
 
         return client to Retrofit.Builder()
             .baseUrl(host)
             .client(client)
-            .addConverterFactory(
-                MoshiConverterFactory.create(
-                    Moshi.Builder()
-                        .add(KotlinJsonAdapterFactory())
-                        .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
-                        .build()
-                )
-            )
+            .addConverterFactory(networkJson.asConverterFactory("application/json".toMediaType()))
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(MemosV1Api::class.java)
@@ -210,6 +243,12 @@ class AccountService @Inject constructor(
     suspend fun getRepository(): AbstractMemoRepository {
         mutex.withLock {
             return repository
+        }
+    }
+
+    suspend fun getRemoteRepository(): RemoteRepository? {
+        mutex.withLock {
+            return remoteRepository
         }
     }
 }

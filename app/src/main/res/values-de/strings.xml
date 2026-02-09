@@ -8,7 +8,7 @@
     <string name="new_memo">Neue Notiz</string>
     <string name="compose">Verfassen</string>
     <string name="remove">Entfernen</string>
-    <string name="resources">Resourcen</string>
+    <string name="resources">Ressourcen</string>
     <string name="archived">Archiviert</string>
     <string name="settings">Einstellungen</string>
     <string name="tags">Hashtags</string>
@@ -64,4 +64,12 @@
     <string name="accounts">Konten</string>
     <string name="account_detail">Kontodetail</string>
     <string name="switch_account">Konto wechseln</string>
+    <string name="local_account">Lokales Konto</string>
+    <string name="add_local_account">Lokales Konto hinzufügen</string>
+    <string name="add_memos_account">Memos-Konto hinzufügen</string>
+    <string name="local_account_description">Memos nur auf diesem Gerät speichern.</string>
+    <string name="memos_account_description">Mit einem Memos-Server verbinden, um Daten zu synchronisieren.</string>
+    <string name="loading">Wird geladen…</string>
+    <string name="error_unknown">Unbekannter Fehler</string>
+    <string name="no_memos">Keine Memos gefunden</string>
 </resources>

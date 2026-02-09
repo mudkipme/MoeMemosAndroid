@@ -12,6 +12,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,10 +21,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
+import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.ui.component.MemosCard
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
+import me.mudkip.moememos.viewmodel.LocalUserState
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +39,8 @@ fun MemosList(
 ) {
     val navController = LocalRootNavController.current
     val viewModel = LocalMemos.current
+    val userStateViewModel = LocalUserState.current
+    val currentAccount by userStateViewModel.currentAccount.collectAsState()
     val refreshState = rememberPullToRefreshState()
     val scope = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
@@ -70,7 +75,7 @@ fun MemosList(
         onRefresh = {
             isRefreshing = true
             scope.launch {
-                viewModel.loadMemos()
+                viewModel.refreshMemos()
                 isRefreshing = false
             }
         },
@@ -87,7 +92,8 @@ fun MemosList(
                     onEdit = { selectedMemo ->
                         navController.navigate("${RouteName.EDIT}?memoId=${selectedMemo.identifier}")
                     },
-                    previewMode = true
+                    previewMode = true,
+                    showSyncStatus = currentAccount !is Account.Local
                 )
             }
         }

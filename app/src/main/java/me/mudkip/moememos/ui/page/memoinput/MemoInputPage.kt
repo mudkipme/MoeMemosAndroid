@@ -76,7 +76,6 @@ import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
@@ -85,7 +84,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -229,7 +229,7 @@ fun MemoInputPage(
     }
 
     fun handleExit() {
-        if (text.text.isNotEmpty() && text.text != initialContent) {
+        if (text.text != initialContent || viewModel.uploadResources.size != (memo?.resources?.size ?: 0)) {
             showExitConfirmation = true
         } else {
             navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
@@ -542,7 +542,7 @@ fun MemoInputPage(
                 Spacer(modifier = Modifier.weight(1f))
 
                 IconButton(
-                    enabled = text.text.isNotEmpty(),
+                    enabled = text.text.isNotEmpty() || viewModel.uploadResources.isNotEmpty(),
                     onClick = { submit() }
                 ) {
                     Icon(Icons.AutoMirrored.Filled.Send, contentDescription = R.string.post.string)

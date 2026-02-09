@@ -1,0 +1,7 @@
+## What's Changed
+- Added support for Memos 0.25.3. Due to breaking API changes, Memos versions 0.22.0–0.25.2 are no longer supported. You can continue using Memos 0.21.0 or upgrade to 0.25.3.
+- Experimental Widget support by @zachatrocity.
+- Allow image-only memo by @licsber.
+- Fix memo copy link broken and memo refreshing issues by @ariloc.
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/0.8.6...0.8.7

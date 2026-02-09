@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Source
@@ -24,9 +25,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Account
@@ -105,13 +106,25 @@ fun SettingsPage(
                             navController.navigate("${RouteName.ACCOUNT}?accountKey=${account.accountKey()}")
                         }
                     }
-                    else -> Unit
+                    is Account.Local -> item {
+                        SettingItem(icon = Icons.Outlined.Home, text = R.string.local_account.string, trailingIcon = {
+                            if (currentAccount?.accountKey() == account.accountKey()) {
+                                Icon(Icons.Outlined.Check,
+                                    contentDescription = R.string.selected.string,
+                                    modifier = Modifier.padding(start = 16.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }) {
+                            navController.navigate("${RouteName.ACCOUNT}?accountKey=${account.accountKey()}")
+                        }
+                    }
                 }
             }
 
             item {
                 SettingItem(icon = Icons.Outlined.PersonAdd, text = R.string.add_account.string) {
-                    navController.navigate(RouteName.LOGIN)
+                    navController.navigate(RouteName.ADD_ACCOUNT)
                 }
             }
 

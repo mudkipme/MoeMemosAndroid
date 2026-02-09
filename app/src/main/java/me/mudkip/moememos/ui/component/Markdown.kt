@@ -1,81 +1,86 @@
 package me.mudkip.moememos.ui.component
 
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.text.InlineTextContent
+import androidx.core.net.toUri
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
-import me.mudkip.moememos.ext.appendMarkdown
-import org.intellij.markdown.MarkdownElementTypes
-import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
-import org.intellij.markdown.parser.MarkdownParser
+import com.mikepenz.markdown.coil3.Coil3ImageTransformerImpl
+import com.mikepenz.markdown.compose.components.markdownComponents
+import com.mikepenz.markdown.compose.elements.highlightedCodeBlock
+import com.mikepenz.markdown.compose.elements.highlightedCodeFence
+import com.mikepenz.markdown.m3.Markdown as M3Markdown
+import com.mikepenz.markdown.m3.markdownTypography
+import com.mikepenz.markdown.model.ImageData
+import com.mikepenz.markdown.model.ImageTransformer
+import com.mikepenz.markdown.model.rememberMarkdownState
+import org.intellij.markdown.ast.getTextInNode
 
 @Composable
 fun Markdown(
     text: String,
     modifier: Modifier = Modifier,
     textAlign: TextAlign? = null,
-    imageContent: @Composable (url: String) -> Unit = {},
+    imageBaseUrl: String? = null,
     checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit = { _, _, _ -> }
 ) {
-    val linkColor = MaterialTheme.colorScheme.primary
-    val bulletColor = MaterialTheme.colorScheme.tertiary
-    val headlineLarge = MaterialTheme.typography.headlineLarge
-    val headlineMedium = MaterialTheme.typography.headlineMedium
-    val headlineSmall = MaterialTheme.typography.headlineSmall
-
-    BoxWithConstraints {
-        val (annotatedString, inlineContent) = remember(text, maxWidth) {
-            val markdownAst = MarkdownParser(GFMFlavourDescriptor()).parse(MarkdownElementTypes.MARKDOWN_FILE, text, true)
-            val builder = AnnotatedString.Builder()
-            val inlineContent = HashMap<String, InlineTextContent>()
-
-            builder.appendMarkdown(
-                markdownText = text,
-                node = markdownAst,
-                depth = 0,
-                linkColor = linkColor,
-                linkInteractionListener = null, // Use default interaction listener
-                onImage = { key, url ->
-                    inlineContent[key] = InlineTextContent(
-                        Placeholder(maxWidth.value.sp, (maxWidth.value * 9f / 16f).sp, PlaceholderVerticalAlign.AboveBaseline),
-                    ) {
-                        imageContent(url)
-                    }
-                },
-                onCheckbox = { key, startOffset, endOffset ->
-                    inlineContent[key] = InlineTextContent(
-                        Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.Center)
-                    ) {
-                        val checkboxText = text.substring(startOffset, endOffset)
-                        Checkbox(checked = checkboxText.length > 1 && checkboxText[1] != ' ', onCheckedChange = {
-                            checkboxChange(it, startOffset, endOffset)
-                        })
-                    }
-                },
-                maxWidth = maxWidth.value,
-                bulletColor = bulletColor,
-                headlineLarge = headlineLarge,
-                headlineMedium = headlineMedium,
-                headlineSmall = headlineSmall
-            )
-
-            Pair(builder.toAnnotatedString(), inlineContent)
-        }
-
-        Text(
-            text = annotatedString,
-            modifier = modifier,
-            textAlign = textAlign,
-            inlineContent = inlineContent,
-        )
+    val bodyTextStyle = MaterialTheme.typography.bodyLarge.let {
+        if (textAlign == null) it else it.copy(textAlign = textAlign)
     }
+    val imageTransformer = remember(imageBaseUrl) {
+        object : ImageTransformer {
+            @Composable
+            override fun transform(link: String): ImageData? {
+                return Coil3ImageTransformerImpl.transform(resolveMarkdownImageLink(link, imageBaseUrl))
+            }
+
+            @Composable
+            override fun intrinsicSize(painter: Painter): Size {
+                return Coil3ImageTransformerImpl.intrinsicSize(painter)
+            }
+        }
+    }
+    val markdownState = rememberMarkdownState(
+        content = text,
+        retainState = true
+    )
+
+    M3Markdown(
+        markdownState = markdownState,
+        modifier = modifier,
+        imageTransformer = imageTransformer,
+        typography = markdownTypography(
+            text = bodyTextStyle,
+            paragraph = bodyTextStyle,
+            ordered = bodyTextStyle,
+            bullet = bodyTextStyle,
+            list = bodyTextStyle
+        ),
+        components = markdownComponents(
+            codeFence = highlightedCodeFence,
+            codeBlock = highlightedCodeBlock,
+            checkbox = { model ->
+                val checkboxText = model.node.getTextInNode(model.content).toString()
+                val checked = checkboxText.length > 1 && checkboxText[1] != ' '
+                Checkbox(
+                    checked = checked,
+                    onCheckedChange = {
+                        checkboxChange(it, model.node.startOffset, model.node.endOffset)
+                    }
+                )
+            }
+        )
+    )
+}
+
+private fun resolveMarkdownImageLink(link: String, imageBaseUrl: String?): String {
+    val uri = link.toUri()
+    if (uri.scheme != null || imageBaseUrl.isNullOrBlank()) {
+        return link
+    }
+    return imageBaseUrl.toUri().buildUpon().path(link).build().toString()
 }

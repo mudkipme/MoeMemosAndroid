@@ -21,6 +21,7 @@ import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.api.MemosV1User
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
+import me.mudkip.moememos.data.model.LocalAccount
 import me.mudkip.moememos.data.model.MemosAccount
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.model.UserData
@@ -28,6 +29,7 @@ import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnNotLogin
 import okhttp3.OkHttpClient
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,6 +65,10 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
+    suspend fun hasAnyAccount(): Boolean = withContext(viewModelScope.coroutineContext) {
+        accountService.accounts.first().isNotEmpty()
+    }
+
     suspend fun loginMemosWithAccessToken(host: String, accessToken: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
         try {
             when (accountService.detectAccountCase(host)) {
@@ -91,7 +97,7 @@ class UserStateViewModel @Inject constructor(
 
     private suspend fun loginMemosV1WithAccessToken(host: String, accessToken: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
         try {
-            val resp = accountService.createMemosV1Client(host, accessToken).second.authStatus()
+            val resp = accountService.createMemosV1Client(host, accessToken).second.getCurrentUser()
             if (resp !is ApiResponse.Success) {
                 return@withContext resp.mapSuccess {}
             }
@@ -118,24 +124,40 @@ class UserStateViewModel @Inject constructor(
         loadCurrentUser()
     }
 
+    suspend fun addLocalAccount(): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
+        try {
+            accountService.addAccount(
+                Account.Local(
+                    LocalAccount(startDateEpochSecond = Instant.now().epochSecond)
+                )
+            )
+            loadCurrentUser().mapSuccess {}
+        } catch (e: Throwable) {
+            ApiResponse.exception(e)
+        }
+    }
+
     private fun getAccount(host: String, accessToken: String, user: MemosV0User): Account = Account.MemosV0(
-        info = MemosAccount.newBuilder()
-            .setHost(host)
-            .setId(user.id)
-            .setName(user.username)
-            .setAvatarUrl(user.avatarUrl)
-            .setAccessToken(accessToken)
-            .build()
+        info = MemosAccount(
+            host = host,
+            accessToken = accessToken,
+            id = user.id,
+            name = user.username ?: user.displayName,
+            avatarUrl = user.avatarUrl ?: "",
+            startDateEpochSecond = user.createdTs,
+            defaultVisibility = user.toUser().defaultVisibility.name,
+        )
     )
 
     private fun getAccount(host: String, accessToken: String, user: MemosV1User): Account = Account.MemosV1(
-        info = MemosAccount.newBuilder()
-            .setHost(host)
-            .setId(user.name.substringAfterLast('/').toLong())
-            .setName(user.username)
-            .setAvatarUrl(user.avatarUrl)
-            .setAccessToken(accessToken)
-            .build()
+        info = MemosAccount(
+            host = host,
+            accessToken = accessToken,
+            id = user.name.substringAfterLast('/').toLong(),
+            name = user.username,
+            avatarUrl = user.avatarUrl ?: "",
+            startDateEpochSecond = user.createTime?.epochSecond ?: 0L,
+        )
     )
 }
 

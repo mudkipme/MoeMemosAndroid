@@ -1,5 +1,6 @@
 package me.mudkip.moememos.data.repository
 
+import androidx.core.net.toUri
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.getOrNull
 import com.skydoves.sandwich.mapSuccess
@@ -12,8 +13,6 @@ import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.api.MemosV1CreateMemoRequest
 import me.mudkip.moememos.data.api.MemosV1Memo
 import me.mudkip.moememos.data.api.MemosV1Resource
-import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequest
-import me.mudkip.moememos.data.api.MemosV1SetMemoResourcesRequestItem
 import me.mudkip.moememos.data.api.MemosV1State
 import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.api.UpdateMemoRequest
@@ -26,33 +25,38 @@ import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okio.ByteString.Companion.toByteString
-import java.util.Date
+import java.time.Instant
 
 private const val PAGE_SIZE = 200
 
 class MemosV1Repository(
     private val memosApi: MemosV1Api,
     private val account: Account.MemosV1
-): AbstractMemoRepository() {
+): RemoteRepository() {
     private fun convertResource(resource: MemosV1Resource): Resource {
         return Resource(
-            identifier = resource.name,
-            date = resource.createTime.toInstant(),
-            filename = resource.filename,
+            identifier = resource.name ?: "",
+            remoteId = resource.name ?: "",
+            date = resource.createTime ?: Instant.now(),
+            filename = resource.filename ?: "",
             uri = resource.uri(account.info.host),
-            mimeType = resource.type.toMediaTypeOrNull()
+            mimeType = resource.type?.toMediaTypeOrNull()
         )
     }
 
     private fun convertMemo(memo: MemosV1Memo): Memo {
         return Memo(
             identifier = memo.name,
-            content = memo.content,
-            date = memo.displayTime.toInstant(),
-            pinned = memo.pinned,
-            visibility = memo.visibility.toMemoVisibility(),
-            resources = memo.attachments.map { convertResource(it) },
+            remoteId = memo.name,
+            content = memo.content ?: "",
+            date = memo.displayTime ?: Instant.now(),
+            pinned = memo.pinned ?: false,
+            visibility = memo.visibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE,
+            resources = memo.attachments?.map { convertResource(it) } ?: emptyList(),
             tags = emptyList(),
+            archived = memo.state == MemosV1State.ARCHIVED,
+            updatedAt = memo.updateTime,
+            needsSync = false
         )
     }
 
@@ -62,7 +66,7 @@ class MemosV1Repository(
 
         do {
             val resp = memosApi.listMemos(PAGE_SIZE, nextPageToken, state, filter)
-                .onSuccess { nextPageToken = data.nextPageToken }
+                .onSuccess { nextPageToken = data.nextPageToken.orEmpty() }
                 .mapSuccess { this.memos.map { convertMemo(it) } }
             if (resp is ApiResponse.Success) {
                 memos.addAll(resp.data)
@@ -97,83 +101,69 @@ class MemosV1Repository(
         if (resp !is ApiResponse.Success) {
             return resp.mapSuccess { emptyList<Memo>() to null }
         }
-        val users = resp.data.memos.map { getId(it.creator) }.toSet()
+        val users = resp.data.memos.mapNotNull { it.creator }.map { getId(it) }.toSet()
         val userResp = coroutineScope {
             users.map { userId ->
                 async { memosApi.getUser(userId).getOrNull() }
             }.awaitAll()
         }.filterNotNull()
-        val userMap = mapOf(*userResp.map { it.name to it }.toTypedArray())
+        val userMap = mapOf(*userResp.map { user -> user.name to user }.toTypedArray())
 
         return resp
             .mapSuccess { this.memos.map {
-                convertMemo(it)
-                .copy(creator = userMap[it.creator]?.let { user -> User(user.name, user.displayName, user.createTime.toInstant()) } )
-            } to this.nextPageToken.ifEmpty { null } }
+                convertMemo(it).copy(
+                    creator = it.creator?.let { creator ->
+                        userMap[creator]?.let { user ->
+                            User(
+                                user.name,
+                                user.displayName ?: user.username,
+                                user.createTime ?: Instant.now()
+                            )
+                        }
+                    }
+                )
+            } to this.nextPageToken?.ifEmpty { null } }
     }
 
     override suspend fun createMemo(
         content: String,
         visibility: MemoVisibility,
-        resources: List<Resource>,
+        resourceRemoteIds: List<String>,
         tags: List<String>?
     ): ApiResponse<Memo> {
-        val resp = memosApi.createMemo(MemosV1CreateMemoRequest(content, MemosVisibility.fromMemoVisibility(visibility)))
+        val resp = memosApi.createMemo(MemosV1CreateMemoRequest(content, MemosVisibility.fromMemoVisibility(visibility), resourceRemoteIds.map { MemosV1Resource(name = getName(it)) }))
             .mapSuccess { convertMemo(this) }
-        if (resp !is ApiResponse.Success || resources.isEmpty()) {
-            return resp
-        }
-        return memosApi.setMemoResources(getId(resp.data.identifier), MemosV1SetMemoResourcesRequest(
-            resources.map {
-                MemosV1SetMemoResourcesRequestItem(getName(it.identifier))
-            }
-        )).mapSuccess { resp.data.copy(resources = resources) }
+        return resp
     }
 
     override suspend fun updateMemo(
-        identifier: String,
+        remoteId: String,
         content: String?,
-        resources: List<Resource>?,
+        resourceRemoteIds: List<String>?,
         visibility: MemoVisibility?,
         tags: List<String>?,
-        pinned: Boolean?
+        pinned: Boolean?,
+        archived: Boolean?
     ): ApiResponse<Memo> {
-        val resp = memosApi.updateMemo(getId(identifier), UpdateMemoRequest(
+        val resp = memosApi.updateMemo(getId(remoteId), UpdateMemoRequest(
             content = content,
             visibility = visibility?.let { MemosVisibility.fromMemoVisibility(it) },
             pinned = pinned,
-            updateTime = Date(),
+            state = archived?.let { isArchived -> if (isArchived) MemosV1State.ARCHIVED else MemosV1State.NORMAL },
+            updateTime = Instant.now(),
+            attachments = resourceRemoteIds?.map { MemosV1Resource(name = getName(it)) }
         )).mapSuccess { convertMemo(this) }
-        if (resp !is ApiResponse.Success || resources == null || resources.map { it.identifier }.toSet() == resp.data.resources.map { it.identifier }.toSet()) {
-            return resp
-        }
-        return memosApi.setMemoResources(getId(identifier), MemosV1SetMemoResourcesRequest(
-            resources.map {
-                MemosV1SetMemoResourcesRequestItem(getName(it.identifier))
-            }
-        )).mapSuccess { resp.data.copy(resources = resources) }
+        return resp
     }
 
-    override suspend fun deleteMemo(identifier: String): ApiResponse<Unit> {
-        return memosApi.deleteMemo(getId(identifier))
-    }
-
-    override suspend fun archiveMemo(identifier: String): ApiResponse<Unit> {
-        return memosApi.updateMemo(getId(identifier), UpdateMemoRequest(state = MemosV1State.ARCHIVED)).mapSuccess {  }
-    }
-
-    override suspend fun restoreMemo(identifier: String): ApiResponse<Unit> {
-        return memosApi.updateMemo(getId(identifier), UpdateMemoRequest(state = MemosV1State.NORMAL)).mapSuccess {  }
+    override suspend fun deleteMemo(remoteId: String): ApiResponse<Unit> {
+        return memosApi.deleteMemo(getId(remoteId))
     }
 
     override suspend fun listTags(): ApiResponse<List<String>> {
         return memosApi.getUserStats(account.info.id.toString()).mapSuccess {
             tagCount.keys.toList()
-        }
-    }
-
-    override suspend fun deleteTag(name: String): ApiResponse<Unit> {
-        return memosApi.deleteMemoTag("-", name, false)
+          }
     }
 
     override suspend fun listResources(): ApiResponse<List<Resource>> {
@@ -184,26 +174,30 @@ class MemosV1Repository(
         filename: String,
         type: MediaType?,
         content: ByteArray,
-        memoIdentifier: String?
+        memoRemoteId: String?
     ): ApiResponse<Resource> {
         return memosApi.createResource(CreateResourceRequest(
             filename = filename,
             type = type?.toString() ?: "application/octet-stream",
             content = content.toByteString().base64(),
-            memo = memoIdentifier?.let { getName(it) }
+            memo = memoRemoteId?.let { getName(it) }
         )).mapSuccess { convertResource(this) }
     }
 
-    override suspend fun deleteResource(identifier: String): ApiResponse<Unit> {
-        return memosApi.deleteResource(getId(identifier))
+    override suspend fun deleteResource(remoteId: String): ApiResponse<Unit> {
+        return memosApi.deleteResource(getId(remoteId))
     }
 
     override suspend fun getCurrentUser(): ApiResponse<User> {
-        val resp = memosApi.authStatus().mapSuccess {
+        val resp = memosApi.getCurrentUser().mapSuccess {
             if (user == null) {
                 throw MoeMemosException.notLogin
             }
-            User(user.name, user.displayName, user.createTime.toInstant())
+            User(
+                user.name,
+                user.displayName ?: user.username,
+                user.createTime ?: Instant.now()
+            )
         }
         if (resp !is ApiResponse.Success) {
             return resp
@@ -211,7 +205,7 @@ class MemosV1Repository(
 
         return memosApi.getUserSetting(getId(resp.data.identifier)).mapSuccess {
             resp.data.copy(
-                defaultVisibility = generalSetting.memoVisibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE
+                defaultVisibility = generalSetting?.memoVisibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE
             )
         }
     }

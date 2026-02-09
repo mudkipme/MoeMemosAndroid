@@ -1,10 +1,10 @@
 package me.mudkip.moememos.data.api
 
 import android.net.Uri
-import androidx.annotation.Keep
+import androidx.core.net.toUri
 import com.skydoves.sandwich.ApiResponse
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import me.mudkip.moememos.data.model.User
 import okhttp3.MultipartBody
 import retrofit2.http.Body
@@ -18,7 +18,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import java.time.Instant
 
-@Keep
+@Serializable
 data class MemosV0SignInInput(
     val email: String,
     var username: String,
@@ -26,29 +26,25 @@ data class MemosV0SignInInput(
     val remember: Boolean
 )
 
-@Keep
+@Serializable
 data class MemosV0CreateMemoInput(
     val content: String,
     val visibility: MemosVisibility? = null,
-    val resourceIdList: List<Long>? = null
+    val resourceIdList: List<Long>? = null,
+    val pinned: Boolean? = null
 )
 
-@Keep
+@Serializable
 data class MemosV0UpdateMemoOrganizerInput(
     val pinned: Boolean
 )
 
-@Keep
+@Serializable
 data class MemosV0UpdateTagInput(
     val name: String
 )
 
-@Keep
-data class MemosV0DeleteTagInput(
-    val name: String
-)
-
-@Keep
+@Serializable
 data class MemosV0PatchMemoInput(
     val id: Long,
     val createdTs: Long? = null,
@@ -77,9 +73,6 @@ interface MemosV0Api {
 
     @POST("api/v1/tag")
     suspend fun updateTag(@Body body: MemosV0UpdateTagInput): ApiResponse<String>
-
-    @POST("api/v1/tag/delete")
-    suspend fun deleteTag(@Body body: MemosV0DeleteTagInput): ApiResponse<Unit>
 
     @POST("api/v1/memo/{id}/organizer")
     suspend fun updateMemoOrganizer(@Path("id") memoId: Long, @Body body: MemosV0UpdateMemoOrganizerInput): ApiResponse<MemosV0Memo>
@@ -113,7 +106,7 @@ interface MemosV0Api {
     ): ApiResponse<List<MemosV0Memo>>
 }
 
-@Keep
+@Serializable
 data class MemosV0User(
     val createdTs: Long,
     val email: String?,
@@ -149,24 +142,24 @@ data class MemosV0User(
     }
 }
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class MemosV0UserSettingKey {
-    @field:Json(name = "locale")
+    @SerialName("locale")
     LOCALE,
-    @field:Json(name = "memo-visibility")
+    @SerialName("memo-visibility")
     MEMO_VISIBILITY,
-    @field:Json(name = "editorFontStyle")
+    @SerialName("editorFontStyle")
     EDITOR_FONT_STYLE,
     UNKNOWN
 }
 
-@Keep
+@Serializable
 data class MemosV0UserSetting(
     val key: MemosV0UserSettingKey = MemosV0UserSettingKey.UNKNOWN,
     val value: String
 )
 
-@Keep
+@Serializable
 data class MemosV0Memo(
     val id: Long,
     val createdTs: Long,
@@ -180,7 +173,7 @@ data class MemosV0Memo(
     val resourceList: List<MemosV0Resource>? = null
 )
 
-@Keep
+@Serializable
 data class MemosV0Resource(
     val id: Long,
     val createdTs: Long,
@@ -196,30 +189,30 @@ data class MemosV0Resource(
 ) {
     fun uri(host: String): Uri {
         if (!externalLink.isNullOrEmpty()) {
-            return Uri.parse(externalLink)
+            return externalLink.toUri()
         }
         if (!uid.isNullOrEmpty()) {
-            return Uri.parse(host)
+            return host.toUri()
                 .buildUpon().appendPath("o").appendPath("r")
                 .appendPath(uid.toString()).build()
         }
         if (!name.isNullOrEmpty()) {
-            return Uri.parse(host)
+            return host.toUri()
                 .buildUpon().appendPath("o").appendPath("r")
                 .appendPath(name.toString()).build()
         }
         if (!publicId.isNullOrEmpty()) {
-            return Uri.parse(host)
+            return host.toUri()
                 .buildUpon().appendPath("o").appendPath("r")
                 .appendPath(id.toString()).appendPath(publicId).build()
         }
-        return Uri.parse(host)
+        return host.toUri()
             .buildUpon().appendPath("o").appendPath("r")
             .appendPath(id.toString()).appendPath(filename).build()
     }
 }
 
-@Keep
+@Serializable
 data class MemosV0Status(
     val profile: MemosProfile
 )

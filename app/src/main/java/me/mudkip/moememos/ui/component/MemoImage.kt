@@ -12,10 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
-import coil.ImageLoader
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.AsyncImage
-import coil.imageLoader
+import androidx.core.net.toUri
+import coil3.ImageLoader
+import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.AsyncImage
+import coil3.imageLoader
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import timber.log.Timber
 import java.io.File
@@ -24,18 +27,33 @@ import java.io.File
 @Composable
 fun MemoImage(
     url: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    resourceIdentifier: String? = null
 ) {
     var diskCacheFile: File? by remember { mutableStateOf(null) }
     val context = LocalContext.current
     val userStateViewModel = LocalUserState.current
+    val memosViewModel = LocalMemos.current
+    val modelUri = remember(url) { url.toUri() }
+    val modelFile = remember(url) {
+        modelUri.takeIf { it.scheme == "file" }?.path?.let(::File)
+    }
 
     AsyncImage(
         model = url,
-        imageLoader = ImageLoader.Builder(context).okHttpClient(userStateViewModel.okHttpClient).build(),
+        imageLoader = ImageLoader.Builder(context)
+            .components {
+                add(
+                    OkHttpNetworkFetcherFactory(
+                        callFactory = { userStateViewModel.okHttpClient }
+                    )
+                )
+            }
+            .build(),
         contentDescription = null,
         modifier = modifier.clickable {
-            diskCacheFile?.let {
+            val fileToOpen = diskCacheFile ?: modelFile
+            fileToOpen?.let {
                 val fileUri: Uri = try {
                     FileProvider.getUriForFile(context, context.packageName + ".fileprovider", it)
                 } catch (e: Throwable) {
@@ -61,7 +79,14 @@ fun MemoImage(
             val diskCacheKey = state.result.diskCacheKey
 
             if (diskCache != null && diskCacheKey != null) {
-                diskCacheFile = diskCache.openSnapshot(diskCacheKey)?.data?.toFile()
+                val downloadedFile = diskCache.openSnapshot(diskCacheKey)?.data?.toFile()
+                diskCacheFile = downloadedFile
+                val shouldPersistDownloadedFile = resourceIdentifier != null &&
+                    downloadedFile != null &&
+                    modelUri.scheme != "file"
+                if (shouldPersistDownloadedFile) {
+                    memosViewModel.cacheResourceFile(resourceIdentifier, Uri.fromFile(downloadedFile))
+                }
             }
         }
     )
