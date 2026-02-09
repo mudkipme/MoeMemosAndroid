@@ -17,6 +17,7 @@ import com.mikepenz.markdown.m3.Markdown as M3Markdown
 import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.ImageData
 import com.mikepenz.markdown.model.ImageTransformer
+import com.mikepenz.markdown.model.rememberMarkdownState
 import org.intellij.markdown.ast.getTextInNode
 
 @Composable
@@ -43,9 +44,13 @@ fun Markdown(
             }
         }
     }
+    val markdownState = rememberMarkdownState(
+        content = text,
+        retainState = true
+    )
 
     M3Markdown(
-        content = text,
+        markdownState = markdownState,
         modifier = modifier,
         imageTransformer = imageTransformer,
         typography = markdownTypography(

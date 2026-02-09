@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Archive
-import androidx.compose.material.icons.outlined.CloudDone
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
@@ -105,18 +104,14 @@ fun MemosCard(
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.outline
                     )
-                    if (showSyncStatus) {
+                    if (showSyncStatus && memo.needsSync) {
                         Icon(
-                            imageVector = if (memo.needsSync) Icons.Outlined.CloudOff else Icons.Outlined.CloudDone,
-                            contentDescription = if (memo.needsSync) R.string.memo_sync_pending.string else R.string.memo_sync_synced.string,
+                            imageVector = Icons.Outlined.CloudOff,
+                            contentDescription = R.string.memo_sync_pending.string,
                             modifier = Modifier
                                 .padding(start = 5.dp)
                                 .size(20.dp),
-                            tint = if (memo.needsSync) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                MaterialTheme.colorScheme.outline
-                            }
+                            tint = MaterialTheme.colorScheme.error
                         )
                     }
                     if (LocalUserState.current.currentUser?.defaultVisibility != memo.visibility) {
