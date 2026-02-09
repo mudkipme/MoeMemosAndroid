@@ -3,6 +3,7 @@ package me.mudkip.moememos.ui.component
 import androidx.core.net.toUri
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -20,6 +21,7 @@ import com.mikepenz.markdown.compose.components.markdownComponents
 import com.mikepenz.markdown.compose.elements.MarkdownCheckBox
 import com.mikepenz.markdown.compose.elements.highlightedCodeBlock
 import com.mikepenz.markdown.compose.elements.highlightedCodeFence
+import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.m3.Markdown as M3Markdown
 import com.mikepenz.markdown.model.ImageData
 import com.mikepenz.markdown.model.ImageTransformer
@@ -35,10 +37,13 @@ fun Markdown(
     imageBaseUrl: String? = null,
     checkboxChange: ((checked: Boolean, startOffset: Int, endOffset: Int) -> Unit)? = null
 ) {
+    val bodyTextStyle = MaterialTheme.typography.bodyLarge.let {
+        if (textAlign == null) it else it.copy(textAlign = textAlign)
+    }
     val imageTransformer = remember(imageBaseUrl) {
         object : ImageTransformer {
             @Composable
-            override fun transform(link: String): ImageData? {
+            override fun transform(link: String): ImageData {
                 return Coil3ImageTransformerImpl.transform(resolveMarkdownImageLink(link, imageBaseUrl))
             }
 
@@ -57,13 +62,20 @@ fun Markdown(
         markdownState = markdownState,
         modifier = modifier,
         imageTransformer = imageTransformer,
+        typography = markdownTypography(
+            text = bodyTextStyle,
+            paragraph = bodyTextStyle,
+            ordered = bodyTextStyle,
+            bullet = bodyTextStyle,
+            list = bodyTextStyle
+        ),
         annotator = markdownAnnotator(
             config = markdownAnnotatorConfig(eolAsNewLine = true)
         ),
         components = markdownComponents(
             codeFence = highlightedCodeFence,
             codeBlock = highlightedCodeBlock,
-            checkbox = { it ->
+            checkbox = {
                 val node = it.node
                 MarkdownCheckBox(
                     content = it.content,
@@ -79,7 +91,7 @@ fun Markdown(
                                     null
                                 },
                                 modifier = modifier.semantics {
-                                    role = Role.Companion.Checkbox
+                                    role = Role.Checkbox
                                     stateDescription = if (checked) "Checked" else "Unchecked"
                                 },
                             )
