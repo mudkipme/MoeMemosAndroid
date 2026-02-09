@@ -259,7 +259,8 @@ class LocalDatabaseRepository(
                 null
             },
             archived = entity.archived,
-            updatedAt = entity.lastModified
+            updatedAt = entity.lastModified,
+            needsSync = false
         )
     }
 

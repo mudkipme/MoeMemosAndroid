@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -21,9 +22,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
+import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.ext.string
+import me.mudkip.moememos.ui.component.SyncStatusBadge
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.viewmodel.LocalMemos
+import me.mudkip.moememos.viewmodel.LocalUserState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +39,10 @@ fun MemosHomePage(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val rootNavController = LocalRootNavController.current
+    val memosViewModel = LocalMemos.current
+    val userStateViewModel = LocalUserState.current
+    val currentAccount by userStateViewModel.currentAccount.collectAsState()
+    val syncStatus by memosViewModel.syncStatus.collectAsState()
 
     val expandedFab by remember {
         derivedStateOf {
@@ -54,6 +63,17 @@ fun MemosHomePage(
                     }
                 },
                 actions = {
+                    if (currentAccount !is Account.Local) {
+                        SyncStatusBadge(
+                            syncing = syncStatus.syncing,
+                            unsyncedCount = syncStatus.unsyncedCount,
+                            onSync = {
+                                scope.launch {
+                                    memosViewModel.refreshMemos()
+                                }
+                            }
+                        )
+                    }
                     IconButton(onClick = {
                         navController.navigate(RouteName.SEARCH)
                     }) {

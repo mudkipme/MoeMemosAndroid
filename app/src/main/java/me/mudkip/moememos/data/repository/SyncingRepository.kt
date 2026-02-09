@@ -7,6 +7,10 @@ import com.skydoves.sandwich.getOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -18,7 +22,9 @@ import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.model.SyncStatus
 import me.mudkip.moememos.data.model.User
+import me.mudkip.moememos.ext.getErrorMessage
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.File
@@ -34,6 +40,14 @@ class SyncingRepository(
     private val accountKey = account.accountKey()
     private val operationMutex = Mutex()
     private val operationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val _syncStatus = MutableStateFlow(SyncStatus())
+    override val syncStatus: StateFlow<SyncStatus> = _syncStatus.asStateFlow()
+
+    init {
+        operationScope.launch {
+            refreshUnsyncedCount()
+        }
+    }
 
     override suspend fun listMemos(): ApiResponse<List<Memo>> {
         return try {
@@ -97,6 +111,7 @@ class SyncingRepository(
                 )
             }
 
+            refreshUnsyncedCount()
             enqueuePushMemo(localMemo.identifier)
             ApiResponse.Success(convertToMemo(localMemo))
         } catch (e: Exception) {
@@ -147,6 +162,7 @@ class SyncingRepository(
                 }
             }
 
+            refreshUnsyncedCount()
             enqueuePushMemo(updatedMemo.identifier)
             ApiResponse.Success(convertToMemo(updatedMemo))
         } catch (e: Exception) {
@@ -165,6 +181,7 @@ class SyncingRepository(
                     lastModified = Instant.now()
                 )
             )
+            refreshUnsyncedCount()
             enqueuePushMemo(identifier)
             ApiResponse.Success(Unit)
         } catch (e: Exception) {
@@ -183,6 +200,7 @@ class SyncingRepository(
                     lastModified = Instant.now()
                 )
             )
+            refreshUnsyncedCount()
             enqueuePushMemo(identifier)
             ApiResponse.Success(Unit)
         } catch (e: Exception) {
@@ -201,6 +219,7 @@ class SyncingRepository(
                     lastModified = Instant.now()
                 )
             )
+            refreshUnsyncedCount()
             enqueuePushMemo(identifier)
             ApiResponse.Success(Unit)
         } catch (e: Exception) {
@@ -268,6 +287,7 @@ class SyncingRepository(
             } else {
                 enqueuePushResource(resource.identifier)
             }
+            refreshUnsyncedCount()
             ApiResponse.Success(convertToResource(resource))
         } catch (e: Exception) {
             ApiResponse.Failure.Exception(e)
@@ -300,6 +320,7 @@ class SyncingRepository(
             if (!memoId.isNullOrBlank()) {
                 enqueuePushMemo(memoId)
             }
+            refreshUnsyncedCount()
             ApiResponse.Success(Unit)
         } catch (e: Exception) {
             ApiResponse.Failure.Exception(e)
@@ -367,10 +388,23 @@ class SyncingRepository(
 
     override suspend fun sync(): ApiResponse<Unit> {
         return operationMutex.withLock {
+            setSyncing(true)
             try {
-                syncInternal()
+                val result = syncInternal()
+                if (result is ApiResponse.Success) {
+                    setSyncError(null)
+                } else {
+                    setSyncError(result.getErrorMessage())
+                }
+                refreshUnsyncedCount()
+                result
             } catch (e: Throwable) {
-                ApiResponse.Failure.Exception(e)
+                val failure = ApiResponse.Failure.Exception(e)
+                setSyncError(failure.getErrorMessage())
+                refreshUnsyncedCount()
+                failure
+            } finally {
+                setSyncing(false)
             }
         }
     }
@@ -512,17 +546,10 @@ class SyncingRepository(
                 content = local.content,
                 resourceRemoteIds = remoteResourceIds,
                 visibility = local.visibility,
-                pinned = local.pinned
+                pinned = local.pinned,
+                archived = local.archived
             )
             if (updated is ApiResponse.Success) {
-                val stateSynced = if (local.archived) {
-                    remoteRepository.archiveMemo(local.remoteId)
-                } else {
-                    remoteRepository.restoreMemo(local.remoteId)
-                }
-                if (stateSynced !is ApiResponse.Success) {
-                    return false
-                }
                 reconcileServerCreatedMemo(
                     local.identifier,
                     updated.data.copy(archived = local.archived)
@@ -745,36 +772,58 @@ class SyncingRepository(
     }
 
     private fun enqueuePushMemo(identifier: String, forceCreate: Boolean = false) {
-        operationScope.launch {
-            operationMutex.withLock {
-                try {
-                    pushLocalMemo(identifier, forceCreate)
-                } catch (_: Throwable) {
-                }
-            }
+        enqueueOperation("Failed to sync memo") {
+            pushLocalMemo(identifier, forceCreate)
         }
     }
 
     private fun enqueuePushResource(identifier: String) {
+        enqueueOperation("Failed to sync resource") {
+            pushLocalResource(identifier)
+        }
+    }
+
+    private fun enqueueDeleteRemoteResource(remoteId: String) {
+        enqueueOperation("Failed to delete resource on server") {
+            remoteRepository.deleteResource(remoteId) is ApiResponse.Success
+        }
+    }
+
+    private fun enqueueOperation(
+        defaultErrorMessage: String,
+        block: suspend () -> Boolean
+    ) {
         operationScope.launch {
             operationMutex.withLock {
+                setSyncing(true)
                 try {
-                    pushLocalResource(identifier)
-                } catch (_: Throwable) {
+                    val success = block()
+                    if (success) {
+                        setSyncError(null)
+                    } else {
+                        setSyncError(defaultErrorMessage)
+                    }
+                } catch (e: Throwable) {
+                    setSyncError(e.localizedMessage ?: defaultErrorMessage)
+                } finally {
+                    refreshUnsyncedCount()
+                    setSyncing(false)
                 }
             }
         }
     }
 
-    private fun enqueueDeleteRemoteResource(remoteId: String) {
-        operationScope.launch {
-            operationMutex.withLock {
-                try {
-                    remoteRepository.deleteResource(remoteId)
-                } catch (_: Throwable) {
-                }
-            }
-        }
+    private suspend fun refreshUnsyncedCount() {
+        val count = memoDao.countUnsyncedMemos(accountKey)
+        _syncStatus.update { it.copy(unsyncedCount = count) }
+    }
+
+    private fun setSyncing(syncing: Boolean) {
+        _syncStatus.update { it.copy(syncing = syncing) }
+    }
+
+    private fun setSyncError(message: String?) {
+        _syncStatus.update { it.copy(errorMessage = message) }
     }
 
     private suspend fun convertToMemo(entity: MemoEntity): Memo {
@@ -794,7 +843,8 @@ class SyncingRepository(
                 null
             },
             archived = entity.archived,
-            updatedAt = entity.lastModified
+            updatedAt = entity.lastModified,
+            needsSync = entity.needsSync
         )
     }
 

@@ -27,6 +27,7 @@ import me.mudkip.moememos.data.model.DailyUsageStat
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.model.SyncStatus
 import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.getErrorMessage
@@ -58,6 +59,9 @@ class MemosViewModel @Inject constructor(
             .map { it?.getAccountInfo()?.host }
             .distinctUntilChanged()
             .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val syncStatus: StateFlow<SyncStatus> =
+        memoService.syncStatus.stateIn(viewModelScope, SharingStarted.Eagerly, SyncStatus())
 
     init {
         snapshotFlow { memos.toList() }

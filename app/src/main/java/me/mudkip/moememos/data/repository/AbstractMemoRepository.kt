@@ -5,10 +5,17 @@ import com.skydoves.sandwich.ApiResponse
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
+import me.mudkip.moememos.data.model.SyncStatus
 import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 abstract class AbstractMemoRepository {
+    private val _syncStatus = MutableStateFlow(SyncStatus())
+    open val syncStatus: StateFlow<SyncStatus> = _syncStatus.asStateFlow()
+
     abstract suspend fun listMemos(): ApiResponse<List<Memo>>
     abstract suspend fun listArchivedMemos(): ApiResponse<List<Memo>>
     abstract suspend fun createMemo(content: String, visibility: MemoVisibility, resources: List<Resource>, tags: List<String>? = null): ApiResponse<Memo>

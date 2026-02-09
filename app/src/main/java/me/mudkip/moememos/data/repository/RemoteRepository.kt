@@ -25,12 +25,11 @@ abstract class RemoteRepository {
         resourceRemoteIds: List<String>? = null,
         visibility: MemoVisibility? = null,
         tags: List<String>? = null,
-        pinned: Boolean? = null
+        pinned: Boolean? = null,
+        archived: Boolean? = null
     ): ApiResponse<Memo>
 
     abstract suspend fun deleteMemo(remoteId: String): ApiResponse<Unit>
-    abstract suspend fun archiveMemo(remoteId: String): ApiResponse<Unit>
-    abstract suspend fun restoreMemo(remoteId: String): ApiResponse<Unit>
 
     abstract suspend fun listTags(): ApiResponse<List<String>>
     abstract suspend fun listResources(): ApiResponse<List<Resource>>

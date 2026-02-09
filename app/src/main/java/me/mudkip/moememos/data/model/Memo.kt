@@ -19,5 +19,6 @@ data class Memo(
     val tags: List<String>,
     val creator: User? = null,
     val archived: Boolean = false,
-    val updatedAt: Instant? = null
+    val updatedAt: Instant? = null,
+    val needsSync: Boolean = false
 )

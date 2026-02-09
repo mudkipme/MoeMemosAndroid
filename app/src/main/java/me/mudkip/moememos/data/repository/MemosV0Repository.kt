@@ -50,7 +50,8 @@ class MemosV0Repository (
             tags = emptyList(),
             creator = memo.creatorName?.let { User(memo.creatorId.toString(), it) },
             archived = memo.rowStatus == MemosRowStatus.ARCHIVED,
-            updatedAt = Instant.ofEpochSecond(memo.updatedTs)
+            updatedAt = Instant.ofEpochSecond(memo.updatedTs),
+            needsSync = false
         )
     }
 
@@ -87,10 +88,13 @@ class MemosV0Repository (
         resourceRemoteIds: List<String>?,
         visibility: MemoVisibility?,
         tags: List<String>?,
-        pinned: Boolean?
+        pinned: Boolean?,
+        archived: Boolean?
     ): ApiResponse<Memo> {
+        var touched = false
         var result: ApiResponse<Memo> = ApiResponse.exception(MoeMemosException.invalidParameter)
         pinned?.let {
+            touched = true
             result = memosApi.updateMemoOrganizer(remoteId.toLong(), MemosV0UpdateMemoOrganizerInput(pinned = it)).mapSuccess {
                 convertMemo(this)
             }
@@ -98,29 +102,34 @@ class MemosV0Repository (
                 return result
             }
         }
-        content?.let {
+        if (content != null || visibility != null || resourceRemoteIds != null || archived != null) {
+            touched = true
             val memosVisibility = visibility?.let { v -> MemosVisibility.fromMemoVisibility(v) }
             val resourceIdList = resourceRemoteIds?.map { it.toLong() }
-            result = memosApi.patchMemo(remoteId.toLong(), MemosV0PatchMemoInput(id = remoteId.toLong(), content = it, visibility = memosVisibility, resourceIdList = resourceIdList)).mapSuccess {
+            val rowStatus = archived?.let { isArchived ->
+                if (isArchived) MemosRowStatus.ARCHIVED else MemosRowStatus.NORMAL
+            }
+            result = memosApi.patchMemo(
+                remoteId.toLong(),
+                MemosV0PatchMemoInput(
+                    id = remoteId.toLong(),
+                    content = content,
+                    visibility = memosVisibility,
+                    resourceIdList = resourceIdList,
+                    rowStatus = rowStatus
+                )
+            ).mapSuccess {
                 convertMemo(this)
             }
         }
         tags?.forEach { tag ->
             memosApi.updateTag(MemosV0UpdateTagInput(tag))
         }
-        return result
+        return if (touched) result else ApiResponse.exception(MoeMemosException.invalidParameter)
     }
 
     override suspend fun deleteMemo(remoteId: String): ApiResponse<Unit> {
         return memosApi.deleteMemo(remoteId.toLong())
-    }
-
-    override suspend fun archiveMemo(remoteId: String): ApiResponse<Unit> {
-        return memosApi.patchMemo(remoteId.toLong(), MemosV0PatchMemoInput(id = remoteId.toLong(), rowStatus = MemosRowStatus.ARCHIVED)).mapSuccess {}
-    }
-
-    override suspend fun restoreMemo(remoteId: String): ApiResponse<Unit> {
-        return memosApi.patchMemo(remoteId.toLong(), MemosV0PatchMemoInput(id = remoteId.toLong(), rowStatus = MemosRowStatus.NORMAL)).mapSuccess {}
     }
 
     override suspend fun listTags(): ApiResponse<List<String>> {

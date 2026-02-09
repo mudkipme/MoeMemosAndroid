@@ -55,7 +55,8 @@ class MemosV1Repository(
             resources = memo.attachments?.map { convertResource(it) } ?: emptyList(),
             tags = emptyList(),
             archived = memo.state == MemosV1State.ARCHIVED,
-            updatedAt = memo.updateTime
+            updatedAt = memo.updateTime,
+            needsSync = false
         )
     }
 
@@ -141,12 +142,14 @@ class MemosV1Repository(
         resourceRemoteIds: List<String>?,
         visibility: MemoVisibility?,
         tags: List<String>?,
-        pinned: Boolean?
+        pinned: Boolean?,
+        archived: Boolean?
     ): ApiResponse<Memo> {
         val resp = memosApi.updateMemo(getId(remoteId), UpdateMemoRequest(
             content = content,
             visibility = visibility?.let { MemosVisibility.fromMemoVisibility(it) },
             pinned = pinned,
+            state = archived?.let { isArchived -> if (isArchived) MemosV1State.ARCHIVED else MemosV1State.NORMAL },
             updateTime = Instant.now(),
             attachments = resourceRemoteIds?.map { MemosV1Resource(name = getName(it)) }
         )).mapSuccess { convertMemo(this) }
@@ -155,14 +158,6 @@ class MemosV1Repository(
 
     override suspend fun deleteMemo(remoteId: String): ApiResponse<Unit> {
         return memosApi.deleteMemo(getId(remoteId))
-    }
-
-    override suspend fun archiveMemo(remoteId: String): ApiResponse<Unit> {
-        return memosApi.updateMemo(getId(remoteId), UpdateMemoRequest(state = MemosV1State.ARCHIVED)).mapSuccess {  }
-    }
-
-    override suspend fun restoreMemo(remoteId: String): ApiResponse<Unit> {
-        return memosApi.updateMemo(getId(remoteId), UpdateMemoRequest(state = MemosV1State.NORMAL)).mapSuccess {  }
     }
 
     override suspend fun listTags(): ApiResponse<List<String>> {
