@@ -20,8 +20,9 @@ import java.util.UUID
 class LocalDatabaseRepository(
     private val memoDao: MemoDao,
     private val fileStorage: FileStorage,
+    private val account: Account.Local = Account.Local(),
 ) : AbstractMemoRepository() {
-    private val accountKey = Account.Local.accountKey()
+    private val accountKey = account.accountKey()
 
     override suspend fun listMemos(): ApiResponse<List<Memo>> {
         return try {
@@ -239,7 +240,7 @@ class LocalDatabaseRepository(
     }
 
     override suspend fun getCurrentUser(): ApiResponse<User> {
-        return ApiResponse.Success(User("local", "Local Account"))
+        return ApiResponse.Success(account.toUser())
     }
 
     private suspend fun convertToMemo(entity: MemoEntity): Memo {

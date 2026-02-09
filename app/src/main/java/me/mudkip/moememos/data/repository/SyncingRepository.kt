@@ -36,8 +36,10 @@ class SyncingRepository(
     private val fileStorage: FileStorage,
     private val remoteRepository: RemoteRepository,
     private val account: Account,
+    private val onUserSynced: suspend (User) -> Unit = {},
 ) : AbstractMemoRepository() {
     private val accountKey = account.accountKey()
+    private var currentUser: User = account.toUser()
     private val operationMutex = Mutex()
     private val operationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _syncStatus = MutableStateFlow(SyncStatus())
@@ -84,8 +86,8 @@ class SyncingRepository(
                 content = content,
                 date = now,
                 visibility = visibility,
-                creatorId = account.getAccountInfo()?.id?.toString(),
-                creatorName = account.getAccountInfo()?.name,
+                creatorId = currentUser.identifier,
+                creatorName = currentUser.name,
                 pinned = false,
                 archived = false,
                 needsSync = true,
@@ -373,17 +375,7 @@ class SyncingRepository(
     }
 
     override suspend fun getCurrentUser(): ApiResponse<User> {
-        val remoteUser = remoteRepository.getCurrentUser()
-        if (remoteUser is ApiResponse.Success) {
-            return remoteUser
-        }
-
-        val info = account.getAccountInfo()
-        return if (info != null) {
-            ApiResponse.Success(User(identifier = info.id.toString(), name = info.name))
-        } else {
-            remoteUser
-        }
+        return ApiResponse.Success(currentUser)
     }
 
     override suspend fun sync(): ApiResponse<Unit> {
@@ -410,6 +402,8 @@ class SyncingRepository(
     }
 
     private suspend fun syncInternal(): ApiResponse<Unit> {
+        refreshCurrentUserFromRemoteSafely()
+
         val remoteNormal = remoteRepository.listMemos()
         if (remoteNormal !is ApiResponse.Success) {
             return remoteNormal.mapFailureToUnit()
@@ -517,6 +511,21 @@ class SyncingRepository(
             ApiResponse.Failure.Exception(Exception("Sync finished with partial failures"))
         } else {
             ApiResponse.Success(Unit)
+        }
+    }
+
+    private suspend fun refreshCurrentUserFromRemoteSafely() {
+        val remoteUser = try {
+            remoteRepository.getCurrentUser()
+        } catch (_: Throwable) {
+            null
+        }
+        val user = (remoteUser as? ApiResponse.Success)?.data ?: return
+        currentUser = user
+        try {
+            onUserSynced(user)
+        } catch (_: Throwable) {
+            // Best effort only: syncing memos must not fail on profile refresh issues.
         }
     }
 

@@ -16,6 +16,8 @@ import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.local.MoeMemosDatabase
 import me.mudkip.moememos.data.model.Account
+import me.mudkip.moememos.data.model.LocalAccount
+import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.model.UserData
 import me.mudkip.moememos.data.repository.AbstractMemoRepository
 import me.mudkip.moememos.data.repository.LocalDatabaseRepository
@@ -60,6 +62,7 @@ class AccountService @Inject constructor(
     private var repository: AbstractMemoRepository = LocalDatabaseRepository(
         database.memoDao(),
         fileStorage,
+        Account.Local(LocalAccount())
     )
 
     private var remoteRepository: RemoteRepository? = null
@@ -74,23 +77,41 @@ class AccountService @Inject constructor(
 
     private fun updateCurrentAccount(account: Account?) {
         when (account) {
-            null,
-            Account.Local -> {
-                this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage)
+            null -> {
+                this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage, Account.Local(LocalAccount()))
+                this.remoteRepository = null
+                httpClient = okHttpClient
+            }
+            is Account.Local -> {
+                this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage, account)
                 this.remoteRepository = null
                 httpClient = okHttpClient
             }
             is Account.MemosV0 -> {
                 val (client, memosApi) = createMemosV0Client(account.info.host, account.info.accessToken)
                 val remote = MemosV0Repository(memosApi, account)
-                this.repository = SyncingRepository(database.memoDao(), fileStorage, remote, account)
+                this.repository = SyncingRepository(
+                    database.memoDao(),
+                    fileStorage,
+                    remote,
+                    account
+                ) { user ->
+                    updateAccountFromSyncedUser(account.accountKey(), user)
+                }
                 this.remoteRepository = remote
                 this.httpClient = client
             }
             is Account.MemosV1 -> {
                 val (client, memosApi) = createMemosV1Client(account.info.host, account.info.accessToken)
                 val remote = MemosV1Repository(memosApi, account)
-                this.repository = SyncingRepository(database.memoDao(), fileStorage, remote, account)
+                this.repository = SyncingRepository(
+                    database.memoDao(),
+                    fileStorage,
+                    remote,
+                    account
+                ) { user ->
+                    updateAccountFromSyncedUser(account.accountKey(), user)
+                }
                 this.remoteRepository = remote
                 this.httpClient = client
             }
@@ -144,6 +165,22 @@ class AccountService @Inject constructor(
                 )
             }
             updateCurrentAccount(currentAccount.first())
+        }
+    }
+
+    private suspend fun updateAccountFromSyncedUser(accountKey: String, user: User) {
+        mutex.withLock {
+            context.settingsDataStore.updateData { settings ->
+                val index = settings.usersList.indexOfFirst { it.accountKey == accountKey }
+                if (index == -1) {
+                    return@updateData settings
+                }
+                val current = Account.parseUserData(settings.usersList[index]) ?: return@updateData settings
+                val updated = current.withUser(user)
+                val users = settings.usersList.toMutableList()
+                users[index] = updated.toUserData()
+                settings.copy(usersList = users)
+            }
         }
     }
 

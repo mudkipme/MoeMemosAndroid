@@ -26,7 +26,6 @@ import androidx.navigation.compose.rememberNavController
 import me.mudkip.moememos.MainActivity
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.string
-import me.mudkip.moememos.ext.suspendOnNotLogin
 import me.mudkip.moememos.ui.page.account.AccountPage
 import me.mudkip.moememos.ui.page.account.AddAccountPage
 import me.mudkip.moememos.ui.page.login.LoginPage
@@ -109,7 +108,7 @@ fun Navigation() {
 
 
     LaunchedEffect(Unit) {
-        userStateViewModel.loadCurrentUser().suspendOnNotLogin {
+        if (!userStateViewModel.hasAnyAccount()) {
             if (navController.currentDestination?.route != RouteName.ADD_ACCOUNT) {
                 navController.navigate(RouteName.ADD_ACCOUNT) {
                     popUpTo(navController.graph.startDestinationId) {
@@ -117,7 +116,9 @@ fun Navigation() {
                     }
                 }
             }
+            return@LaunchedEffect
         }
+        userStateViewModel.loadCurrentUser()
     }
 
     fun handleIntent(intent: Intent) {

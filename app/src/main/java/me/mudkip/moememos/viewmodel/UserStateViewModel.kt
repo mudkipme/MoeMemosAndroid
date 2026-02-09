@@ -21,6 +21,7 @@ import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.api.MemosV1User
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
+import me.mudkip.moememos.data.model.LocalAccount
 import me.mudkip.moememos.data.model.MemosAccount
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.data.model.UserData
@@ -28,6 +29,7 @@ import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnNotLogin
 import okhttp3.OkHttpClient
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -61,6 +63,10 @@ class UserStateViewModel @Inject constructor(
         }.suspendOnNotLogin {
             currentUser = null
         }
+    }
+
+    suspend fun hasAnyAccount(): Boolean = withContext(viewModelScope.coroutineContext) {
+        accountService.accounts.first().isNotEmpty()
     }
 
     suspend fun loginMemosWithAccessToken(host: String, accessToken: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
@@ -120,7 +126,11 @@ class UserStateViewModel @Inject constructor(
 
     suspend fun addLocalAccount(): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
         try {
-            accountService.addAccount(Account.Local)
+            accountService.addAccount(
+                Account.Local(
+                    LocalAccount(startDateEpochSecond = Instant.now().epochSecond)
+                )
+            )
             loadCurrentUser().mapSuccess {}
         } catch (e: Throwable) {
             ApiResponse.exception(e)
@@ -134,6 +144,8 @@ class UserStateViewModel @Inject constructor(
             id = user.id,
             name = user.username ?: user.displayName,
             avatarUrl = user.avatarUrl ?: "",
+            startDateEpochSecond = user.createdTs,
+            defaultVisibility = user.toUser().defaultVisibility.name,
         )
     )
 
@@ -144,6 +156,7 @@ class UserStateViewModel @Inject constructor(
             id = user.name.substringAfterLast('/').toLong(),
             name = user.username,
             avatarUrl = user.avatarUrl ?: "",
+            startDateEpochSecond = user.createTime?.epochSecond ?: 0L,
         )
     )
 }

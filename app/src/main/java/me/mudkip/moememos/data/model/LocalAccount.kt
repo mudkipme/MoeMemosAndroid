@@ -5,4 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LocalAccount(
     val enabled: Boolean = true,
+    val startDateEpochSecond: Long = 0L,
 )
