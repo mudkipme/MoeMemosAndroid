@@ -6,6 +6,17 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose'
 }
 
+def releaseSigningStoreFile = System.getenv("ANDROID_SIGNING_STORE_FILE")
+def releaseSigningStorePassword = System.getenv("ANDROID_SIGNING_STORE_PASSWORD")
+def releaseSigningKeyAlias = System.getenv("ANDROID_SIGNING_KEY_ALIAS")
+def releaseSigningKeyPassword = System.getenv("ANDROID_SIGNING_KEY_PASSWORD")
+def hasReleaseSigning = [
+    releaseSigningStoreFile,
+    releaseSigningStorePassword,
+    releaseSigningKeyAlias,
+    releaseSigningKeyPassword
+].every { it != null && !it.trim().isEmpty() }
+
 android {
     compileSdk = 36
 
@@ -13,12 +24,23 @@ android {
         applicationId = "me.mudkip.moememos"
         minSdk = 26
         targetSdk = 36
-        versionCode = 33
-        versionName = "0.8.8"
+        versionCode = 40
+        versionName = "0.9.0-alpha.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    signingConfigs {
+        release {
+            if (hasReleaseSigning) {
+                storeFile file(releaseSigningStoreFile)
+                storePassword releaseSigningStorePassword
+                keyAlias releaseSigningKeyAlias
+                keyPassword releaseSigningKeyPassword
+            }
         }
     }
 
@@ -27,6 +49,9 @@ android {
             minifyEnabled = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             crunchPngs = false
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
         }
     }
     compileOptions {
