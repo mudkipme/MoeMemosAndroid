@@ -106,7 +106,7 @@ fun SettingsPage(
                             navController.navigate("${RouteName.ACCOUNT}?accountKey=${account.accountKey()}")
                         }
                     }
-                    Account.Local -> item {
+                    is Account.Local -> item {
                         SettingItem(icon = Icons.Outlined.Home, text = R.string.local_account.string, trailingIcon = {
                             if (currentAccount?.accountKey() == account.accountKey()) {
                                 Icon(Icons.Outlined.Check,
