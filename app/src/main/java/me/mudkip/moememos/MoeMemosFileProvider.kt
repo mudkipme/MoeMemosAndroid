@@ -2,6 +2,7 @@ package me.mudkip.moememos
 
 import android.content.Context
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import java.io.File
 
@@ -17,9 +18,22 @@ class MoeMemosFileProvider: FileProvider(
             val authority = context.packageName + ".fileprovider"
             return getUriForFile(context, authority, file)
         }
+
+        fun getFileUri(context: Context, file: File): Uri {
+            val authority = context.packageName + ".fileprovider"
+            return getUriForFile(context, authority, file)
+        }
     }
 
     override fun getType(uri: Uri): String? {
-        return "image/jpeg"
+        val fromProvider = super.getType(uri)
+        if (!fromProvider.isNullOrBlank()) {
+            return fromProvider
+        }
+        val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString()).lowercase()
+        if (extension.isBlank()) {
+            return null
+        }
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
     }
 }
