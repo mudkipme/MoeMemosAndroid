@@ -1,6 +1,7 @@
 package me.mudkip.moememos.ui.page.common
 
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.fadeIn
@@ -30,6 +31,7 @@ import me.mudkip.moememos.ui.page.account.AccountPage
 import me.mudkip.moememos.ui.page.account.AddAccountPage
 import me.mudkip.moememos.ui.page.login.LoginPage
 import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
+import me.mudkip.moememos.ui.page.memos.MemoDetailPage
 import me.mudkip.moememos.ui.page.memos.MemosPage
 import me.mudkip.moememos.ui.page.memos.SearchPage
 import me.mudkip.moememos.ui.page.resource.ResourceListPage
@@ -101,6 +103,13 @@ fun Navigation() {
 
                 composable(RouteName.SEARCH) {
                     SearchPage(navController = navController)
+                }
+
+                composable("${RouteName.MEMO_DETAIL}?memoId={memoId}") { entry ->
+                    val memoId = entry.arguments?.getString("memoId")
+                    if (memoId != null) {
+                        MemoDetailPage(navController = navController, memoIdentifier = Uri.decode(memoId))
+                    }
                 }
             }
         }

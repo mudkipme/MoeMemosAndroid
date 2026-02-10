@@ -3,16 +3,13 @@ package me.mudkip.moememos.ui.component
 import android.content.Intent
 import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Archive
@@ -42,7 +39,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -61,7 +57,7 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 @Composable
 fun MemosCard(
     memo: MemoEntity,
-    onEdit: (MemoEntity) -> Unit,
+    onClick: (MemoEntity) -> Unit,
     previewMode: Boolean = false,
     showSyncStatus: Boolean = false
 ) {
@@ -69,6 +65,7 @@ fun MemosCard(
     val scope = rememberCoroutineScope()
 
     Card(
+        onClick = { onClick(memo) },
         modifier = Modifier
             .padding(horizontal = 15.dp, vertical = 10.dp)
             .fillMaxWidth(),
@@ -78,76 +75,69 @@ fun MemosCard(
             null
         }
     ) {
-        Box(
-            modifier = Modifier
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = {
-                            onEdit(memo)
-                        }
+        Column {
+            Row(
+                modifier = Modifier
+                    .padding(start = 15.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    DateUtils.getRelativeTimeSpanString(
+                        memo.date.toEpochMilli(),
+                        System.currentTimeMillis(),
+                        DateUtils.SECOND_IN_MILLIS
+                    ).toString(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.outline
+                )
+                if (showSyncStatus && memo.needsSync) {
+                    Icon(
+                        imageVector = Icons.Outlined.CloudOff,
+                        contentDescription = R.string.memo_sync_pending.string,
+                        modifier = Modifier
+                            .padding(start = 5.dp)
+                            .size(20.dp),
+                        tint = MaterialTheme.colorScheme.error
                     )
                 }
-        ) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .padding(start = 15.dp)
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        DateUtils.getRelativeTimeSpanString(
-                            memo.date.toEpochMilli(),
-                            System.currentTimeMillis(),
-                            DateUtils.SECOND_IN_MILLIS
-                        ).toString(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.outline
+                if (LocalUserState.current.currentUser?.defaultVisibility != memo.visibility) {
+                    Icon(
+                        memo.visibility.icon,
+                        contentDescription = stringResource(memo.visibility.titleResource),
+                        modifier = Modifier
+                            .padding(start = 5.dp)
+                            .size(20.dp),
+                        tint = MaterialTheme.colorScheme.outline
                     )
-                    if (showSyncStatus && memo.needsSync) {
-                        Icon(
-                            imageVector = Icons.Outlined.CloudOff,
-                            contentDescription = R.string.memo_sync_pending.string,
-                            modifier = Modifier
-                                .padding(start = 5.dp)
-                                .size(20.dp),
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
-                    if (LocalUserState.current.currentUser?.defaultVisibility != memo.visibility) {
-                        Icon(
-                            memo.visibility.icon,
-                            contentDescription = stringResource(memo.visibility.titleResource),
-                            modifier = Modifier
-                                .padding(start = 5.dp)
-                                .size(20.dp),
-                            tint = MaterialTheme.colorScheme.outline
-                        )
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                    MemosCardActionButton(memo)
                 }
-
-                MemoContent(
-                    memo,
-                    previewMode = previewMode,
-                    checkboxChange = { checked, startOffset, endOffset ->
-                        scope.launch {
-                            var text = memo.content.substring(startOffset, endOffset)
-                            text = if (checked) {
-                                text.replace("[ ]", "[x]")
-                            } else {
-                                text.replace("[x]", "[ ]")
-                            }
-                            memosViewModel.editMemo(
-                                memo.identifier,
-                                memo.content.replaceRange(startOffset, endOffset, text),
-                                memo.resources,
-                                memo.visibility
-                            )
-                        }
-                    })
+                Spacer(modifier = Modifier.weight(1f))
+                MemosCardActionButton(memo)
             }
+
+            MemoContent(
+                memo,
+                previewMode = previewMode,
+                checkboxChange = { checked, startOffset, endOffset ->
+                    scope.launch {
+                        var text = memo.content.substring(startOffset, endOffset)
+                        text = if (checked) {
+                            text.replace("[ ]", "[x]")
+                        } else {
+                            text.replace("[x]", "[ ]")
+                        }
+                        memosViewModel.editMemo(
+                            memo.identifier,
+                            memo.content.replaceRange(startOffset, endOffset, text),
+                            memo.resources,
+                            memo.visibility
+                        )
+                    }
+                },
+                onViewMore = {
+                    onClick(memo)
+                }
+            )
         }
     }
 }
@@ -163,9 +153,7 @@ fun MemosCardActionButton(
     val scope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .wrapContentSize(Alignment.TopEnd)) {
+    Box {
         IconButton(onClick = { menuExpanded = true }) {
             Icon(Icons.Filled.MoreVert, contentDescription = null)
         }

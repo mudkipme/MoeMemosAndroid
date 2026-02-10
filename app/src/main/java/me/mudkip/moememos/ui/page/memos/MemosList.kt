@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.page.memos
 
+import android.net.Uri
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -89,8 +90,10 @@ fun MemosList(
             items(filteredMemos, key = { it.identifier }) { memo ->
                 MemosCard(
                     memo = memo,
-                    onEdit = { selectedMemo ->
-                        navController.navigate("${RouteName.EDIT}?memoId=${selectedMemo.identifier}")
+                    onClick = { selectedMemo ->
+                        navController.navigate(
+                            "${RouteName.MEMO_DETAIL}?memoId=${Uri.encode(selectedMemo.identifier)}"
+                        )
                     },
                     previewMode = true,
                     showSyncStatus = currentAccount !is Account.Local

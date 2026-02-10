@@ -67,6 +67,7 @@
     <string name="delete_this_tag">Delete this tag?</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
+    <string name="view_more">View More</string>
     <string name="accounts">Accounts</string>
     <string name="account_detail">Account Detail</string>
     <string name="switch_account">Switch Account</string>
@@ -85,4 +86,5 @@
     <string name="loading">Loading…</string>
     <string name="error_unknown">Unknown error</string>
     <string name="no_memos">No memos found</string>
+    <string name="memo_not_found">Memo not found</string>
 </resources>

@@ -64,7 +64,7 @@ fun ArchivedMemoCard(
                 ArchivedMemosCardActionButton(memo)
             }
 
-            MemoContent(memo, previewMode = true)
+            MemoContent(memo, previewMode = false)
         }
     }
 }

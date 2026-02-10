@@ -10,20 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -45,10 +37,9 @@ import kotlin.math.ceil
 fun MemoContent(
     memo: MemoRepresentable,
     previewMode: Boolean = false,
-    checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit = { _, _, _ -> }
+    checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit = { _, _, _ -> },
+    onViewMore: (() -> Unit)? = null
 ) {
-    var viewContentExpand by rememberSaveable { mutableStateOf(false) }
-
     val (text, previewed) = remember(memo.content, previewMode) {
         if (previewMode) {
             extractPreviewContent(markdownText = memo.content)
@@ -60,43 +51,18 @@ fun MemoContent(
     Column(
         modifier = Modifier.padding(start = 15.dp, end = 15.dp, bottom = 10.dp)
     ) {
-        if (viewContentExpand) {
-            Markdown(
-                memo.content,
-                imageBaseUrl = LocalUserState.current.host,
-                checkboxChange = checkboxChange
-            )
-        } else {
-            Markdown(
-                text,
-                imageBaseUrl = LocalUserState.current.host,
-                checkboxChange = checkboxChange
-            )
-        }
+        Markdown(
+            text,
+            imageBaseUrl = LocalUserState.current.host,
+            checkboxChange = checkboxChange
+        )
 
         MemoResourceContent(memo)
 
-        if (previewed) {
+        if (previewed && onViewMore != null) {
             AssistChip(
-                onClick = {
-                    viewContentExpand = !viewContentExpand
-                },
-                label = { Text( if (viewContentExpand) R.string.collapse.string else R.string.expand.string) },
-                trailingIcon = {
-                    Icon(
-                        if (viewContentExpand) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                        contentDescription = if (viewContentExpand) R.string.collapse.string else R.string.expand.string,
-                        modifier = Modifier.size(AssistChipDefaults.IconSize),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                },
-                colors = AssistChipDefaults.assistChipColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                ),
-                border = BorderStroke(
-                    width = 0.dp,
-                    color = MaterialTheme.colorScheme.primaryContainer
-                )
+                onClick = onViewMore,
+                label = { Text(R.string.view_more.string) }
             )
         }
     }

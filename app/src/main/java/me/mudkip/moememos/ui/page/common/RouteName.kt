@@ -10,6 +10,7 @@ object RouteName {
     const val EDIT = "edit"
     const val TAG = "tag"
     const val SEARCH = "search"
+    const val MEMO_DETAIL = "memo-detail"
     const val RESOURCE = "resource"
     const val SHARE = "share"
     const val EXPLORE = "explore"
