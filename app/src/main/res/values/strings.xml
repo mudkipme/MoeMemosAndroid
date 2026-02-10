@@ -59,6 +59,7 @@
     <string name="pin">Pin</string>
     <string name="share">Share</string>
     <string name="copy_link">Copy Link</string>
+    <string name="open">Open</string>
     <string name="archive">Archive</string>
     <string name="memo_visibility_public">Visible to guests</string>
     <string name="memo_visibility_protected">Visible to local members</string>
@@ -81,6 +82,7 @@
     <string name="sync_status_unsynced">Unsynced changes</string>
     <string name="memo_sync_pending">Memo not synced</string>
     <string name="memo_sync_synced">Memo synced</string>
+    <string name="failed_to_open_attachment">Failed to open attachment</string>
     
     <!-- Widget strings -->
     <string name="loading">Loading…</string>

@@ -2,7 +2,9 @@ package me.mudkip.moememos.viewmodel
 
 import android.app.Application
 import android.content.Context
-import android.graphics.Bitmap
+import android.net.Uri
+import android.provider.OpenableColumns
+import android.webkit.MimeTypeMap
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,8 +22,7 @@ import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.settingsDataStore
 import me.mudkip.moememos.widget.WidgetUpdater
-import okhttp3.MediaType.Companion.toMediaType
-import java.io.ByteArrayOutputStream
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.util.UUID
 import javax.inject.Inject
 
@@ -67,12 +68,40 @@ class MemoInputViewModel @Inject constructor(
         }
     }
 
-    suspend fun upload(bitmap: Bitmap, memoIdentifier: String?): ApiResponse<ResourceEntity> = withContext(viewModelScope.coroutineContext) {
-        val bos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos)
-        val bytes = bos.toByteArray()
-        memoService.repository.createResource( UUID.randomUUID().toString() + ".jpg", "image/jpeg".toMediaType(), bytes, memoIdentifier).suspendOnSuccess {
-            uploadResources.add(data)
+    suspend fun upload(uri: Uri, memoIdentifier: String?): ApiResponse<ResourceEntity> = withContext(viewModelScope.coroutineContext) {
+        try {
+            val mimeType = context.contentResolver.getType(uri)
+            val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: return@withContext ApiResponse.Failure.Exception(Exception("Unable to read selected file"))
+            val extension = mimeType?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
+            val filename = queryDisplayName(uri)
+                ?: ("attachment_${UUID.randomUUID()}" + if (extension.isNullOrBlank()) "" else ".$extension")
+
+            memoService.repository
+                .createResource(filename, mimeType?.toMediaTypeOrNull(), bytes, memoIdentifier)
+                .suspendOnSuccess {
+                    uploadResources.add(data)
+                }
+        } catch (e: Exception) {
+            ApiResponse.Failure.Exception(e)
+        }
+    }
+
+    private fun queryDisplayName(uri: Uri): String? {
+        return try {
+            context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+                if (!cursor.moveToFirst()) {
+                    return@use null
+                }
+                val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (index == -1) {
+                    null
+                } else {
+                    cursor.getString(index)
+                }
+            }
+        } catch (_: Exception) {
+            null
         }
     }
 

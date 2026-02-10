@@ -3,6 +3,7 @@ package me.mudkip.moememos.ui.page.memoinput
 import android.content.ClipData
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Attachment
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.FormatBold
@@ -138,6 +139,7 @@ internal fun MemoInputBottomBar(
     onTagSelected: (String) -> Unit,
     onToggleTodoItem: () -> Unit,
     onPickImage: () -> Unit,
+    onPickAttachment: () -> Unit,
     onTakePhoto: () -> Unit,
     onFormat: (MarkdownFormat) -> Unit,
 ) {
@@ -227,6 +229,10 @@ internal fun MemoInputBottomBar(
                     Icon(Icons.Outlined.Image, contentDescription = stringResource(R.string.add_image))
                 }
 
+                IconButton(onClick = onPickAttachment) {
+                    Icon(Icons.Outlined.Attachment, contentDescription = stringResource(R.string.attachment))
+                }
+
                 IconButton(onClick = onTakePhoto) {
                     Icon(Icons.Outlined.PhotoCamera, contentDescription = stringResource(R.string.take_photo))
                 }
@@ -251,6 +257,13 @@ internal fun MemoInputEditor(
     uploadResources: List<ResourceEntity>,
     inputViewModel: MemoInputViewModel
 ) {
+    val imageResources = remember(uploadResources) {
+        uploadResources.filter { it.mimeType?.startsWith("image/") == true }
+    }
+    val attachmentResources = remember(uploadResources) {
+        uploadResources.filterNot { it.mimeType?.startsWith("image/") == true }
+    }
+
     Column(
         modifier
             .fillMaxHeight()
@@ -283,7 +296,7 @@ internal fun MemoInputEditor(
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
+                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
                 .weight(1f)
                 .focusRequester(focusRequester),
             value = text,
@@ -292,19 +305,34 @@ internal fun MemoInputEditor(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
         )
 
-        if (uploadResources.isNotEmpty()) {
+        if (imageResources.isNotEmpty()) {
             LazyRow(
                 modifier = Modifier
                     .height(80.dp)
-                    .padding(start = 15.dp, end = 15.dp, bottom = 15.dp),
+                    .padding(
+                        start = 15.dp,
+                        end = 15.dp,
+                        bottom = if (attachmentResources.isEmpty()) 15.dp else 8.dp
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(uploadResources, key = { it.identifier }) { resource ->
-                    if (resource.mimeType?.startsWith("image/") == true) {
-                        InputImage(resource = resource, inputViewModel = inputViewModel)
-                    } else {
-                        Attachment(resource = resource)
-                    }
+                items(imageResources, key = { it.identifier }) { resource ->
+                    InputImage(resource = resource, inputViewModel = inputViewModel)
+                }
+            }
+        }
+
+        if (attachmentResources.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier
+                    .padding(start = 15.dp, end = 15.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(attachmentResources, key = { it.identifier }) { resource ->
+                    Attachment(
+                        resource = resource,
+                        onRemove = { inputViewModel.deleteResource(resource.identifier) }
+                    )
                 }
             }
         }

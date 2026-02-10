@@ -32,6 +32,7 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +47,7 @@ import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.local.entity.MemoEntity
+import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
@@ -149,6 +151,8 @@ fun MemosCardActionButton(
     var menuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val memosViewModel = LocalMemos.current
+    val userStateViewModel = LocalUserState.current
+    val currentAccount by userStateViewModel.currentAccount.collectAsState()
     val rootNavController = LocalRootNavController.current
     val scope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -219,26 +223,28 @@ fun MemosCardActionButton(
                         contentDescription = null
                     )
                 })
-            DropdownMenuItem(
-                text = { Text(R.string.copy_link.string) },
-                onClick = {
-                    memosViewModel.host.value?.let { host ->
-                        val memoUrl = "$host/${memo.remoteId ?: memo.identifier}"
-                        val sendIntent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, memoUrl)
-                            type = "text/plain"
+            if (currentAccount !is Account.Local) {
+                DropdownMenuItem(
+                    text = { Text(R.string.copy_link.string) },
+                    onClick = {
+                        memosViewModel.host.value?.let { host ->
+                            val memoUrl = "$host/${memo.remoteId ?: memo.identifier}"
+                            val sendIntent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, memoUrl)
+                                type = "text/plain"
+                            }
+                            val shareIntent = Intent.createChooser(sendIntent, null)
+                            context.startActivity(shareIntent)
                         }
-                        val shareIntent = Intent.createChooser(sendIntent, null)
-                        context.startActivity(shareIntent)
-                    }
-                },
-                leadingIcon = {
-                    Icon(
-                        Icons.Outlined.Link,
-                        contentDescription = null
-                    )
-                })
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Link,
+                            contentDescription = null
+                        )
+                    })
+            }
             DropdownMenuItem(
                 text = { Text(R.string.archive.string) },
                 onClick = {

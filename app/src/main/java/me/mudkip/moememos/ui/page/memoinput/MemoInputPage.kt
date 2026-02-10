@@ -1,13 +1,11 @@
 package me.mudkip.moememos.ui.page.memoinput
 
 import android.content.ActivityNotFoundException
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.compose.foundation.layout.imePadding
@@ -107,21 +105,11 @@ fun MemoInputPage(
     }
 
     fun uploadImage(uri: Uri) = coroutineScope.launch {
-        try {
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                ImageDecoder.decodeBitmap(ImageDecoder.createSource(navController.context.contentResolver, uri))
-            } else {
-                @Suppress("DEPRECATION")
-                MediaStore.Images.Media.getBitmap(navController.context.contentResolver, uri)
-            }
-            viewModel.upload(bitmap, memo?.identifier).suspendOnSuccess {
-                delay(300)
-                focusRequester.requestFocus()
-            }.suspendOnErrorMessage { message ->
-                snackbarState.showSnackbar(message)
-            }
-        } catch (e: Exception) {
-            snackbarState.showSnackbar(e.localizedMessage ?: e.toString())
+        viewModel.upload(uri, memo?.identifier).suspendOnSuccess {
+            delay(300)
+            focusRequester.requestFocus()
+        }.suspendOnErrorMessage { message ->
+            snackbarState.showSnackbar(message)
         }
     }
 
@@ -132,6 +120,16 @@ fun MemoInputPage(
     val takePhoto = rememberLauncherForActivityResult(TakePicture()) { success ->
         if (success) {
             photoImageUri?.let { uploadImage(it) }
+        }
+    }
+
+    val pickAttachment = rememberLauncherForActivityResult(OpenDocument()) { uri ->
+        uri?.let {
+            coroutineScope.launch {
+                viewModel.upload(it, memo?.identifier).suspendOnErrorMessage { message ->
+                    snackbarState.showSnackbar(message)
+                }
+            }
         }
     }
 
@@ -170,6 +168,9 @@ fun MemoInputPage(
                 },
                 onPickImage = {
                     pickImage.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+                },
+                onPickAttachment = {
+                    pickAttachment.launch(arrayOf("*/*"))
                 },
                 onTakePhoto = {
                     try {

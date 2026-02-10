@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -18,6 +19,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
 import coil3.imageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import kotlinx.coroutines.launch
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import timber.log.Timber
@@ -34,6 +36,7 @@ fun MemoImage(
     val context = LocalContext.current
     val userStateViewModel = LocalUserState.current
     val memosViewModel = LocalMemos.current
+    val scope = rememberCoroutineScope()
     val modelUri = remember(url) { url.toUri() }
     val modelFile = remember(url) {
         modelUri.takeIf { it.scheme == "file" }?.path?.let(::File)
@@ -85,7 +88,9 @@ fun MemoImage(
                     downloadedFile != null &&
                     modelUri.scheme != "file"
                 if (shouldPersistDownloadedFile) {
-                    memosViewModel.cacheResourceFile(resourceIdentifier, Uri.fromFile(downloadedFile))
+                    scope.launch {
+                        memosViewModel.cacheResourceFile(resourceIdentifier, Uri.fromFile(downloadedFile))
+                    }
                 }
             }
         }

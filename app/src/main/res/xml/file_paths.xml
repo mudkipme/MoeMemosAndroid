@@ -3,10 +3,16 @@
     <files-path
         name="images"
         path="images/" />
+    <files-path
+        name="resources"
+        path="resources/" />
     <cache-path
         name="images"
         path="images/" />
     <cache-path
         name="image_cache"
         path="image_cache/" />
+    <cache-path
+        name="coil3_disk_cache"
+        path="coil3_disk_cache/" />
 </paths>
