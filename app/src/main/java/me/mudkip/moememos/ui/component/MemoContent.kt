@@ -38,7 +38,8 @@ fun MemoContent(
     memo: MemoRepresentable,
     previewMode: Boolean = false,
     checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit = { _, _, _ -> },
-    onViewMore: (() -> Unit)? = null
+    onViewMore: (() -> Unit)? = null,
+    selectable: Boolean = false
 ) {
     val (text, previewed) = remember(memo.content, previewMode) {
         if (previewMode) {
@@ -54,7 +55,8 @@ fun MemoContent(
         Markdown(
             text,
             imageBaseUrl = LocalUserState.current.host,
-            checkboxChange = checkboxChange
+            checkboxChange = checkboxChange,
+            selectable = selectable
         )
 
         MemoResourceContent(memo)

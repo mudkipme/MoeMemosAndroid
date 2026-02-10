@@ -140,6 +140,7 @@ fun MemoDetailPage(
 
             MemoContent(
                 memo = memo,
+                selectable = true,
                 checkboxChange = { checked, startOffset, endOffset ->
                     scope.launch {
                         var text = memo.content.substring(startOffset, endOffset)

@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.Modifier
@@ -35,7 +36,8 @@ fun Markdown(
     modifier: Modifier = Modifier,
     textAlign: TextAlign? = null,
     imageBaseUrl: String? = null,
-    checkboxChange: ((checked: Boolean, startOffset: Int, endOffset: Int) -> Unit)? = null
+    checkboxChange: ((checked: Boolean, startOffset: Int, endOffset: Int) -> Unit)? = null,
+    selectable: Boolean = false
 ) {
     val bodyTextStyle = MaterialTheme.typography.bodyLarge.let {
         if (textAlign == null) it else it.copy(textAlign = textAlign)
@@ -58,49 +60,59 @@ fun Markdown(
         retainState = true
     )
 
-    M3Markdown(
-        markdownState = markdownState,
-        modifier = modifier,
-        imageTransformer = imageTransformer,
-        typography = markdownTypography(
-            text = bodyTextStyle,
-            paragraph = bodyTextStyle,
-            ordered = bodyTextStyle,
-            bullet = bodyTextStyle,
-            list = bodyTextStyle
-        ),
-        annotator = markdownAnnotator(
-            config = markdownAnnotatorConfig(eolAsNewLine = true)
-        ),
-        components = markdownComponents(
-            codeFence = highlightedCodeFence,
-            codeBlock = highlightedCodeBlock,
-            checkbox = {
-                val node = it.node
-                MarkdownCheckBox(
-                    content = it.content,
-                    node = it.node,
-                    style = it.typography.text,
-                    checkedIndicator = { checked, modifier ->
-                        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-                            Checkbox(
-                                checked = checked,
-                                onCheckedChange = if (checkboxChange != null) {
-                                    { checkboxChange(!checked, node.startOffset, node.endOffset) }
-                                } else {
-                                    null
-                                },
-                                modifier = modifier.semantics {
-                                    role = Role.Checkbox
-                                    stateDescription = if (checked) "Checked" else "Unchecked"
-                                },
-                            )
+    val markdownContent: @Composable () -> Unit = {
+        M3Markdown(
+            markdownState = markdownState,
+            modifier = modifier,
+            imageTransformer = imageTransformer,
+            typography = markdownTypography(
+                text = bodyTextStyle,
+                paragraph = bodyTextStyle,
+                ordered = bodyTextStyle,
+                bullet = bodyTextStyle,
+                list = bodyTextStyle
+            ),
+            annotator = markdownAnnotator(
+                config = markdownAnnotatorConfig(eolAsNewLine = true)
+            ),
+            components = markdownComponents(
+                codeFence = highlightedCodeFence,
+                codeBlock = highlightedCodeBlock,
+                checkbox = {
+                    val node = it.node
+                    MarkdownCheckBox(
+                        content = it.content,
+                        node = it.node,
+                        style = it.typography.text,
+                        checkedIndicator = { checked, modifier ->
+                            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                                Checkbox(
+                                    checked = checked,
+                                    onCheckedChange = if (checkboxChange != null) {
+                                        { checkboxChange(!checked, node.startOffset, node.endOffset) }
+                                    } else {
+                                        null
+                                    },
+                                    modifier = modifier.semantics {
+                                        role = Role.Checkbox
+                                        stateDescription = if (checked) "Checked" else "Unchecked"
+                                    },
+                                )
+                            }
                         }
-                    },
-                )
-            }
+                    )
+                }
+            )
         )
-    )
+    }
+
+    if (selectable) {
+        SelectionContainer {
+            markdownContent()
+        }
+    } else {
+        markdownContent()
+    }
 }
 
 private fun resolveMarkdownImageLink(link: String, imageBaseUrl: String?): String {
