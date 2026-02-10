@@ -58,6 +58,7 @@
     <string name="invalid_access_token">Access Token non valida</string>
     <string name="pin">Pin</string>
     <string name="share">Condividi</string>
+    <string name="open">Apri</string>
     <string name="archive">Archivia</string>
     <string name="memo_visibility_public">Visibile agli ospiti</string>
     <string name="memo_visibility_protected">Visibile ai membri locali</string>
@@ -67,6 +68,7 @@
     <string name="delete_this_tag">Elimina questo tag?</string>
     <string name="expand">Espandi</string>
     <string name="collapse">Restringere</string>
+    <string name="view_more">Mostra altro</string>
     <string name="accounts">Account</string>
     <string name="account_detail">Dettaglio account</string>
     <string name="switch_account">Cambia account</string>
@@ -74,8 +76,18 @@
     <string name="add_local_account">Aggiungi account locale</string>
     <string name="add_memos_account">Aggiungi account Memos</string>
     <string name="local_account_description">Salva i memo solo su questo dispositivo.</string>
+    <string name="local_account_non_removable">L\'account locale non può essere rimosso.</string>
     <string name="memos_account_description">Connettiti a un server Memos per sincronizzare i dati.</string>
+    <string name="sync_status_sync_now">Sincronizza ora</string>
+    <string name="sync_status_unsynced">Modifiche non sincronizzate</string>
+    <string name="memo_sync_pending">Memo non sincronizzato</string>
+    <string name="memo_sync_synced">Memo sincronizzato</string>
+    <string name="failed_to_open_attachment">Impossibile aprire l\'allegato</string>
+    <string name="export_local_account">Esporta dati locali</string>
+    <string name="local_export_success">Dati locali esportati</string>
+    <string name="local_export_failed">Impossibile esportare i dati locali</string>
     <string name="loading">Caricamento…</string>
     <string name="error_unknown">Errore sconosciuto</string>
     <string name="no_memos">Nessun memo trovato</string>
+    <string name="memo_not_found">Memo non trovato</string>
 </resources>

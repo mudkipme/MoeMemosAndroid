@@ -58,6 +58,7 @@
     <string name="pin">Закрепить</string>
     <string name="share">Поделиться</string>
     <string name="copy_link">Скопировать ссылку</string>
+    <string name="open">Открыть</string>
     <string name="archive">Архивировать</string>
     <string name="memo_visibility_public">Видимый для гостей</string>
     <string name="memo_visibility_protected">Видимый для локальных пользователей</string>
@@ -66,6 +67,7 @@
     <string name="delete_this_tag">Удалить этот тег?</string>
     <string name="expand">Развернуть</string>
     <string name="collapse">Скрыть</string>
+    <string name="view_more">Показать больше</string>
     <string name="accounts">Аккаунты</string>
     <string name="account_detail">Сведения об аккаунте</string>
     <string name="switch_account">Сменить аккаунт</string>
@@ -73,8 +75,18 @@
     <string name="add_local_account">Добавить локальный аккаунт</string>
     <string name="add_memos_account">Добавить аккаунт Memos</string>
     <string name="local_account_description">Хранить заметки только на этом устройстве.</string>
+    <string name="local_account_non_removable">Локальный аккаунт нельзя удалить.</string>
     <string name="memos_account_description">Подключитесь к серверу Memos для синхронизации данных.</string>
+    <string name="sync_status_sync_now">Синхронизировать сейчас</string>
+    <string name="sync_status_unsynced">Несинхронизированные изменения</string>
+    <string name="memo_sync_pending">Заметка не синхронизирована</string>
+    <string name="memo_sync_synced">Заметка синхронизирована</string>
+    <string name="failed_to_open_attachment">Не удалось открыть вложение</string>
+    <string name="export_local_account">Экспортировать локальные данные</string>
+    <string name="local_export_success">Локальные данные экспортированы</string>
+    <string name="local_export_failed">Не удалось экспортировать локальные данные</string>
     <string name="loading">Загрузка…</string>
     <string name="error_unknown">Неизвестная ошибка</string>
     <string name="no_memos">Заметки не найдены</string>
+    <string name="memo_not_found">Заметка не найдена</string>
 </resources>
