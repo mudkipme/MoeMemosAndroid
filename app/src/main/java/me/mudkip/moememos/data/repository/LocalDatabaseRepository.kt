@@ -111,8 +111,13 @@ class LocalDatabaseRepository(
             memoDao.insertMemo(updatedMemo)
 
             if (resources != null) {
-                memoDao.getMemoResources(identifier, accountKey).forEach {
-                    memoDao.deleteResource(it)
+                val existingResources = memoDao.getMemoResources(identifier, accountKey)
+                val incomingIds = resources.mapTo(hashSetOf()) { it.identifier }
+                existingResources.forEach { existing ->
+                    if (existing.identifier !in incomingIds) {
+                        deleteLocalFile(existing)
+                        memoDao.deleteResource(existing)
+                    }
                 }
                 resources.forEach { resource ->
                     memoDao.insertResource(

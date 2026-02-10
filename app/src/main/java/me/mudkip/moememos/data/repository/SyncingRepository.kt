@@ -7,6 +7,7 @@ import com.skydoves.sandwich.getOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -145,8 +146,13 @@ class SyncingRepository(
             memoDao.insertMemo(updatedMemo)
 
             if (resources != null) {
-                memoDao.getMemoResources(identifier, accountKey).forEach {
-                    memoDao.deleteResource(it)
+                val existingResources = memoDao.getMemoResources(identifier, accountKey)
+                val incomingIds = resources.mapTo(hashSetOf()) { it.identifier }
+                existingResources.forEach { existing ->
+                    if (existing.identifier !in incomingIds) {
+                        deleteLocalFile(existing)
+                        memoDao.deleteResource(existing)
+                    }
                 }
                 resources.forEach { resource ->
                     memoDao.insertResource(
@@ -691,7 +697,13 @@ class SyncingRepository(
         )
 
         val currentResources = memoDao.getMemoResources(localIdentifier, accountKey)
-        currentResources.forEach { memoDao.deleteResource(it) }
+        val remoteResourceIds = remoteMemo.resources.mapTo(hashSetOf()) { remoteResourceId(it) }
+        currentResources.forEach { currentResource ->
+            if (currentResource.remoteId !in remoteResourceIds) {
+                deleteLocalFile(currentResource)
+                memoDao.deleteResource(currentResource)
+            }
+        }
 
         remoteMemo.resources.forEach { resource ->
             val remoteResourceId = remoteResourceId(resource)
@@ -871,6 +883,10 @@ class SyncingRepository(
             is ApiResponse.Failure.Error -> ApiResponse.Failure.Error(this.payload)
             is ApiResponse.Failure.Exception -> ApiResponse.Failure.Exception(this.throwable)
         }
+    }
+
+    override fun close() {
+        operationScope.cancel()
     }
 
 }

@@ -43,4 +43,6 @@ abstract class AbstractMemoRepository {
     open suspend fun sync(): ApiResponse<Unit> {
         return ApiResponse.Success(Unit)
     }
+
+    open fun close() = Unit
 }

@@ -76,6 +76,7 @@ class AccountService @Inject constructor(
     }
 
     private fun updateCurrentAccount(account: Account?) {
+        repository.close()
         when (account) {
             null -> {
                 this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage, Account.Local(LocalAccount()))
@@ -165,7 +166,15 @@ class AccountService @Inject constructor(
                 )
             }
             updateCurrentAccount(currentAccount.first())
+            purgeAccountData(accountKey)
         }
+    }
+
+    private suspend fun purgeAccountData(accountKey: String) {
+        val memoDao = database.memoDao()
+        memoDao.deleteResourcesByAccount(accountKey)
+        memoDao.deleteMemosByAccount(accountKey)
+        fileStorage.deleteAccountFiles(accountKey)
     }
 
     private suspend fun updateAccountFromSyncedUser(accountKey: String, user: User) {
