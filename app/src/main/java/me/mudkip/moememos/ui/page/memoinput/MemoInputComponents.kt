@@ -31,6 +31,7 @@ import androidx.compose.material.icons.outlined.FormatStrikethrough
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Tag
+import androidx.compose.material.icons.outlined.Attachment
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -138,6 +139,7 @@ internal fun MemoInputBottomBar(
     onTagSelected: (String) -> Unit,
     onToggleTodoItem: () -> Unit,
     onPickImage: () -> Unit,
+    onPickAttachment: () -> Unit,
     onTakePhoto: () -> Unit,
     onFormat: (MarkdownFormat) -> Unit,
 ) {
@@ -225,6 +227,10 @@ internal fun MemoInputBottomBar(
 
                 IconButton(onClick = onPickImage) {
                     Icon(Icons.Outlined.Image, contentDescription = stringResource(R.string.add_image))
+                }
+
+                IconButton(onClick = onPickAttachment) {
+                    Icon(Icons.Outlined.Attachment, contentDescription = stringResource(R.string.attachment))
                 }
 
                 IconButton(onClick = onTakePhoto) {
