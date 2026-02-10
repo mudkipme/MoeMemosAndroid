@@ -34,7 +34,6 @@ fun Attachment(
     var menuExpanded by remember { mutableStateOf(false) }
 
     AssistChip(
-        modifier = Modifier.padding(bottom = 10.dp),
         onClick = {
             if (onRemove == null) {
                 uriHandler.openUri(resource.localUri ?: resource.uri)

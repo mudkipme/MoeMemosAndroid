@@ -257,6 +257,13 @@ internal fun MemoInputEditor(
     uploadResources: List<ResourceEntity>,
     inputViewModel: MemoInputViewModel
 ) {
+    val imageResources = remember(uploadResources) {
+        uploadResources.filter { it.mimeType?.startsWith("image/") == true }
+    }
+    val attachmentResources = remember(uploadResources) {
+        uploadResources.filterNot { it.mimeType?.startsWith("image/") == true }
+    }
+
     Column(
         modifier
             .fillMaxHeight()
@@ -289,7 +296,7 @@ internal fun MemoInputEditor(
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
+                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
                 .weight(1f)
                 .focusRequester(focusRequester),
             value = text,
@@ -298,22 +305,34 @@ internal fun MemoInputEditor(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
         )
 
-        if (uploadResources.isNotEmpty()) {
+        if (imageResources.isNotEmpty()) {
             LazyRow(
                 modifier = Modifier
                     .height(80.dp)
-                    .padding(start = 15.dp, end = 15.dp, bottom = 15.dp),
+                    .padding(
+                        start = 15.dp,
+                        end = 15.dp,
+                        bottom = if (attachmentResources.isEmpty()) 15.dp else 8.dp
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(uploadResources, key = { it.identifier }) { resource ->
-                    if (resource.mimeType?.startsWith("image/") == true) {
-                        InputImage(resource = resource, inputViewModel = inputViewModel)
-                    } else {
-                        Attachment(
-                            resource = resource,
-                            onRemove = { inputViewModel.deleteResource(resource.identifier) }
-                        )
-                    }
+                items(imageResources, key = { it.identifier }) { resource ->
+                    InputImage(resource = resource, inputViewModel = inputViewModel)
+                }
+            }
+        }
+
+        if (attachmentResources.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier
+                    .padding(start = 15.dp, end = 15.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(attachmentResources, key = { it.identifier }) { resource ->
+                    Attachment(
+                        resource = resource,
+                        onRemove = { inputViewModel.deleteResource(resource.identifier) }
+                    )
                 }
             }
         }
