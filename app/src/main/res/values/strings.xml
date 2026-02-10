@@ -83,6 +83,9 @@
     <string name="memo_sync_pending">Memo not synced</string>
     <string name="memo_sync_synced">Memo synced</string>
     <string name="failed_to_open_attachment">Failed to open attachment</string>
+    <string name="export_local_account">Export Local Data</string>
+    <string name="local_export_success">Local data exported</string>
+    <string name="local_export_failed">Failed to export local data</string>
     
     <!-- Widget strings -->
     <string name="loading">Loading…</string>

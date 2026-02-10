@@ -1,5 +1,8 @@
 package me.mudkip.moememos.ui.page.account
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -28,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -44,6 +48,10 @@ import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.AccountViewModel
 import me.mudkip.moememos.viewmodel.LocalUserState
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,6 +77,21 @@ fun AccountPage(
     val account = selectedAccount
     val isLocalAccount = selectedAccountKey == Account.Local().accountKey() || account is Account.Local
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val exportLauncher = rememberLauncherForActivityResult(CreateDocument("application/zip")) { uri ->
+        if (uri == null) {
+            return@rememberLauncherForActivityResult
+        }
+        coroutineScope.launch {
+            val result = viewModel.exportLocalAccount(uri)
+            result.onSuccess {
+                Toast.makeText(context, R.string.local_export_success.string, Toast.LENGTH_SHORT).show()
+            }.onFailure { error ->
+                val message = error.localizedMessage ?: R.string.local_export_failed.string
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -210,6 +233,23 @@ fun AccountPage(
                 }
             }
 
+            if (isLocalAccount) {
+                item {
+                    FilledTonalButton(
+                        onClick = {
+                            val filename = "MoeMemos-Export-${exportTimestamp(Instant.now())}.zip"
+                            exportLauncher.launch(filename)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp),
+                        contentPadding = PaddingValues(10.dp)
+                    ) {
+                        Text(R.string.export_local_account.string)
+                    }
+                }
+            }
+
             if (!isLocalAccount) {
                 item {
                     FilledTonalButton(
@@ -246,4 +286,10 @@ fun AccountPage(
     LaunchedEffect(Unit) {
         viewModel.loadUserAndProfile()
     }
+}
+
+private fun exportTimestamp(instant: Instant): String {
+    return DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss", Locale.US)
+        .withZone(ZoneId.systemDefault())
+        .format(instant)
 }
