@@ -24,8 +24,8 @@ android {
         applicationId = "me.mudkip.moememos"
         minSdk = 26
         targetSdk = 36
-        versionCode = 40
-        versionName = "0.9.0-alpha.0"
+        versionCode = 41
+        versionName = "0.9.0-alpha.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

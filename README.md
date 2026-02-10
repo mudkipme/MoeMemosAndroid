@@ -6,9 +6,9 @@
 
 **Moe Memos** is an app to help you capture thoughts and ideas.
 
-*To use this app, you must have a self-hosted [✍️memos](https://github.com/usememos/memos) server set up and running.*
+You can use Moe Memos with either a self-hosted [✍️memos](https://github.com/usememos/memos) server or locally on your device (no server required).
 
-**Note: Current Moe Memos version supports Memos 0.21.0 and 0.26.0. Memos update may introduce breaking API changes. If you are using a version higher than 0.26.0, it is recommended to use [Mortis](https://github.com/mudkipme/mortis) to convert the newer Memos API to the Memos 0.21.0 API and re-login in Moe Memos.**
+**Note: Current Moe Memos version supports Memos 0.21.0, 0.26.0, and 0.26.1. Memos update may introduce breaking API changes. If you are using a version higher than 0.26.1, it is recommended to use [Mortis](https://github.com/mudkipme/mortis) to convert the newer Memos API to the Memos 0.21.0 API and re-login in Moe Memos.**
 
 ## Installation
 
@@ -24,15 +24,13 @@ Or download and install the APK package from the [Releases section](https://gith
 ## Features
 
 - Write memos like tweeting to yourself
-- Sync with your own ✍️memos server
+- Use Moe Memos locally on your device (with export) or sync with your own ✍️memos server
+- Offline-first experience with automatic sync when you are back online
 - Material You design with dynamic themes and themed icon
-- Markdown support with formatting toolbar (headers, bold, italic, lists, and more)
-- Image and to-do item support
-- Group memos with tags
-- Pin and search memos
-- View your progress with a graph
-- Home screen widget to view and access memos quickly
-- Save texts, images and webpages from share sheet
+- Rich memo content: Markdown editor and renderer, images, non-image attachments, and to-do items
+- Organize and find memos with tags, pinning, and search
+- Home screen widget and share sheet integration (text, images, and webpages)
+- View your memo activity with a progress graph
 - Full privacy protection, no data collection
 
 Moe Memos is a third-party client for [✍️memos](https://github.com/usememos/memos) and both projects aren't affiliated with each other.
