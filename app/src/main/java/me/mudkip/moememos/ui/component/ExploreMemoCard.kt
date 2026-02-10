@@ -47,7 +47,7 @@ fun ExploreMemoCard(
                 }
             }
 
-            MemoContent(memo)
+            MemoContent(memo, previewMode = false)
         }
     }
 }
