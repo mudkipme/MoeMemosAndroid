@@ -30,4 +30,8 @@ class FileStorage @Inject constructor(
             File(path).delete()
         }
     }
+
+    fun deleteAccountFiles(accountKey: String) {
+        accountDir(accountKey).deleteRecursively()
+    }
 }

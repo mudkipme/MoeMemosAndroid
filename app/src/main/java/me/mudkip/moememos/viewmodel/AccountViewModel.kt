@@ -1,5 +1,6 @@
 package me.mudkip.moememos.viewmodel
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -82,6 +83,15 @@ class AccountViewModel @AssistedInject constructor(
                 }
             }
             else -> Unit
+        }
+    }
+
+    suspend fun exportLocalAccount(destinationUri: Uri): Result<Unit> = withContext(viewModelScope.coroutineContext) {
+        if (selectedAccountKey != Account.Local().accountKey()) {
+            return@withContext Result.failure(IllegalStateException("Export is available for local account only"))
+        }
+        runCatching {
+            accountService.exportLocalAccountZip(destinationUri)
         }
     }
 }

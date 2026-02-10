@@ -1,6 +1,9 @@
 package me.mudkip.moememos.data.service
 
 import android.content.Context
+import android.net.Uri
+import android.webkit.MimeTypeMap
+import androidx.core.net.toUri
 import com.skydoves.sandwich.getOrNull
 import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
@@ -15,6 +18,7 @@ import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.local.MoeMemosDatabase
+import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.LocalAccount
 import me.mudkip.moememos.data.model.User
@@ -31,6 +35,13 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.io.File
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,6 +52,10 @@ class AccountService @Inject constructor(
     private val database: MoeMemosDatabase,
     private val fileStorage: FileStorage,
 ) {
+    private val exportDateFormatter: DateTimeFormatter = DateTimeFormatter
+        .ofPattern("yyyyMMdd-HHmmss", Locale.US)
+        .withZone(ZoneId.systemDefault())
+
     private val networkJson = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
@@ -76,6 +91,7 @@ class AccountService @Inject constructor(
     }
 
     private fun updateCurrentAccount(account: Account?) {
+        repository.close()
         when (account) {
             null -> {
                 this.repository = LocalDatabaseRepository(database.memoDao(), fileStorage, Account.Local(LocalAccount()))
@@ -165,7 +181,87 @@ class AccountService @Inject constructor(
                 )
             }
             updateCurrentAccount(currentAccount.first())
+            purgeAccountData(accountKey)
         }
+    }
+
+    suspend fun exportLocalAccountZip(destinationUri: Uri) {
+        val accountKey = Account.Local().accountKey()
+        val memoDao = database.memoDao()
+        val memos = memoDao.getAllMemosForSync(accountKey)
+            .filterNot { it.isDeleted }
+            .sortedWith(compareBy({ it.date }, { it.content }))
+
+        if (memos.isEmpty()) {
+            throw IllegalStateException("No local memos to export")
+        }
+
+        context.contentResolver.openOutputStream(destinationUri)?.use { output ->
+            ZipOutputStream(output).use { zip ->
+                val collisionMap = hashMapOf<String, Int>()
+                for (memo in memos) {
+                    val memoBaseName = uniqueMemoBaseName(memo.date, collisionMap)
+                    zip.putNextEntry(ZipEntry("$memoBaseName.md"))
+                    zip.write(memo.content.toByteArray(Charsets.UTF_8))
+                    zip.closeEntry()
+
+                    val resources = memoDao.getMemoResources(memo.identifier, accountKey)
+                        .sortedWith(compareBy<ResourceEntity>({ it.filename }, { it.uri }))
+                    resources.forEachIndexed { index, resource ->
+                        val sourceFile = localFileForResource(resource)
+                            ?: throw IllegalStateException("Missing resource file: ${resource.filename}")
+                        if (!sourceFile.exists()) {
+                            throw IllegalStateException("Missing resource file: ${resource.filename}")
+                        }
+                        val ext = exportFileExtension(resource, sourceFile)
+                        val attachmentName = if (ext.isBlank()) {
+                            "$memoBaseName-${index + 1}"
+                        } else {
+                            "$memoBaseName-${index + 1}.$ext"
+                        }
+                        zip.putNextEntry(ZipEntry(attachmentName))
+                        sourceFile.inputStream().use { input -> input.copyTo(zip) }
+                        zip.closeEntry()
+                    }
+                }
+            }
+        } ?: throw IllegalStateException("Unable to open export destination")
+    }
+
+    private fun uniqueMemoBaseName(date: Instant, collisionMap: MutableMap<String, Int>): String {
+        val base = exportDateFormatter.format(date)
+        val count = collisionMap[base] ?: 0
+        collisionMap[base] = count + 1
+        return if (count == 0) base else "${base}_$count"
+    }
+
+    private fun localFileForResource(resource: ResourceEntity): File? {
+        val uri = (resource.localUri ?: resource.uri).toUri()
+        if (uri.scheme != "file") {
+            return null
+        }
+        val path = uri.path ?: return null
+        return File(path)
+    }
+
+    private fun exportFileExtension(resource: ResourceEntity, sourceFile: File): String {
+        val filenameExt = resource.filename.substringAfterLast('.', "")
+        if (filenameExt.isNotBlank()) {
+            return filenameExt.lowercase(Locale.US)
+        }
+        val sourceExt = sourceFile.extension
+        if (sourceExt.isNotBlank()) {
+            return sourceExt.lowercase(Locale.US)
+        }
+        val fromMime = resource.mimeType?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
+        return fromMime?.lowercase(Locale.US) ?: ""
+    }
+
+    private suspend fun purgeAccountData(accountKey: String) {
+        val memoDao = database.memoDao()
+        memoDao.deleteResourcesByAccount(accountKey)
+        memoDao.deleteMemosByAccount(accountKey)
+        fileStorage.deleteAccountFiles(accountKey)
     }
 
     private suspend fun updateAccountFromSyncedUser(accountKey: String, user: User) {

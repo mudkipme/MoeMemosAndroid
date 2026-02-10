@@ -68,4 +68,10 @@ interface MemoDao {
     @Query("SELECT * FROM resources WHERE remoteId = :remoteId AND accountKey = :accountKey")
     suspend fun getResourceByRemoteId(remoteId: String, accountKey: String): ResourceEntity?
 
+    @Query("DELETE FROM resources WHERE accountKey = :accountKey")
+    suspend fun deleteResourcesByAccount(accountKey: String)
+
+    @Query("DELETE FROM memos WHERE accountKey = :accountKey")
+    suspend fun deleteMemosByAccount(accountKey: String)
+
 }
