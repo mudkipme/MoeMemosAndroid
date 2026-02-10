@@ -309,7 +309,10 @@ internal fun MemoInputEditor(
                     if (resource.mimeType?.startsWith("image/") == true) {
                         InputImage(resource = resource, inputViewModel = inputViewModel)
                     } else {
-                        Attachment(resource = resource)
+                        Attachment(
+                            resource = resource,
+                            onRemove = { inputViewModel.deleteResource(resource.identifier) }
+                        )
                     }
                 }
             }

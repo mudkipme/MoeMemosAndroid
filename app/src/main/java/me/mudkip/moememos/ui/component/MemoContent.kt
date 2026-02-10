@@ -1,6 +1,7 @@
 package me.mudkip.moememos.ui.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,14 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.local.entity.ResourceEntity
@@ -62,10 +62,14 @@ fun MemoContent(
         MemoResourceContent(memo)
 
         if (previewed && onViewMore != null) {
-            AssistChip(
-                onClick = onViewMore,
-                label = { Text(R.string.view_more.string) }
-            )
+            Row {
+                Text(
+                    text = R.string.view_more.string,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium.copy(textDecoration = TextDecoration.Underline),
+                    modifier = Modifier.clickable(onClick = onViewMore)
+                )
+            }
         }
     }
 }

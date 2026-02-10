@@ -59,6 +59,7 @@
     <string name="pin">Pin</string>
     <string name="share">Share</string>
     <string name="copy_link">Copy Link</string>
+    <string name="open">Open</string>
     <string name="archive">Archive</string>
     <string name="memo_visibility_public">Visible to guests</string>
     <string name="memo_visibility_protected">Visible to local members</string>
