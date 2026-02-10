@@ -54,6 +54,7 @@
     <string name="pin">置頂</string>
     <string name="share">分享</string>
     <string name="copy_link">複製連結</string>
+    <string name="open">打開</string>
     <string name="archive">歸檔</string>
     <string name="memo_visibility_public">訪客可見</string>
     <string name="memo_visibility_protected">本地使用者可見</string>
@@ -62,15 +63,26 @@
     <string name="delete_this_tag">刪除此標籤？</string>
     <string name="expand">展開</string>
     <string name="collapse">收合</string>
+    <string name="view_more">查看更多</string>
     <string name="accounts">帳戶</string>
     <string name="account_detail">帳戶詳情</string>
     <string name="switch_account">切換帳戶</string>
     <string name="local_account">本地帳戶</string>
     <string name="add_local_account">新增本地帳戶</string>
     <string name="add_memos_account">新增 Memos 帳戶</string>
-    <string name="local_account_description">僅在此裝置上儲存 memo。</string>
+    <string name="local_account_description">僅在此裝置上儲存 MEMO。</string>
+    <string name="local_account_non_removable">本地帳戶無法移除。</string>
     <string name="memos_account_description">連線到 Memos 伺服器以同步資料。</string>
+    <string name="sync_status_sync_now">立即同步</string>
+    <string name="sync_status_unsynced">尚未同步的變更</string>
+    <string name="memo_sync_pending">MEMO 尚未同步</string>
+    <string name="memo_sync_synced">MEMO 已同步</string>
+    <string name="failed_to_open_attachment">無法開啟附件</string>
+    <string name="export_local_account">匯出本地資料</string>
+    <string name="local_export_success">本地資料已匯出</string>
+    <string name="local_export_failed">匯出本地資料失敗</string>
     <string name="loading">載入中…</string>
     <string name="error_unknown">未知錯誤</string>
     <string name="no_memos">找不到 MEMO</string>
+    <string name="memo_not_found">找不到 MEMO</string>
 </resources>

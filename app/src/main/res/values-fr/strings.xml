@@ -58,6 +58,7 @@
     <string name="invalid_access_token">Access Token invalide </string>
     <string name="pin">Épingler</string>
     <string name="share">Partager</string>
+    <string name="open">Ouvrir</string>
     <string name="archive">Archiver</string>
     <string name="memo_visibility_public">Public</string>
     <string name="memo_visibility_protected">Visibilité aux Membres</string>
@@ -67,6 +68,7 @@
     <string name="delete_this_tag">Supprimer cette étiquette ?</string>
     <string name="expand">Agrandir</string>
     <string name="collapse">Rétracter</string>
+    <string name="view_more">Voir plus</string>
     <string name="accounts">Comptes</string>
     <string name="account_detail">Détails du compte</string>
     <string name="switch_account">Changer de compte</string>
@@ -74,8 +76,18 @@
     <string name="add_local_account">Ajouter un compte local</string>
     <string name="add_memos_account">Ajouter un compte Memos</string>
     <string name="local_account_description">Stocker les memos uniquement sur cet appareil.</string>
+    <string name="local_account_non_removable">Le compte local ne peut pas être supprimé.</string>
     <string name="memos_account_description">Se connecter à un serveur Memos pour synchroniser les données.</string>
+    <string name="sync_status_sync_now">Synchroniser maintenant</string>
+    <string name="sync_status_unsynced">Modifications non synchronisées</string>
+    <string name="memo_sync_pending">Memo non synchronisé</string>
+    <string name="memo_sync_synced">Memo synchronisé</string>
+    <string name="failed_to_open_attachment">Impossible d\'ouvrir la pièce jointe</string>
+    <string name="export_local_account">Exporter les données locales</string>
+    <string name="local_export_success">Données locales exportées</string>
+    <string name="local_export_failed">Échec de l\'exportation des données locales</string>
     <string name="loading">Chargement…</string>
     <string name="error_unknown">Erreur inconnue</string>
     <string name="no_memos">Aucun memo trouvé</string>
+    <string name="memo_not_found">Memo introuvable</string>
 </resources>
