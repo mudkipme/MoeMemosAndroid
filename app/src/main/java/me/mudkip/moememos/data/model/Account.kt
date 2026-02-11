@@ -67,7 +67,8 @@ private fun MemosAccount.withUser(user: User): MemosAccount {
     return copy(
         name = user.name,
         startDateEpochSecond = user.startDate.epochSecond,
-        defaultVisibility = user.defaultVisibility.name
+        defaultVisibility = user.defaultVisibility.name,
+        avatarUrl = user.avatarUrl ?: ""
     )
 }
 
