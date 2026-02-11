@@ -313,7 +313,7 @@ class OpenMemoAction : ActionCallback {
     ) {
         val memoId = parameters[MEMO_ID] ?: return
         val intent = Intent(context, MainActivity::class.java).apply {
-            action = MainActivity.ACTION_EDIT_MEMO
+            action = MainActivity.ACTION_VIEW_MEMO
             putExtra(MainActivity.EXTRA_MEMO_ID, memoId)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }

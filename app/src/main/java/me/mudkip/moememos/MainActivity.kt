@@ -22,6 +22,7 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val ACTION_NEW_MEMO = "me.mudkip.moememos.action.NEW_MEMO"
         const val ACTION_EDIT_MEMO = "me.mudkip.moememos.action.EDIT_MEMO"
+        const val ACTION_VIEW_MEMO = "me.mudkip.moememos.action.VIEW_MEMO"
         const val EXTRA_MEMO_ID = "memoId"
     }
 
