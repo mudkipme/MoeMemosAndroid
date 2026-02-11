@@ -9,6 +9,8 @@
     <string name="compose">Verfassen</string>
     <string name="remove">Entfernen</string>
     <string name="resources">Ressourcen</string>
+    <string name="image">Bild</string>
+    <string name="other">Andere</string>
     <string name="archived">Archiviert</string>
     <string name="settings">Einstellungen</string>
     <string name="tags">Hashtags</string>

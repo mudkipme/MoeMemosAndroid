@@ -11,6 +11,8 @@
     <string name="compose">Составить заметку</string>
     <string name="remove">Удалить</string>
     <string name="resources">Ресурсы</string>
+    <string name="image">Изображения</string>
+    <string name="other">Другое</string>
     <string name="archived">В архиве</string>
     <string name="settings">Настройки</string>
     <string name="tags">Теги</string>

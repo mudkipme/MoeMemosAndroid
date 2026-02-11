@@ -10,6 +10,8 @@
     <string name="compose">Composer</string>
     <string name="remove">Retirer</string>
     <string name="resources">Ressources</string>
+    <string name="image">Image</string>
+    <string name="other">Autres</string>
     <string name="archived">Archivés</string>
     <string name="settings">Paramètres</string>
     <string name="tags">Étiquettes</string>

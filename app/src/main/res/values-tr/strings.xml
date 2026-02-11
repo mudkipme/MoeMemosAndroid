@@ -10,6 +10,8 @@
     <string name="compose">Oluştur</string>
     <string name="remove">Kaldır</string>
     <string name="resources">Kaynaklar</string>
+    <string name="image">Görsel</string>
+    <string name="other">Diğer</string>
     <string name="archived">Arşivlenmiş</string>
     <string name="settings">Ayarlar</string>
     <string name="tags">Etiketler</string>
