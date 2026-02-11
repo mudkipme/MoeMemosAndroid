@@ -56,6 +56,15 @@
     <string name="delete">Supprimer</string>
     <string name="restore">Restaurer</string>
     <string name="invalid_access_token">Access Token invalide </string>
+    <string name="invalid_server">Serveur invalide.</string>
+    <string name="access_token_invalid_relogin">Votre jeton d\'accès est invalide, veuillez créer un jeton d\'accès sans expiration et vous reconnecter.</string>
+    <string name="sync_failed">Échec de la synchronisation</string>
+    <string name="memos_supported_versions">Moe Memos prend uniquement en charge Memos 0.21.0, 0.26.0 et 0.26.1.</string>
+    <string name="unsupported_memos_version_title">Version de Memos non prise en charge</string>
+    <string name="memos_login_version_higher_warning">Votre version de Memos est supérieure aux versions prises en charge par Moe Memos. Des problèmes de compatibilité peuvent survenir. Veuillez consulter le site de Moe Memos avant de continuer.</string>
+    <string name="memos_sync_version_higher_warning">Votre version de Memos est supérieure aux versions prises en charge par Moe Memos. Forcer la synchronisation peut corrompre les données non synchronisées. Veuillez consulter le site de Moe Memos avant de continuer.</string>
+    <string name="still_login">Se connecter quand même</string>
+    <string name="still_sync">Synchroniser quand même</string>
     <string name="pin">Épingler</string>
     <string name="share">Partager</string>
     <string name="open">Ouvrir</string>

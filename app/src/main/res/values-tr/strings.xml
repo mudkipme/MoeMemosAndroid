@@ -56,6 +56,15 @@
     <string name="delete">Sil</string>
     <string name="restore">Geri yükle</string>
     <string name="invalid_access_token">Geçersiz Access Token</string>
+    <string name="invalid_server">Geçersiz sunucu.</string>
+    <string name="access_token_invalid_relogin">Access Token geçersiz, lütfen süresi dolmayan bir Access Token oluşturup tekrar giriş yapın.</string>
+    <string name="sync_failed">Senkronizasyon başarısız</string>
+    <string name="memos_supported_versions">Moe Memos yalnızca Memos 0.21.0, 0.26.0 ve 0.26.1 sürümlerini destekler.</string>
+    <string name="unsupported_memos_version_title">Desteklenmeyen Memos sürümü</string>
+    <string name="memos_login_version_higher_warning">Memos sürümünüz, Moe Memos tarafından desteklenen sürümlerden daha yüksek. Uyumluluk sorunları olabilir. Devam etmeden önce Moe Memos web sitesini kontrol edin.</string>
+    <string name="memos_sync_version_higher_warning">Memos sürümünüz, Moe Memos tarafından desteklenen sürümlerden daha yüksek. Senkronizasyonu zorlamak, senkronize edilmemiş verilerin bozulmasına neden olabilir. Devam etmeden önce Moe Memos web sitesini kontrol edin.</string>
+    <string name="still_login">Yine de giriş yap</string>
+    <string name="still_sync">Yine de senkronize et</string>
     <string name="pin">Sabitle</string>
     <string name="share">Paylaş</string>
     <string name="open">Aç</string>
