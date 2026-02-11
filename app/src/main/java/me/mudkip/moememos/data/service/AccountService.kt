@@ -33,6 +33,7 @@ import me.mudkip.moememos.data.repository.RemoteRepository
 import me.mudkip.moememos.data.repository.SyncingRepository
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.settingsDataStore
+import net.swiftzer.semver.SemVer
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -75,18 +76,6 @@ class AccountService @Inject constructor(
         val accountCase: UserData.AccountCase,
         val version: String,
     )
-
-    private data class SemanticVersion(
-        val major: Int,
-        val minor: Int,
-        val patch: Int,
-    ) : Comparable<SemanticVersion> {
-        override fun compareTo(other: SemanticVersion): Int {
-            if (major != other.major) return major.compareTo(other.major)
-            if (minor != other.minor) return minor.compareTo(other.minor)
-            return patch.compareTo(other.patch)
-        }
-    }
 
     private enum class VersionPolicy {
         SUPPORTED,
@@ -521,7 +510,7 @@ class AccountService @Inject constructor(
     }
 
     private fun evaluateVersionPolicy(serverVersion: ServerVersionInfo): VersionPolicy {
-        val version = parseSemanticVersion(serverVersion.version) ?: return VersionPolicy.TOO_LOW
+        val version = SemVer.parseOrNull(serverVersion.version) ?: return VersionPolicy.TOO_LOW
         return when (serverVersion.accountCase) {
             UserData.AccountCase.MEMOS_V0 -> {
                 if (version < MEMOS_V0_MIN_VERSION) VersionPolicy.TOO_LOW else VersionPolicy.SUPPORTED
@@ -537,18 +526,9 @@ class AccountService @Inject constructor(
         }
     }
 
-    private fun parseSemanticVersion(version: String): SemanticVersion? {
-        val match = SEMANTIC_VERSION_REGEX.find(version) ?: return null
-        val major = match.groupValues.getOrNull(1)?.toIntOrNull() ?: return null
-        val minor = match.groupValues.getOrNull(2)?.toIntOrNull() ?: return null
-        val patch = match.groupValues.getOrNull(3)?.toIntOrNull() ?: return null
-        return SemanticVersion(major = major, minor = minor, patch = patch)
-    }
-
     companion object {
-        private val MEMOS_V0_MIN_VERSION = SemanticVersion(0, 21, 0)
-        private val MEMOS_V1_MIN_VERSION = SemanticVersion(0, 26, 0)
-        private val MEMOS_V1_MAX_VERSION = SemanticVersion(0, 26, 1)
-        private val SEMANTIC_VERSION_REGEX = Regex("""(\d+)\.(\d+)\.(\d+)""")
+        private val MEMOS_V0_MIN_VERSION = SemVer(0, 21, 0)
+        private val MEMOS_V1_MIN_VERSION = SemVer(0, 26, 0)
+        private val MEMOS_V1_MAX_VERSION = SemVer(0, 26, 1)
     }
 }
