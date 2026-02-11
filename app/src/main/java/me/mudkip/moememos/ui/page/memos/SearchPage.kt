@@ -30,6 +30,8 @@ import kotlinx.coroutines.delay
 import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.string
+import me.mudkip.moememos.ui.page.common.RouteName
+import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,7 +73,13 @@ fun SearchPage(navController: NavHostController) {
         content = { innerPadding ->
             MemosList(
                 contentPadding = innerPadding,
-                searchString = searchText.text
+                searchString = searchText.text,
+                onTagClick = { tag ->
+                    navController.navigate("${RouteName.TAG}/${URLEncoder.encode(tag, "UTF-8")}") {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
         }
     )

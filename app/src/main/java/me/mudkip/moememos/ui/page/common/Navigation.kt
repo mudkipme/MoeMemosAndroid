@@ -34,6 +34,7 @@ import me.mudkip.moememos.ui.page.memoinput.MemoInputPage
 import me.mudkip.moememos.ui.page.memos.MemoDetailPage
 import me.mudkip.moememos.ui.page.memos.MemosPage
 import me.mudkip.moememos.ui.page.memos.SearchPage
+import me.mudkip.moememos.ui.page.memos.TagMemoPage
 import me.mudkip.moememos.ui.page.resource.ResourceListPage
 import me.mudkip.moememos.ui.page.settings.SettingsPage
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
@@ -105,6 +106,11 @@ fun Navigation() {
                     SearchPage(navController = navController)
                 }
 
+                composable("${RouteName.TAG}/{tag}") { entry ->
+                    val tag = entry.arguments?.getString("tag")?.let(Uri::decode) ?: ""
+                    TagMemoPage(tag = tag, navController = navController)
+                }
+
                 composable("${RouteName.MEMO_DETAIL}?memoId={memoId}") { entry ->
                     val memoId = entry.arguments?.getString("memoId")
                     if (memoId != null) {
@@ -120,9 +126,10 @@ fun Navigation() {
         if (!userStateViewModel.hasAnyAccount()) {
             if (navController.currentDestination?.route != RouteName.ADD_ACCOUNT) {
                 navController.navigate(RouteName.ADD_ACCOUNT) {
-                    popUpTo(navController.graph.startDestinationId) {
+                    popUpTo(navController.graph.id) {
                         inclusive = true
                     }
+                    launchSingleTop = true
                 }
             }
             return@LaunchedEffect

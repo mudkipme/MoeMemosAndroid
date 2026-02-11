@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import me.mudkip.moememos.ui.page.common.LocalRootNavController
+import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.MemoRepresentable
@@ -30,6 +32,7 @@ import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
 import kotlin.math.ceil
+import java.net.URLEncoder
 
 @Composable
 fun MemoContent(
@@ -37,13 +40,23 @@ fun MemoContent(
     previewMode: Boolean = false,
     checkboxChange: (checked: Boolean, startOffset: Int, endOffset: Int) -> Unit = { _, _, _ -> },
     onViewMore: (() -> Unit)? = null,
-    selectable: Boolean = false
+    selectable: Boolean = false,
+    onTagClick: ((String) -> Unit)? = null
 ) {
+    val rootNavController = LocalRootNavController.current
     val (text, previewed) = remember(memo.content, previewMode) {
         if (previewMode) {
             extractPreviewContent(markdownText = memo.content)
         } else {
             Pair(memo.content, false)
+        }
+    }
+    val handleTagClick = remember(rootNavController, onTagClick) {
+        onTagClick ?: { tag ->
+            rootNavController.navigate("${RouteName.TAG}/${URLEncoder.encode(tag, "UTF-8")}") {
+                launchSingleTop = true
+                restoreState = true
+            }
         }
     }
 
@@ -54,7 +67,8 @@ fun MemoContent(
             text,
             imageBaseUrl = LocalUserState.current.host,
             checkboxChange = checkboxChange,
-            selectable = selectable
+            selectable = selectable,
+            onTagClick = handleTagClick
         )
 
         MemoResourceContent(memo)

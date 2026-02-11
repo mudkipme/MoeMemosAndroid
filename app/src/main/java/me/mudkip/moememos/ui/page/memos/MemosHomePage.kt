@@ -34,6 +34,7 @@ import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.ManualSyncResult
 import me.mudkip.moememos.viewmodel.LocalUserState
+import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,7 +120,13 @@ fun MemosHomePage(
             MemosList(
                 lazyListState = listState,
                 contentPadding = innerPadding,
-                onRefresh = { requestManualSync() }
+                onRefresh = { requestManualSync() },
+                onTagClick = { tag ->
+                    navController.navigate("${RouteName.TAG}/${URLEncoder.encode(tag, "UTF-8")}") {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
         }
     )

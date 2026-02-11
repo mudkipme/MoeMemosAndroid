@@ -119,9 +119,10 @@ fun AccountPage(
                         userStateViewModel.logout(selectedAccountKey)
                         if (userStateViewModel.currentAccount.first() == null) {
                             navController.navigate(RouteName.ADD_ACCOUNT) {
-                                popUpTo(navController.graph.startDestinationId) {
+                                popUpTo(navController.graph.id) {
                                     inclusive = true
                                 }
+                                launchSingleTop = true
                             }
                         } else {
                             navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
