@@ -17,12 +17,9 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -97,7 +94,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
             modifier = GlanceModifier
                 .fillMaxSize()
                 .background(GlanceTheme.colors.background)
-                .clickable(actionRunCallback<OpenAppAction>())
+                .clickable(actionStartActivity(createOpenAppIntent(context)))
                 .padding(16.dp)
         ) {
             // Header
@@ -125,7 +122,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                 Box(
                     modifier = GlanceModifier
                         .size(36.dp)
-                        .clickable(actionRunCallback<AddNewMemoAction>())
+                        .clickable(actionStartActivity(createNewMemoIntent(context)))
                         .padding(4.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -209,11 +206,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                             else R.drawable.widget_card_background
                         )
                     )
-                    .clickable(actionRunCallback<OpenMemoAction>(
-                        actionParametersOf(
-                            OpenMemoAction.MEMO_ID to memo.identifier
-                        )
-                    ))
+                    .clickable(actionStartActivity(createViewMemoIntent(context, memo.identifier)))
                     .padding(12.dp, 12.dp, 12.dp, if (isLastMemo) 8.dp else 12.dp)
             ) {
                 // Memo header
@@ -274,49 +267,20 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
     }
 }
 
-class AddNewMemoAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    ) {
-        val intent = Intent(context, MainActivity::class.java).apply {
-            action = MainActivity.ACTION_NEW_MEMO
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-        context.startActivity(intent)
-    }
-}
-
-class OpenAppAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    ) {
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-        context.startActivity(intent)
-    }
-}
-
-class OpenMemoAction : ActionCallback {
-    companion object {
-        val MEMO_ID = ActionParameters.Key<String>("memo_id")
+private fun createOpenAppIntent(context: Context): Intent =
+    Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
     }
 
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    ) {
-        val memoId = parameters[MEMO_ID] ?: return
-        val intent = Intent(context, MainActivity::class.java).apply {
-            action = MainActivity.ACTION_EDIT_MEMO
-            putExtra(MainActivity.EXTRA_MEMO_ID, memoId)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-        context.startActivity(intent)
+private fun createNewMemoIntent(context: Context): Intent =
+    Intent(context, MainActivity::class.java).apply {
+        action = MainActivity.ACTION_NEW_MEMO
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
     }
-}
+
+private fun createViewMemoIntent(context: Context, memoId: String): Intent =
+    Intent(context, MainActivity::class.java).apply {
+        action = MainActivity.ACTION_VIEW_MEMO
+        putExtra(MainActivity.EXTRA_MEMO_ID, memoId)
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+    }

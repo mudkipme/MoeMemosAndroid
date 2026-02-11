@@ -151,6 +151,12 @@ fun Navigation() {
                     navController.navigate("${RouteName.EDIT}?memoId=$memoId")
                 }
             }
+            MainActivity.ACTION_VIEW_MEMO -> {
+                val memoId = intent.getStringExtra(MainActivity.EXTRA_MEMO_ID)
+                if (memoId != null) {
+                    navController.navigate("${RouteName.MEMO_DETAIL}?memoId=${Uri.encode(memoId)}")
+                }
+            }
         }
     }
 
