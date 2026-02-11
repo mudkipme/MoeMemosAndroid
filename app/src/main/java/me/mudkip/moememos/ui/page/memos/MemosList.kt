@@ -44,6 +44,7 @@ fun MemosList(
     tag: String? = null,
     searchString: String? = null,
     onRefresh: (suspend () -> Unit)? = null,
+    onTagClick: ((String) -> Unit)? = null,
 ) {
     val navController = LocalRootNavController.current
     val viewModel = LocalMemos.current
@@ -119,7 +120,8 @@ fun MemosList(
                         )
                     },
                     previewMode = true,
-                    showSyncStatus = currentAccount !is Account.Local
+                    showSyncStatus = currentAccount !is Account.Local,
+                    onTagClick = onTagClick
                 )
             }
         }

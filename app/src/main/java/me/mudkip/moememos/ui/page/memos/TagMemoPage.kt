@@ -10,18 +10,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.string
+import me.mudkip.moememos.ui.page.common.RouteName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TagMemoPage(
     drawerState: DrawerState? = null,
-    tag: String
+    tag: String,
+    navController: NavHostController
 ) {
     val scope = rememberCoroutineScope()
+    val normalizedCurrentTag = remember(tag) { normalizeTag(tag) }
 
     Scaffold(
         topBar = {
@@ -47,8 +52,21 @@ fun TagMemoPage(
         content = { innerPadding ->
             MemosList(
                 contentPadding = innerPadding,
-                tag = tag
+                tag = tag,
+                onTagClick = { clickedTag ->
+                    if (normalizeTag(clickedTag) == normalizedCurrentTag) {
+                        return@MemosList
+                    }
+                    navController.navigate("${RouteName.TAG}/${java.net.URLEncoder.encode(clickedTag, "UTF-8")}") {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
         }
     )
+}
+
+private fun normalizeTag(tag: String): String {
+    return tag.removePrefix("#")
 }

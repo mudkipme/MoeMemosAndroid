@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.page.memos
 
+import android.net.Uri
 import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,7 +48,8 @@ fun MemosNavigation(
         ) { entry ->
             TagMemoPage(
                 drawerState = drawerState,
-                tag = entry.arguments?.getString("tag") ?: ""
+                tag = entry.arguments?.getString("tag")?.let(Uri::decode) ?: "",
+                navController = navController
             )
         }
 

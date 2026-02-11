@@ -61,7 +61,8 @@ fun MemosCard(
     memo: MemoEntity,
     onClick: (MemoEntity) -> Unit,
     previewMode: Boolean = false,
-    showSyncStatus: Boolean = false
+    showSyncStatus: Boolean = false,
+    onTagClick: ((String) -> Unit)? = null
 ) {
     val memosViewModel = LocalMemos.current
     val scope = rememberCoroutineScope()
@@ -138,7 +139,8 @@ fun MemosCard(
                 },
                 onViewMore = {
                     onClick(memo)
-                }
+                },
+                onTagClick = onTagClick
             )
         }
     }
