@@ -20,7 +20,7 @@ class ResourceListViewModel @Inject constructor(
     fun loadResources() = viewModelScope.launch {
         memoService.repository.listResources().suspendOnSuccess {
             resources.clear()
-            resources.addAll(data.filter { it.mimeType?.startsWith("image/") == true })
+            resources.addAll(data.sortedByDescending { it.date })
         }
     }
 }

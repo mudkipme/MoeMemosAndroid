@@ -10,6 +10,8 @@
     <string name="compose">撰写</string>
     <string name="remove">删除</string>
     <string name="resources">资源</string>
+    <string name="image">图片</string>
+    <string name="other">其他</string>
     <string name="archived">归档</string>
     <string name="settings">设置</string>
     <string name="tags">标签</string>

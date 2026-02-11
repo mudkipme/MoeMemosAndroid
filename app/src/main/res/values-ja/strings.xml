@@ -9,6 +9,8 @@
     <string name="compose">作成</string>
     <string name="remove">削除</string>
     <string name="resources">リソース</string>
+    <string name="image">画像</string>
+    <string name="other">その他</string>
     <string name="archived">アーカイブ済み</string>
     <string name="settings">設定</string>
     <string name="tags">タグ</string>

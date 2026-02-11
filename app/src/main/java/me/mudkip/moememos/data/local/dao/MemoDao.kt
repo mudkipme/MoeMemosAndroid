@@ -59,7 +59,7 @@ interface MemoDao {
     @Delete
     suspend fun deleteResource(resource: ResourceEntity)
 
-    @Query("SELECT * FROM resources WHERE accountKey = :accountKey")
+    @Query("SELECT * FROM resources WHERE accountKey = :accountKey ORDER BY date DESC")
     suspend fun getAllResources(accountKey: String): List<ResourceEntity>
 
     @Query("SELECT * FROM resources WHERE identifier = :identifier AND accountKey = :accountKey")
