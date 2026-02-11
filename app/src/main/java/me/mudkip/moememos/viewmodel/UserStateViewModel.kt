@@ -51,6 +51,7 @@ class UserStateViewModel @Inject constructor(
             accountService.currentAccount.collectLatest {
                 host = when(it) {
                     is Account.MemosV0 -> it.info.host
+                    is Account.MemosV1 -> it.info.host
                     else -> ""
                 }
             }
@@ -69,9 +70,35 @@ class UserStateViewModel @Inject constructor(
         accountService.accounts.first().isNotEmpty()
     }
 
-    suspend fun loginMemosWithAccessToken(host: String, accessToken: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
+    suspend fun checkLoginCompatibility(host: String): LoginCompatibility = withContext(viewModelScope.coroutineContext) {
         try {
-            when (accountService.detectAccountCase(host)) {
+            when (val compatibility = accountService.checkLoginCompatibility(host)) {
+                is AccountService.LoginCompatibility.Supported -> LoginCompatibility.Supported
+                is AccountService.LoginCompatibility.Unsupported -> LoginCompatibility.Unsupported(compatibility.message)
+                is AccountService.LoginCompatibility.RequiresConfirmation -> LoginCompatibility.RequiresConfirmation(compatibility.message)
+            }
+        } catch (e: Throwable) {
+            LoginCompatibility.Unsupported(e.localizedMessage ?: e.message ?: "")
+        }
+    }
+
+    suspend fun loginMemosWithAccessToken(
+        host: String,
+        accessToken: String,
+        allowHigherV1Version: Boolean = false,
+    ): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
+        try {
+            val compatibility = accountService.checkLoginCompatibility(host, allowHigherV1Version)
+            val accountCase = when (compatibility) {
+                is AccountService.LoginCompatibility.Supported -> compatibility.accountCase
+                is AccountService.LoginCompatibility.Unsupported -> {
+                    return@withContext ApiResponse.exception(MoeMemosException(compatibility.message))
+                }
+                is AccountService.LoginCompatibility.RequiresConfirmation -> {
+                    return@withContext ApiResponse.exception(MoeMemosException(compatibility.message))
+                }
+            }
+            when (accountCase) {
                 UserData.AccountCase.MEMOS_V1 -> loginMemosV1WithAccessToken(host, accessToken)
                 UserData.AccountCase.MEMOS_V0 -> loginMemosV0WithAccessToken(host, accessToken)
                 else -> throw MoeMemosException.invalidServer
@@ -159,6 +186,12 @@ class UserStateViewModel @Inject constructor(
             startDateEpochSecond = user.createTime?.epochSecond ?: 0L,
         )
     )
+}
+
+sealed class LoginCompatibility {
+    object Supported : LoginCompatibility()
+    data class Unsupported(val message: String) : LoginCompatibility()
+    data class RequiresConfirmation(val message: String) : LoginCompatibility()
 }
 
 val LocalUserState =

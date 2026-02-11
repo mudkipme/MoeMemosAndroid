@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.Computer
 import androidx.compose.material.icons.outlined.PermIdentity
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,6 +60,7 @@ import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Markdown
 import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.viewmodel.LoginCompatibility
 import me.mudkip.moememos.viewmodel.LocalUserState
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -80,17 +83,41 @@ fun LoginPage(
         mutableStateOf(TextFieldValue())
     }
 
-    fun login() = coroutineScope.launch {
+    var loginCompatibilityWarning by remember { mutableStateOf<String?>(null) }
+
+    fun normalizedHost(): String {
+        val trimmed = host.text.trim()
+        return if (trimmed.contains("//")) trimmed else "https://$trimmed"
+    }
+
+    fun login(allowHigherV1Version: Boolean = false) = coroutineScope.launch {
         if (host.text.isBlank() || accessToken.text.isBlank()) {
             snackbarState.showSnackbar(R.string.fill_login_form.string)
             return@launch
         }
 
-        if (!host.text.contains("//")) {
-            host = TextFieldValue("https://${host.text}")
+        val sanitizedHost = normalizedHost()
+        host = TextFieldValue(sanitizedHost)
+
+        if (!allowHigherV1Version) {
+            when (val compatibility = userStateViewModel.checkLoginCompatibility(sanitizedHost)) {
+                LoginCompatibility.Supported -> Unit
+                is LoginCompatibility.Unsupported -> {
+                    snackbarState.showSnackbar(compatibility.message)
+                    return@launch
+                }
+                is LoginCompatibility.RequiresConfirmation -> {
+                    loginCompatibilityWarning = compatibility.message
+                    return@launch
+                }
+            }
         }
 
-        val resp = userStateViewModel.loginMemosWithAccessToken(host.text.trim(), accessToken.text.trim())
+        val resp = userStateViewModel.loginMemosWithAccessToken(
+            host = sanitizedHost,
+            accessToken = accessToken.text.trim(),
+            allowHigherV1Version = allowHigherV1Version,
+        )
         resp.suspendOnSuccess {
             navController.popBackStack()
             navController.navigate(RouteName.MEMOS) {
@@ -102,6 +129,29 @@ fun LoginPage(
         .suspendOnErrorMessage {
             snackbarState.showSnackbar(it)
         }
+    }
+
+    if (loginCompatibilityWarning != null) {
+        AlertDialog(
+            onDismissRequest = { loginCompatibilityWarning = null },
+            title = { Text(text = R.string.unsupported_memos_version_title.string) },
+            text = { Text(text = loginCompatibilityWarning ?: "") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        loginCompatibilityWarning = null
+                        login(allowHigherV1Version = true)
+                    }
+                ) {
+                    Text(R.string.still_login.string)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { loginCompatibilityWarning = null }) {
+                    Text(R.string.cancel.string)
+                }
+            }
+        )
     }
 
     Scaffold(

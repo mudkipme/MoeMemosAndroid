@@ -50,6 +50,15 @@
     <string name="delete">削除</string>
     <string name="restore">復元</string>
     <string name="invalid_access_token">無効なアクセストークン</string>
+    <string name="invalid_server">無効なサーバーです。</string>
+    <string name="access_token_invalid_relogin">アクセストークンが無効です。有効期限のないアクセストークンを作成して、もう一度ログインしてください。</string>
+    <string name="sync_failed">同期に失敗しました</string>
+    <string name="memos_supported_versions">Moe Memos がサポートする Memos は 0.21.0、0.26.0、0.26.1 のみです。</string>
+    <string name="unsupported_memos_version_title">サポート対象外のMemosバージョン</string>
+    <string name="memos_login_version_higher_warning">お使いの Memos バージョンは Moe Memos のサポート対象より新しいため、互換性の問題が発生する可能性があります。続行する前に Moe Memos のWebサイトで対応状況を確認してください。</string>
+    <string name="memos_sync_version_higher_warning">お使いの Memos バージョンは Moe Memos のサポート対象より新しいため、強制同期すると未同期データが破損する可能性があります。続行する前に Moe Memos のWebサイトで対応状況を確認してください。</string>
+    <string name="still_login">それでもログイン</string>
+    <string name="still_sync">それでも同期</string>
     <string name="pin">ピン留め</string>
     <string name="share">共有</string>
     <string name="copy_link">リンクをコピー</string>

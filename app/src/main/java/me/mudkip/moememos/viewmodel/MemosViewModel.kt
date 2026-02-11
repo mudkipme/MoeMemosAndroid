@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.mudkip.moememos.R
+import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.DailyUsageStat
@@ -104,22 +106,57 @@ class MemosViewModel @Inject constructor(
 
     suspend fun loadMemos(syncAfterLoad: Boolean = true) = withContext(viewModelScope.coroutineContext) {
         if (syncAfterLoad) {
+            val compatibility = accountService.checkCurrentAccountSyncCompatibility(isAutomatic = true)
+            if (compatibility !is AccountService.SyncCompatibility.Allowed) {
+                return@withContext
+            }
+
             val syncResult = memoService.sync(false)
             if (syncResult is ApiResponse.Success) {
                 WidgetUpdater.updateWidgets(appContext)
             } else {
-                errorMessage = syncResult.getErrorMessage()
+                if (!syncResult.isAccessTokenInvalidFailure()) {
+                    errorMessage = syncResult.getErrorMessage()
+                }
             }
         }
     }
 
-    suspend fun refreshMemos() = withContext(viewModelScope.coroutineContext) {
+    suspend fun refreshMemos(allowHigherV1Version: String? = null): ManualSyncResult = withContext(viewModelScope.coroutineContext) {
+        when (val compatibility = accountService.checkCurrentAccountSyncCompatibility(
+            isAutomatic = false,
+            allowHigherV1Version = allowHigherV1Version
+        )) {
+            is AccountService.SyncCompatibility.Blocked -> {
+                return@withContext ManualSyncResult.Blocked(
+                    compatibility.message ?: R.string.memos_supported_versions.string
+                )
+            }
+            is AccountService.SyncCompatibility.RequiresConfirmation -> {
+                return@withContext ManualSyncResult.RequiresConfirmation(
+                    version = compatibility.version,
+                    message = compatibility.message
+                )
+            }
+            AccountService.SyncCompatibility.Allowed -> Unit
+        }
+
         val syncResult = memoService.sync(true)
         if (syncResult is ApiResponse.Success) {
+            if (allowHigherV1Version != null) {
+                accountService.rememberAcceptedUnsupportedSyncVersion(allowHigherV1Version)
+            }
             WidgetUpdater.updateWidgets(appContext)
         } else {
-            errorMessage = syncResult.getErrorMessage()
+            val message = syncResult.getErrorMessage()
+            errorMessage = message
+            return@withContext ManualSyncResult.Failed(message)
         }
+        ManualSyncResult.Completed
+    }
+
+    private fun ApiResponse<Unit>.isAccessTokenInvalidFailure(): Boolean {
+        return this is ApiResponse.Failure.Exception && this.throwable == MoeMemosException.accessTokenInvalid
     }
 
     fun loadTags() = viewModelScope.launch {
@@ -195,3 +232,10 @@ class MemosViewModel @Inject constructor(
 
 val LocalMemos =
     compositionLocalOf<MemosViewModel> { error(me.mudkip.moememos.R.string.memos_view_model_not_found.string) }
+
+sealed class ManualSyncResult {
+    object Completed : ManualSyncResult()
+    data class Blocked(val message: String) : ManualSyncResult()
+    data class RequiresConfirmation(val version: String, val message: String) : ManualSyncResult()
+    data class Failed(val message: String) : ManualSyncResult()
+}

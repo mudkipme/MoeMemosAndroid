@@ -3,7 +3,9 @@ package me.mudkip.moememos.data.repository
 import android.net.Uri
 import androidx.core.net.toUri
 import com.skydoves.sandwich.ApiResponse
+import com.skydoves.sandwich.StatusCode
 import com.skydoves.sandwich.getOrNull
+import com.skydoves.sandwich.retrofit.statusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,6 +24,7 @@ import me.mudkip.moememos.data.local.dao.MemoDao
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.MemoWithResources
 import me.mudkip.moememos.data.local.entity.ResourceEntity
+import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
@@ -402,7 +405,10 @@ class SyncingRepository(
     }
 
     private suspend fun syncInternal(): ApiResponse<Unit> {
-        refreshCurrentUserFromRemoteSafely()
+        val currentUserSync = refreshCurrentUserFromRemoteStrict()
+        if (currentUserSync !is ApiResponse.Success) {
+            return currentUserSync
+        }
 
         val remoteNormal = remoteRepository.listMemos()
         if (remoteNormal !is ApiResponse.Success) {
@@ -514,18 +520,31 @@ class SyncingRepository(
         }
     }
 
-    private suspend fun refreshCurrentUserFromRemoteSafely() {
+    private suspend fun refreshCurrentUserFromRemoteStrict(): ApiResponse<Unit> {
         val remoteUser = try {
             remoteRepository.getCurrentUser()
-        } catch (_: Throwable) {
-            null
+        } catch (e: Throwable) {
+            return ApiResponse.Failure.Exception(e)
         }
-        val user = (remoteUser as? ApiResponse.Success)?.data ?: return
-        currentUser = user
-        try {
-            onUserSynced(user)
-        } catch (_: Throwable) {
-            // Best effort only: syncing memos must not fail on profile refresh issues.
+
+        return when (remoteUser) {
+            is ApiResponse.Success -> {
+                currentUser = remoteUser.data
+                try {
+                    onUserSynced(remoteUser.data)
+                    ApiResponse.Success(Unit)
+                } catch (e: Throwable) {
+                    ApiResponse.Failure.Exception(e)
+                }
+            }
+            is ApiResponse.Failure.Error -> {
+                if (remoteUser.statusCode == StatusCode.Forbidden || remoteUser.statusCode == StatusCode.Unauthorized) {
+                    ApiResponse.Failure.Exception(MoeMemosException.accessTokenInvalid)
+                } else {
+                    remoteUser.mapFailureToUnit()
+                }
+            }
+            is ApiResponse.Failure.Exception -> remoteUser.mapFailureToUnit()
         }
     }
 

@@ -51,6 +51,15 @@
     <string name="delete">刪除</string>
     <string name="restore">恢復</string>
     <string name="invalid_access_token">不可用的 Access Token</string>
+    <string name="invalid_server">無效的伺服器。</string>
+    <string name="access_token_invalid_relogin">你的 Access Token 無效，請建立一個永不過期的 Access Token 並重新登入。</string>
+    <string name="sync_failed">同步失敗</string>
+    <string name="memos_supported_versions">Moe Memos 僅支援 Memos 0.21.0、0.26.0 和 0.26.1。</string>
+    <string name="unsupported_memos_version_title">不受支援的 Memos 版本</string>
+    <string name="memos_login_version_higher_warning">你的 Memos 版本高於 Moe Memos 支援的版本，可能會有相容性問題。繼續之前請先到 Moe Memos 網站確認是否支援該版本。</string>
+    <string name="memos_sync_version_higher_warning">你的 Memos 版本高於 Moe Memos 支援的版本，強制同步可能會損壞未同步資料。繼續之前請先到 Moe Memos 網站確認是否支援該版本。</string>
+    <string name="still_login">仍要登入</string>
+    <string name="still_sync">仍要同步</string>
     <string name="pin">置頂</string>
     <string name="share">分享</string>
     <string name="copy_link">複製連結</string>
