@@ -191,7 +191,8 @@ class MemosV1Repository(
             User(
                 user.name,
                 user.displayName ?: user.username,
-                user.createTime ?: Instant.now()
+                user.createTime ?: Instant.now(),
+                avatarUrl = user.avatarUrl
             )
         }
         if (resp !is ApiResponse.Success) {

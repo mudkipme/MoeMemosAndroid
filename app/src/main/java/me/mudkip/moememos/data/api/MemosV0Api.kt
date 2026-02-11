@@ -137,7 +137,8 @@ data class MemosV0User(
             identifier = id.toString(),
             name = displayName,
             startDate = Instant.ofEpochSecond(createdTs),
-            defaultVisibility = memoVisibility.toMemoVisibility()
+            defaultVisibility = memoVisibility.toMemoVisibility(),
+            avatarUrl = avatarUrl
         )
     }
 }

@@ -18,9 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.api.MemosProfile
 import me.mudkip.moememos.data.api.MemosV0Api
-import me.mudkip.moememos.data.api.MemosV0User
 import me.mudkip.moememos.data.api.MemosV1Api
-import me.mudkip.moememos.data.api.MemosV1User
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.service.AccountService
 
@@ -32,11 +30,6 @@ class AccountViewModel @AssistedInject constructor(
     sealed class RemoteApi {
         class MemosV0(val api: MemosV0Api): RemoteApi()
         class MemosV1(val api: MemosV1Api): RemoteApi()
-    }
-
-    sealed class UserAndProfile {
-        class MemosV0(val user: MemosV0User, val profile: MemosProfile): UserAndProfile()
-        class MemosV1(val user: MemosV1User, val profile: MemosProfile): UserAndProfile()
     }
 
     @AssistedFactory
@@ -63,26 +56,22 @@ class AccountViewModel @AssistedInject constructor(
         }
     }
 
-    var userAndProfile: UserAndProfile? by mutableStateOf(null)
+    var instanceProfile: MemosProfile? by mutableStateOf(null)
         private set
 
-    suspend fun loadUserAndProfile() = withContext(viewModelScope.coroutineContext) {
+    suspend fun loadInstanceProfile() = withContext(viewModelScope.coroutineContext) {
         when (val memosApi = memosApi.firstOrNull()) {
             is RemoteApi.MemosV0 -> {
-                val user = memosApi.api.me().getOrNull()
                 val profile = memosApi.api.status().getOrNull()?.profile
-                if (user != null && profile != null) {
-                    userAndProfile = UserAndProfile.MemosV0(user, profile)
-                }
+                instanceProfile = profile
             }
             is RemoteApi.MemosV1 -> {
-                val user = memosApi.api.getCurrentUser().getOrNull()?.user
                 val profile = memosApi.api.getProfile().getOrNull()
-                if (user != null && profile != null) {
-                    userAndProfile = UserAndProfile.MemosV1(user, profile)
-                }
+                instanceProfile = profile
             }
-            else -> Unit
+            else -> {
+                instanceProfile = null
+            }
         }
     }
 
