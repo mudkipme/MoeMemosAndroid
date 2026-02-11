@@ -92,7 +92,7 @@ class MemosV1Repository(
         pageSize: Int,
         pageToken: String?
     ): ApiResponse<Pair<List<Memo>, String?>> {
-        val resp = memosApi.listMemos(pageSize, pageToken)
+        val resp = memosApi.listMemos(pageSize, pageToken, filter = "visibility in [\"PUBLIC\", \"PROTECTED\"]")
         if (resp !is ApiResponse.Success) {
             return resp.mapSuccess { emptyList<Memo>() to null }
         }
