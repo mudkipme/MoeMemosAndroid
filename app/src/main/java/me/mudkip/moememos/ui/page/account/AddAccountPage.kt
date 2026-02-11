@@ -51,11 +51,11 @@ fun AddAccountPage(
     val hasLocalAccount = accounts.any { it is Account.Local }
 
     fun toMemos() {
-        navController.popBackStack()
         navController.navigate(RouteName.MEMOS) {
-            popUpTo(navController.graph.startDestinationId) {
+            popUpTo(navController.graph.id) {
                 inclusive = true
             }
+            launchSingleTop = true
         }
     }
 

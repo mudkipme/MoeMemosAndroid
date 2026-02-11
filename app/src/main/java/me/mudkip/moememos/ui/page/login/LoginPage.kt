@@ -119,11 +119,11 @@ fun LoginPage(
             allowHigherV1Version = allowHigherV1Version,
         )
         resp.suspendOnSuccess {
-            navController.popBackStack()
             navController.navigate(RouteName.MEMOS) {
-                popUpTo(navController.graph.startDestinationId) {
+                popUpTo(navController.graph.id) {
                     inclusive = true
                 }
+                launchSingleTop = true
             }
         }
         .suspendOnErrorMessage {

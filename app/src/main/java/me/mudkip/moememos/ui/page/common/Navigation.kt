@@ -126,9 +126,10 @@ fun Navigation() {
         if (!userStateViewModel.hasAnyAccount()) {
             if (navController.currentDestination?.route != RouteName.ADD_ACCOUNT) {
                 navController.navigate(RouteName.ADD_ACCOUNT) {
-                    popUpTo(navController.graph.startDestinationId) {
+                    popUpTo(navController.graph.id) {
                         inclusive = true
                     }
+                    launchSingleTop = true
                 }
             }
             return@LaunchedEffect
