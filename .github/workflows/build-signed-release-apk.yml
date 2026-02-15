@@ -17,8 +17,8 @@ jobs:
       - name: Validate tag format
         run: |
           TAG="${GITHUB_REF_NAME}"
-          if [[ ! "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-alpha\.[0-9]+)?$ ]]; then
-            echo "Tag '$TAG' is not supported. Expected formats: 0.9.0 or 0.9.0-alpha.0"
+          if [[ ! "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta)\.[0-9]+)?$ ]]; then
+            echo "Tag '$TAG' is not supported. Expected formats: 0.9.0, 0.9.0-alpha.0, or 0.9.0-beta.0"
             exit 1
           fi
 
