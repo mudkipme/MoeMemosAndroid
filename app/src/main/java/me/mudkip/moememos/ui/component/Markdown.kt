@@ -19,6 +19,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.style.TextDecoration
@@ -53,9 +54,17 @@ fun Markdown(
     selectable: Boolean = false,
     onTagClick: ((tag: String) -> Unit)? = null,
 ) {
-    val bodyTextStyle = MaterialTheme.typography.bodyLarge.let {
-        if (textAlign == null) it else it.copy(textAlign = textAlign)
+    fun withOptionalTextAlign(style: TextStyle): TextStyle {
+        return if (textAlign == null) style else style.copy(textAlign = textAlign)
     }
+
+    val bodyTextStyle = withOptionalTextAlign(MaterialTheme.typography.bodyLarge)
+    val h1TextStyle = withOptionalTextAlign(MaterialTheme.typography.headlineLarge)
+    val h2TextStyle = withOptionalTextAlign(MaterialTheme.typography.headlineMedium)
+    val h3TextStyle = withOptionalTextAlign(MaterialTheme.typography.headlineSmall)
+    val h4TextStyle = withOptionalTextAlign(MaterialTheme.typography.titleLarge)
+    val h5TextStyle = withOptionalTextAlign(MaterialTheme.typography.titleMedium)
+    val h6TextStyle = withOptionalTextAlign(MaterialTheme.typography.titleSmall)
     val uriHandler = LocalUriHandler.current
     val tagLinkStyle = TextLinkStyles(
         style = SpanStyle(
@@ -97,6 +106,12 @@ fun Markdown(
             modifier = modifier,
             imageTransformer = imageTransformer,
             typography = markdownTypography(
+                h1 = h1TextStyle,
+                h2 = h2TextStyle,
+                h3 = h3TextStyle,
+                h4 = h4TextStyle,
+                h5 = h5TextStyle,
+                h6 = h6TextStyle,
                 text = bodyTextStyle,
                 paragraph = bodyTextStyle,
                 ordered = bodyTextStyle,
