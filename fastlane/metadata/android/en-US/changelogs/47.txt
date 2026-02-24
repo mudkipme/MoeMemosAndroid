@@ -1,0 +1,9 @@
+## What's Changed
+- Added configurable Quick-Edit by @GameTec-live.
+- Fixed syncing to use local creation time.
+- No longer shows warning for Memos 0.26.2.
+
+## New Contributors
+- @GameTec-live made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/330
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/2.0.1...2.0.2
