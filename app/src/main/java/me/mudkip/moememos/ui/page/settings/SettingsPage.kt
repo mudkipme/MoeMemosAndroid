@@ -151,6 +151,17 @@ fun SettingsPage(
             }
 
             item {
+                Text(
+                    R.string.preferences.string,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp, 10.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+
+            item {
                 SettingItem(
                     icon = Icons.Outlined.Edit,
                     text = R.string.edit_gesture.string,

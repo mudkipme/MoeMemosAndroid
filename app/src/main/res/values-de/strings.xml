@@ -76,6 +76,12 @@
     <string name="collapse">Einklappen</string>
     <string name="view_more">Mehr anzeigen</string>
     <string name="accounts">Konten</string>
+    <string name="preferences">Einstellungen</string>
+    <string name="edit_gesture">Bearbeitungsgeste</string>
+    <string name="edit_gesture_none">Keine</string>
+    <string name="edit_gesture_single">Einmal tippen</string>
+    <string name="edit_gesture_double">Doppelt tippen</string>
+    <string name="edit_gesture_long">Langes Tippen</string>
     <string name="account_detail">Kontodetail</string>
     <string name="switch_account">Konto wechseln</string>
     <string name="local_account">Lokales Konto</string>

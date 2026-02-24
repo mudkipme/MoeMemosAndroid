@@ -76,6 +76,12 @@
     <string name="collapse">折りたたむ</string>
     <string name="view_more">もっと見る</string>
     <string name="accounts">アカウント</string>
+    <string name="preferences">設定</string>
+    <string name="edit_gesture">編集ジェスチャー</string>
+    <string name="edit_gesture_none">なし</string>
+    <string name="edit_gesture_single">1回タップ</string>
+    <string name="edit_gesture_double">2回タップ</string>
+    <string name="edit_gesture_long">長押し</string>
     <string name="account_detail">アカウントの詳細</string>
     <string name="switch_account">アカウントの切替</string>
     <string name="local_account">ローカルアカウント</string>

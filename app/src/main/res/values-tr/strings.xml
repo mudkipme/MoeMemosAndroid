@@ -82,6 +82,12 @@
     <string name="collapse">Daralt</string>
     <string name="view_more">Daha fazla göster</string>
     <string name="accounts">Hesaplar</string>
+    <string name="preferences">Tercihler</string>
+    <string name="edit_gesture">Düzenleme hareketi</string>
+    <string name="edit_gesture_none">Yok</string>
+    <string name="edit_gesture_single">Tek dokunuş</string>
+    <string name="edit_gesture_double">Çift dokunuş</string>
+    <string name="edit_gesture_long">Uzun dokunuş</string>
     <string name="account_detail">Hesap ayrıntıları</string>
     <string name="switch_account">Hesap değiştir</string>
     <string name="local_account">Yerel hesap</string>

@@ -77,6 +77,12 @@
     <string name="collapse">收合</string>
     <string name="view_more">查看更多</string>
     <string name="accounts">帳戶</string>
+    <string name="preferences">偏好設定</string>
+    <string name="edit_gesture">編輯手勢</string>
+    <string name="edit_gesture_none">無</string>
+    <string name="edit_gesture_single">單擊</string>
+    <string name="edit_gesture_double">雙擊</string>
+    <string name="edit_gesture_long">長按</string>
     <string name="account_detail">帳戶詳情</string>
     <string name="switch_account">切換帳戶</string>
     <string name="local_account">本地帳戶</string>
