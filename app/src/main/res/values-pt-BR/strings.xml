@@ -1,0 +1,116 @@
+<resources>
+    <string name="app_name">MoeMemos</string>
+    <string name="default_card_content" translatable="false">É o que você faz com o dom da vida que determina quem você é.      — Mewtwo</string>
+    <string name="search">Pesquisar</string>
+    <string name="back">Voltar</string>
+    <string name="memos">Memos</string>
+    <string name="menu">Menu</string>
+    <string name="search_hint">Pesquisar…</string>
+    <string name="new_memo">Novo Memo</string>
+    <string name="compose">Escrever</string>
+    <string name="remove">Remover</string>
+    <string name="resources">Recursos</string>
+    <string name="image">Imagem</string>
+    <string name="other">Outros</string>
+    <string name="archived">Arquivados</string>
+    <string name="settings">Configurações</string>
+    <string name="tags">Tags</string>
+    <string name="memo">Memo</string>
+    <string name="tag">Tag</string>
+    <string name="day">Dia</string>
+    <string name="fill_login_form">Por favor, preencha o formulário de login.</string>
+    <string name="acknowledgements">Agradecimentos</string>
+    <string name="privacy_policy">Política de Privacidade</string>
+    <string name="privacy">Privacidade</string>
+    <string name="website">Website</string>
+    <string name="web">Web</string>
+    <string name="about">Sobre o Moe Memos</string>
+    <string name="add_account">Adicionar Conta</string>
+    <string name="attachment">Anexo</string>
+    <string name="moe_memos" translatable="false">Moe Memos</string>
+    <string name="selected">Selecionado</string>
+    <string name="username_and_password">Usuário e senha</string>
+    <string name="report_an_issue">Reportar um Problema</string>
+    <string name="unpin">Desafixar</string>
+    <string name="sign_out">Sair</string>
+    <string name="sign_in_method">Método de login</string>
+    <string name="address">Endereço</string>
+    <string name="host">Host</string>
+    <string name="access_token" translatable="false">Token de Acesso</string>
+    <string name="edit">Editar</string>
+    <string name="close">Fechar</string>
+    <string name="add_task">Adicionar Tarefa</string>
+    <string name="add_image">Adicionar Imagem</string>
+    <string name="take_photo">Tirar Foto</string>
+    <string name="post">Publicar</string>
+    <string name="any_thoughts">Quaisquer pensamentos…</string>
+    <string name="input_login_information">Por favor, insira as informações de login do seu servidor \n[✍️memos](https://github.com/usememos/memos).</string>
+    <string name="username">Usuário</string>
+    <string name="password">Senha</string>
+    <string name="email">Email</string>
+    <string name="user_state_not_found">Estado do usuário não encontrado</string>
+    <string name="memos_view_model_not_found" translatable="false">Modelo de visualização do Memos não encontrado</string>
+    <string name="archived_memo_list_view_model_not_found" translatable="false">Modelo de visualização arquivados do Memos não encontrado</string>
+    <string name="nav_host_controller_not_found" translatable="false">Controlador de host de navegação não encontrado</string>
+    <string name="cancel">Cancelar</string>
+    <string name="confirm">Confirmar</string>
+    <string name="delete_this_memo">Excluir este Memo?</string>
+    <string name="delete">Excluir</string>
+    <string name="restore">Restaurar</string>
+    <string name="invalid_access_token">Token de Acesso Inválido</string>
+    <string name="invalid_server">Servidor inválido.</string>
+    <string name="access_token_invalid_relogin">Seu token de acesso é inválido, por favor crie um token de acesso que nunca expire e faça login novamente.</string>
+    <string name="sync_failed">Falha na Sincronização</string>
+    <string name="memos_supported_versions">O Moe Memos suporta apenas as versões 0.21.0 e 0.26.0 a 0.26.2 do Memos.</string>
+    <string name="unsupported_memos_version_title">Versão do Memos Não Suportada</string>
+    <string name="memos_login_version_higher_warning">Sua versão do Memos é mais recente que as versões suportadas pelo Moe Memos. Problemas de compatibilidade podem ocorrer. Verifique o website do Moe Memos antes de continuar.</string>
+    <string name="memos_sync_version_higher_warning">Sua versão do Memos é mais recente que as versões suportadas pelo Moe Memos. A sincronização forçada pode corromper dados não sincronizados. Verifique o website do Moe Memos antes de continuar.</string>
+    <string name="still_login">Ainda fazer login</string>
+    <string name="still_sync">Sincronizar Mesmo Assim</string>
+    <string name="pin">Fixar</string>
+    <string name="share">Compartilhar</string>
+    <string name="copy">Copiar</string>
+    <string name="copy_link">Copiar Link</string>
+    <string name="open">Abrir</string>
+    <string name="archive">Arquivar</string>
+    <string name="memo_visibility_public">Visível aos convidados</string>
+    <string name="memo_visibility_protected">Visível aos membros locais</string>
+    <string name="memo_visibility_private">Visível apenas a você</string>
+    <string name="explore">Explorar</string>
+    <string name="delete_this_tag">Excluir esta tag?</string>
+    <string name="expand">Expandir</string>
+    <string name="collapse">Recolher</string>
+    <string name="view_more">Ver Mais</string>
+    <string name="accounts">Contas</string>
+    <string name="account_detail">Detalhes da Conta</string>
+    <string name="switch_account">Trocar Conta</string>
+    <string name="local_account">Conta Local</string>
+    <string name="add_local_account">Adicionar Conta Local</string>
+    <string name="add_memos_account">Adicionar Conta do Memos</string>
+    <string name="local_account_description">Armazene memos apenas neste dispositivo.</string>
+    <string name="local_account_non_removable">A conta local não pode ser removida.</string>
+    <string name="memos_account_description">Conecte a um servidor Memos para sincronizar dados.</string>
+    <string name="sync_status_sync_now">Sincronizar agora</string>
+    <string name="sync_status_unsynced">Mudanças não sincronizadas</string>
+    <string name="memo_sync_pending">Memo não sincronizado</string>
+    <string name="memo_sync_synced">Memo sincronizado</string>
+    <string name="preferences">Preferências</string>
+    <string name="edit_gesture">Editar gesto</string>
+    <string name="edit_gesture_none">Nenhum</string>
+    <string name="edit_gesture_single">Toque único</string>
+    <string name="edit_gesture_double">Toque duplo</string>
+    <string name="edit_gesture_long">Toque longo</string>
+    <string name="failed_to_open_attachment">Falha ao abrir anexo</string>
+    <string name="export_local_account">Exportar Dados Locais</string>
+    <string name="local_export_success">Dados locais exportados</string>
+    <string name="local_export_failed">Falha ao exportar dados locais</string>
+
+    <!-- Widget strings -->
+    <string name="memos_widget_title">Memos</string>
+    <string name="memory_widget_title">Memória</string>
+    <string name="memory_widget_description">Exibe um memo aleatório da sua linha do tempo.</string>
+    <string name="loading">Carregando…</string>
+    <string name="error_unknown">Erro desconhecido</string>
+    <string name="no_memos">Nenhum memo encontrado</string>
+    <string name="memo_not_found">Memo não encontrado</string>
+</resources>
