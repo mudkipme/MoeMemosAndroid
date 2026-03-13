@@ -6,6 +6,7 @@ import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
+import java.io.InputStream
 import java.time.Instant
 
 abstract class RemoteRepository {
@@ -39,7 +40,8 @@ abstract class RemoteRepository {
     abstract suspend fun createResource(
         filename: String,
         type: MediaType?,
-        content: ByteArray,
+        contentLength: Long?,
+        openInputStream: () -> InputStream,
         memoRemoteId: String? = null
     ): ApiResponse<Resource>
 

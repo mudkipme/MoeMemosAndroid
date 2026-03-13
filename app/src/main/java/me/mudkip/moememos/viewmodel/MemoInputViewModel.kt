@@ -73,14 +73,12 @@ class MemoInputViewModel @Inject constructor(
     suspend fun upload(uri: Uri, memoIdentifier: String?): ApiResponse<ResourceEntity> = withContext(Dispatchers.IO) {
         try {
             val mimeType = context.contentResolver.getType(uri)
-            val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                ?: return@withContext ApiResponse.Failure.Exception(Exception("Unable to read selected file"))
             val extension = mimeType?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
             val filename = queryDisplayName(uri)
                 ?: ("attachment_${UUID.randomUUID()}" + if (extension.isNullOrBlank()) "" else ".$extension")
 
             memoService.getRepository()
-                .createResource(filename, mimeType?.toMediaTypeOrNull(), bytes, memoIdentifier)
+                .createResource(filename, mimeType?.toMediaTypeOrNull(), uri, memoIdentifier)
                 .suspendOnSuccess {
                     uploadResources.add(data)
                 }

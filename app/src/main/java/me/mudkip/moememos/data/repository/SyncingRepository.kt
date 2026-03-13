@@ -19,12 +19,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.local.dao.MemoDao
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.MemoWithResources
 import me.mudkip.moememos.data.local.entity.ResourceEntity
-import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.Memo
 import me.mudkip.moememos.data.model.MemoVisibility
@@ -264,13 +264,13 @@ class SyncingRepository(
     override suspend fun createResource(
         filename: String,
         type: MediaType?,
-        content: ByteArray,
+        contentUri: Uri,
         memoIdentifier: String?
     ): ApiResponse<ResourceEntity> {
         return try {
             val uri = fileStorage.saveFile(
                 accountKey = accountKey,
-                content = content,
+                sourceUri = contentUri,
                 filename = UUID.randomUUID().toString() + "_" + filename
             )
             val resource = ResourceEntity(
@@ -355,7 +355,7 @@ class SyncingRepository(
 
             val canonical = fileStorage.saveFile(
                 accountKey = accountKey,
-                content = sourceFile.readBytes(),
+                input = sourceFile.inputStream(),
                 filename = "${resource.identifier}_${resource.filename}"
             ).toString()
 
@@ -699,7 +699,8 @@ class SyncingRepository(
         val uploaded = remoteRepository.createResource(
             filename = resource.filename,
             type = resource.mimeType?.toMediaTypeOrNull(),
-            content = file.readBytes(),
+            contentLength = file.length(),
+            openInputStream = { file.inputStream() },
             memoRemoteId = memoRemoteId
         )
 
