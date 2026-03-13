@@ -32,8 +32,8 @@ import me.mudkip.moememos.ui.component.SyncStatusBadge
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
-import me.mudkip.moememos.viewmodel.ManualSyncResult
 import me.mudkip.moememos.viewmodel.LocalUserState
+import me.mudkip.moememos.viewmodel.ManualSyncResult
 import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)

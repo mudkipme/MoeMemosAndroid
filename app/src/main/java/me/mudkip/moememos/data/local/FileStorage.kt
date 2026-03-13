@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
+import java.io.InputStream
 import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,8 +21,28 @@ class FileStorage @Inject constructor(
     }
 
     fun saveFile(accountKey: String, content: ByteArray, filename: String): Uri {
+        return saveFile(accountKey, filename) { output ->
+            output.write(content)
+        }
+    }
+
+    fun saveFile(accountKey: String, sourceUri: Uri, filename: String): Uri {
+        val inputStream = context.contentResolver.openInputStream(sourceUri)
+            ?: throw IllegalArgumentException("Unable to open URI for reading: $sourceUri")
+        inputStream.use { input ->
+            return saveFile(accountKey, input, filename)
+        }
+    }
+
+    fun saveFile(accountKey: String, input: InputStream, filename: String): Uri {
+        return saveFile(accountKey, filename) { output ->
+            input.copyTo(output)
+        }
+    }
+
+    private fun saveFile(accountKey: String, filename: String, writer: (java.io.OutputStream) -> Unit): Uri {
         val file = File(accountDir(accountKey), filename)
-        file.writeBytes(content)
+        file.outputStream().use(writer)
         return Uri.fromFile(file)
     }
 

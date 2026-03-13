@@ -5,6 +5,7 @@ import androidx.core.net.toUri
 import com.skydoves.sandwich.ApiResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -42,7 +43,7 @@ interface MemosV1Api {
     suspend fun listResources(): ApiResponse<ListResourceResponse>
 
     @POST("api/v1/attachments")
-    suspend fun createResource(@Body body: CreateResourceRequest): ApiResponse<MemosV1Resource>
+    suspend fun createResource(@Body body: RequestBody): ApiResponse<MemosV1Resource>
 
     @DELETE("api/v1/attachments/{id}")
     suspend fun deleteResource(@Path("id") resourceId: String): ApiResponse<Unit>
