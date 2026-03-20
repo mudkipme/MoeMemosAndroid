@@ -47,6 +47,15 @@
             <meta-data android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+
+        <activity
+            android:name=".widget.MeoMemosGlanceWidgetConfigurationActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MoeMemos">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         
         <provider
             android:authorities="me.mudkip.moememos.fileprovider"

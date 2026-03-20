@@ -105,4 +105,8 @@
     <string name="error_unknown">Unbekannter Fehler</string>
     <string name="no_memos">Keine Memos gefunden</string>
     <string name="memo_not_found">Memo nicht gefunden</string>
+    <string name="filter_by_tag">Filtern nach Hahstag</string>
+    <string name="pinned_only">Nur angepinnte anzeigen</string>
+    <string name="max_items">Maximale anzahl Elemente</string>
+    <string name="refresh">Aktualisieren</string>
 </resources>
