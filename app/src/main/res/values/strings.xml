@@ -113,4 +113,8 @@
     <string name="error_unknown">Unknown error</string>
     <string name="no_memos">No memos found</string>
     <string name="memo_not_found">Memo not found</string>
+    <string name="filter_by_tag">Filter by tag</string>
+    <string name="pinned_only">Show only pinned items.</string>
+    <string name="max_items">Maximum items to show</string>
+    <string name="refresh">Refresh</string>
 </resources>

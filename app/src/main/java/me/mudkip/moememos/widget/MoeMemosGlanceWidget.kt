@@ -11,17 +11,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.background
+import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -33,6 +45,7 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -49,35 +62,51 @@ import java.time.Instant
 
 class MoeMemosGlanceWidget : GlanceAppWidget() {
 
+    override val stateDefinition = PreferencesGlanceStateDefinition
+
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val widgetEntryPoint = EntryPointAccessors.fromApplication(
             context.applicationContext,
             WidgetEntryPoint::class.java
         )
         val memoService = widgetEntryPoint.memoService()
-        
+
         provideContent {
+            val prefs = currentState<Preferences>()
             GlanceTheme {
-                WidgetContent(context, memoService)
+                WidgetContent(context, memoService, prefs)
             }
         }
     }
 
     @Composable
-    private fun WidgetContent(context: Context, memoService: MemoService) {
+    private fun WidgetContent(context: Context, memoService: MemoService, prefs: Preferences) {
         var memos by remember { mutableStateOf<List<MemoEntity>>(emptyList()) }
         var isLoading by remember { mutableStateOf(true) }
         var error by remember { mutableStateOf<String?>(null) }
 
-        LaunchedEffect(Unit) {
+        val filterTag = prefs[MoeMemosWidgetKeys.filterTag]
+        val pinnedOnly = prefs[MoeMemosWidgetKeys.pinnedOnly] ?: false
+        val maxItems = prefs[MoeMemosWidgetKeys.maxItems] ?: 10
+        val refreshKey = prefs[MoeMemosWidgetKeys.refreshKey] ?: 0L
+
+        LaunchedEffect(filterTag, pinnedOnly, maxItems, refreshKey) {
             withContext(Dispatchers.IO) {
                 try {
+                    isLoading = true
                     memoService.getRepository().listMemos().suspendOnSuccess {
-                        // Get pinned memos first, then most recent
-                        val sortedMemos = data.sortedWith(
+                        // Filter and sort memos
+                        val filteredMemos = data.filter { memo ->
+                            val matchesTag = filterTag == null || memo.content.contains("#$filterTag")
+                            val matchesPinned = !pinnedOnly || memo.pinned
+                            matchesTag && matchesPinned
+                        }
+                        
+                        val sortedMemos = filteredMemos.sortedWith(
                             compareByDescending<MemoEntity> { it.pinned }
                                 .thenByDescending { it.date }
-                        ).take(3)
+                        ).take(maxItems)
+                        
                         memos = sortedMemos
                         error = null
                     }
@@ -109,15 +138,41 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                     modifier = GlanceModifier.size(24.dp)
                 )
                 Spacer(modifier = GlanceModifier.width(8.dp))
-                Text(
-                    text = context.getString(R.string.memos),
-                    style = TextStyle(
-                        color = GlanceTheme.colors.primary,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                Column {
+                    Text(
+                        text = context.getString(R.string.memos),
+                        style = TextStyle(
+                            color = GlanceTheme.colors.primary,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     )
-                )
+                    if (filterTag != null) {
+                        Text(
+                            text = "#$filterTag",
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onSurfaceVariant,
+                                fontSize = 12.sp
+                            )
+                        )
+                    }
+                }
                 Spacer(modifier = GlanceModifier.defaultWeight())
+                // Refresh button
+                Box(
+                    modifier = GlanceModifier
+                        .size(36.dp)
+                        .clickable(actionRunCallback<RefreshAction>())
+                        .padding(4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_shortcut_refresh),
+                        contentDescription = context.getString(R.string.refresh),
+                        modifier = GlanceModifier.size(24.dp)
+                    )
+                }
+                Spacer(modifier = GlanceModifier.width(8.dp))
                 // Add new memo button
                 Box(
                     modifier = GlanceModifier
@@ -172,12 +227,14 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                     }
                 }
                 else -> {
-                    Column(
-                        modifier = GlanceModifier.fillMaxWidth(),
+                    LazyColumn(
+                        modifier = GlanceModifier.fillMaxSize()
                     ) {
-                        memos.forEachIndexed { index, memo ->
+                        itemsIndexed(memos) { index, memo ->
                             val isLastMemo = index == memos.size - 1
+
                             MemoItem(context, memo, isLastMemo)
+
                             if (!isLastMemo) {
                                 Spacer(modifier = GlanceModifier.height(2.dp))
                             }
@@ -196,7 +253,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                 .fillMaxWidth()
                 .padding(2.dp, 4.dp, 2.dp, if (isLastMemo) 0.dp else 4.dp)
         ) {
-            // Card content with rounded corners
+            // Card content with rounded corners and borders (via XML drawables)
             Column(
                 modifier = GlanceModifier
                     .fillMaxWidth()
@@ -267,6 +324,27 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
     }
 }
 
+class RefreshAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        updateAppWidgetState(context, glanceId) { prefs ->
+            val current = prefs[MoeMemosWidgetKeys.refreshKey] ?: 0L
+            prefs[MoeMemosWidgetKeys.refreshKey] = current + 1
+        }
+        MoeMemosGlanceWidget().update(context, glanceId)
+    }
+}
+
+object MoeMemosWidgetKeys {
+    val filterTag = stringPreferencesKey("filter_tag")
+    val pinnedOnly = booleanPreferencesKey("pinned_only")
+    val maxItems = intPreferencesKey("max_items")
+    val refreshKey = longPreferencesKey("refresh_key")
+}
+
 private fun createOpenAppIntent(context: Context): Intent =
     Intent(context, MainActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -277,6 +355,7 @@ private fun createNewMemoIntent(context: Context): Intent =
         action = MainActivity.ACTION_NEW_MEMO
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
     }
+
 
 private fun createViewMemoIntent(context: Context, memoId: String): Intent =
     Intent(context, MainActivity::class.java).apply {
