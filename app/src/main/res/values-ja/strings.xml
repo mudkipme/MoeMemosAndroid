@@ -34,6 +34,7 @@
     <string name="sign_in_method">サインイン方法</string>
     <string name="address">アドレス</string>
     <string name="host">ホスト</string>
+    <string name="account_name">アカウント名（任意）</string>
     <string name="edit">編集</string>
     <string name="close">閉じる</string>
     <string name="add_task">タスクを追加</string>

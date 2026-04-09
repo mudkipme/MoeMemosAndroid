@@ -36,6 +36,7 @@
     <string name="sign_in_method">Metodo di accesso</string>
     <string name="address">Indirizzo</string>
     <string name="host">Host</string>
+    <string name="account_name">Nome account (facoltativo)</string>
     <string name="access_token" translatable="false">Token di accesso</string>
     <string name="edit">Modifica</string>
     <string name="close">Chiudi</string>

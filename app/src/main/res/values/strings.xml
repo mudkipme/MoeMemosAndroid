@@ -36,6 +36,7 @@
     <string name="sign_in_method">Sign in method</string>
     <string name="address">Address</string>
     <string name="host">Host</string>
+    <string name="account_name">Account name (Optional)</string>
     <string name="access_token" translatable="false">Access Token</string>
     <string name="edit">Edit</string>
     <string name="close">Close</string>
@@ -104,7 +105,7 @@
     <string name="export_local_account">Export Local Data</string>
     <string name="local_export_success">Local data exported</string>
     <string name="local_export_failed">Failed to export local data</string>
-    
+
     <!-- Widget strings -->
     <string name="memos_widget_title">Memos</string>
     <string name="memory_widget_title">Memory</string>

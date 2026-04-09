@@ -35,6 +35,7 @@
     <string name="sign_in_method">Метод входа в систему</string>
     <string name="address">Адрес</string>
     <string name="host">Хост</string>
+    <string name="account_name">Название аккаунта (необязательно)</string>
     <string name="edit">Редактировать</string>
     <string name="close">Закрыть</string>
     <string name="add_task">Добавить задачу</string>
