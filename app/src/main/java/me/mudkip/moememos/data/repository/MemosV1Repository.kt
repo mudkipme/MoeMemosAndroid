@@ -7,7 +7,6 @@ import com.skydoves.sandwich.onSuccess
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import me.mudkip.moememos.data.api.CreateResourceRequest
 import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.api.MemosV1CreateMemoRequest
 import me.mudkip.moememos.data.api.MemosV1Memo
@@ -22,7 +21,6 @@ import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
-import okio.ByteString.Companion.toByteString
 import java.time.Instant
 
 private const val PAGE_SIZE = 200
@@ -176,15 +174,18 @@ class MemosV1Repository(
     override suspend fun createResource(
         filename: String,
         type: MediaType?,
-        content: ByteArray,
+        contentLength: Long?,
+        openInputStream: () -> java.io.InputStream,
         memoRemoteId: String?
     ): ApiResponse<Resource> {
-        return memosApi.createResource(CreateResourceRequest(
+        val requestBody = StreamingBase64JsonRequestBody(
             filename = filename,
             type = type?.toString() ?: "application/octet-stream",
-            content = content.toByteString().base64(),
-            memo = memoRemoteId?.let { getName(it) }
-        )).mapSuccess { convertResource(this) }
+            memo = memoRemoteId?.let { getName(it) },
+            contentLength = contentLength,
+            openInputStream = openInputStream
+        )
+        return memosApi.createResource(requestBody).mapSuccess { convertResource(this) }
     }
 
     override suspend fun deleteResource(remoteId: String): ApiResponse<Unit> {

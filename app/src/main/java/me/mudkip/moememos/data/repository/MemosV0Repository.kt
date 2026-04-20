@@ -19,7 +19,6 @@ import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.User
 import okhttp3.MediaType
 import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.time.Instant
 
 class MemosV0Repository (
@@ -149,10 +148,15 @@ class MemosV0Repository (
     override suspend fun createResource(
         filename: String,
         type: MediaType?,
-        content: ByteArray,
+        contentLength: Long?,
+        openInputStream: () -> java.io.InputStream,
         memoRemoteId: String?
     ): ApiResponse<Resource> {
-        val file = MultipartBody.Part.createFormData("file", filename, content.toRequestBody(type))
+        val file = MultipartBody.Part.createFormData(
+            "file",
+            filename,
+            InputStreamRequestBody(type, contentLength, openInputStream)
+        )
         return memosApi.uploadResource(file).mapSuccess {
             convertResource(this)
         }

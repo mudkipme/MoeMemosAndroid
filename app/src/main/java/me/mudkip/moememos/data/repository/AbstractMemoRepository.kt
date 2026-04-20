@@ -29,7 +29,7 @@ abstract class AbstractMemoRepository {
     abstract suspend fun listTags(): ApiResponse<List<String>>
 
     abstract suspend fun listResources(): ApiResponse<List<ResourceEntity>>
-    abstract suspend fun createResource(filename: String, type: MediaType?, content: ByteArray, memoIdentifier: String? = null): ApiResponse<ResourceEntity>
+    abstract suspend fun createResource(filename: String, type: MediaType?, contentUri: Uri, memoIdentifier: String? = null): ApiResponse<ResourceEntity>
     abstract suspend fun deleteResource(identifier: String): ApiResponse<Unit>
 
     abstract suspend fun getCurrentUser(): ApiResponse<User>

@@ -1,5 +1,6 @@
 package me.mudkip.moememos.data.repository
 
+import android.net.Uri
 import androidx.core.net.toUri
 import com.skydoves.sandwich.ApiResponse
 import kotlinx.coroutines.flow.Flow
@@ -214,13 +215,13 @@ class LocalDatabaseRepository(
     override suspend fun createResource(
         filename: String,
         type: MediaType?,
-        content: ByteArray,
+        contentUri: Uri,
         memoIdentifier: String?
     ): ApiResponse<ResourceEntity> {
         return try {
             val uri = fileStorage.saveFile(
                 accountKey = accountKey,
-                content = content,
+                sourceUri = contentUri,
                 filename = UUID.randomUUID().toString() + "_" + filename
             )
             val resource = ResourceEntity(
