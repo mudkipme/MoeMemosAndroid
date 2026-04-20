@@ -62,7 +62,7 @@
     <string name="invalid_server">Servidor inválido.</string>
     <string name="access_token_invalid_relogin">Seu token de acesso é inválido, por favor crie um token de acesso que nunca expire e faça login novamente.</string>
     <string name="sync_failed">Falha na Sincronização</string>
-    <string name="memos_supported_versions">O Moe Memos suporta apenas as versões 0.21.0 e 0.26.0 a 0.26.2 do Memos.</string>
+    <string name="memos_supported_versions">O Moe Memos suporta apenas as versões 0.21.0 e 0.27.0 a 0.27.1 do Memos.</string>
     <string name="unsupported_memos_version_title">Versão do Memos Não Suportada</string>
     <string name="memos_login_version_higher_warning">Sua versão do Memos é mais recente que as versões suportadas pelo Moe Memos. Problemas de compatibilidade podem ocorrer. Verifique o website do Moe Memos antes de continuar.</string>
     <string name="memos_sync_version_higher_warning">Sua versão do Memos é mais recente que as versões suportadas pelo Moe Memos. A sincronização forçada pode corromper dados não sincronizados. Verifique o website do Moe Memos antes de continuar.</string>

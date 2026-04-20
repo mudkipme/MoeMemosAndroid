@@ -29,6 +29,8 @@ class MemosV1Repository(
     private val memosApi: MemosV1Api,
     private val account: Account.MemosV1
 ): RemoteRepository() {
+    private val remoteUserIdentifier = account.info.remoteIdentifier
+
     private fun convertResource(resource: MemosV1Resource): Resource {
         return Resource(
             remoteId = requireNotNull(resource.name),
@@ -78,12 +80,16 @@ class MemosV1Repository(
         return identifier.substringBefore('|')
     }
 
+    private suspend fun listCurrentUserMemos(state: MemosV1State): ApiResponse<List<Memo>> {
+        return listMemosByFilter(state, "creator == \"$remoteUserIdentifier\"")
+    }
+
     override suspend fun listMemos(): ApiResponse<List<Memo>> {
-        return listMemosByFilter(MemosV1State.NORMAL, "creator_id == ${account.info.id}")
+        return listCurrentUserMemos(MemosV1State.NORMAL)
     }
 
     override suspend fun listArchivedMemos(): ApiResponse<List<Memo>> {
-        return listMemosByFilter(MemosV1State.ARCHIVED, "creator_id == ${account.info.id}")
+        return listCurrentUserMemos(MemosV1State.ARCHIVED)
     }
 
     override suspend fun listWorkspaceMemos(
@@ -159,12 +165,6 @@ class MemosV1Repository(
 
     override suspend fun deleteMemo(remoteId: String): ApiResponse<Unit> {
         return memosApi.deleteMemo(getId(remoteId))
-    }
-
-    override suspend fun listTags(): ApiResponse<List<String>> {
-        return memosApi.getUserStats(account.info.id.toString()).mapSuccess {
-            tagCount.keys.toList()
-          }
     }
 
     override suspend fun listResources(): ApiResponse<List<Resource>> {

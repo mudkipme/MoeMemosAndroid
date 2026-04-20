@@ -34,7 +34,6 @@ abstract class RemoteRepository {
 
     abstract suspend fun deleteMemo(remoteId: String): ApiResponse<Unit>
 
-    abstract suspend fun listTags(): ApiResponse<List<String>>
     abstract suspend fun listResources(): ApiResponse<List<Resource>>
 
     abstract suspend fun createResource(

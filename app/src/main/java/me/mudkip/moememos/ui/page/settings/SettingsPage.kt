@@ -42,8 +42,8 @@ import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemoEditGesture
-import me.mudkip.moememos.data.model.displayTitle
 import me.mudkip.moememos.data.model.Settings
+import me.mudkip.moememos.data.model.displayTitle
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.settingsDataStore
 import me.mudkip.moememos.ext.string
