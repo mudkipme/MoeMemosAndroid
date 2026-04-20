@@ -30,6 +30,7 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.MemosProfile
 import me.mudkip.moememos.data.model.MemosAccount
+import me.mudkip.moememos.data.model.displayTitle
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.component.MemosIcon
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -47,8 +48,6 @@ fun MemosAccountPage(
     onSignOut: () -> Unit
 ) {
     val context = LocalContext.current
-    val accountHost = account.host.toHttpUrlOrNull()?.host.orEmpty()
-    val accountName = account.name.ifBlank { accountHost }
     val accountAvatarUrl = resolveAvatarUrl(account.host, account.avatarUrl)
     val imageLoader = remember(context, okHttpClient) {
         ImageLoader.Builder(context)
@@ -91,11 +90,11 @@ fun MemosAccountPage(
                         }
                         Column(Modifier.padding(start = 10.dp)) {
                             Text(
-                                accountName,
+                                account.displayTitle(),
                                 style = MaterialTheme.typography.headlineSmall
                             )
                             Text(
-                                accountHost,
+                                account.host,
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.outline
                             )

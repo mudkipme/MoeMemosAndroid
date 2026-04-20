@@ -85,6 +85,7 @@ class UserStateViewModel @Inject constructor(
     suspend fun loginMemosWithAccessToken(
         host: String,
         accessToken: String,
+        accountLabel: String = "",
         allowHigherV1Version: Boolean = false,
     ): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
         try {
@@ -99,8 +100,8 @@ class UserStateViewModel @Inject constructor(
                 }
             }
             when (accountCase) {
-                UserData.AccountCase.MEMOS_V1 -> loginMemosV1WithAccessToken(host, accessToken)
-                UserData.AccountCase.MEMOS_V0 -> loginMemosV0WithAccessToken(host, accessToken)
+                UserData.AccountCase.MEMOS_V1 -> loginMemosV1WithAccessToken(host, accessToken, accountLabel)
+                UserData.AccountCase.MEMOS_V0 -> loginMemosV0WithAccessToken(host, accessToken, accountLabel)
                 else -> throw MoeMemosException.invalidServer
             }
         } catch (e: Throwable) {
@@ -108,13 +109,17 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loginMemosV0WithAccessToken(host: String, accessToken: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
+    private suspend fun loginMemosV0WithAccessToken(
+        host: String,
+        accessToken: String,
+        accountLabel: String,
+    ): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
         try {
             val resp = accountService.createMemosV0Client(host, accessToken).second.me()
             if (resp !is ApiResponse.Success) {
                 return@withContext resp.mapSuccess {}
             }
-            accountService.addAccount(getAccount(host, accessToken, resp.data))
+            accountService.addAccount(getAccount(host, accessToken, accountLabel, resp.data))
             currentUser = resp.data.toUser()
             ApiResponse.Success(Unit)
         } catch (e: Throwable) {
@@ -122,7 +127,11 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loginMemosV1WithAccessToken(host: String, accessToken: String): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
+    private suspend fun loginMemosV1WithAccessToken(
+        host: String,
+        accessToken: String,
+        accountLabel: String,
+    ): ApiResponse<Unit> = withContext(viewModelScope.coroutineContext) {
         try {
             val resp = accountService.createMemosV1Client(host, accessToken).second.getCurrentUser()
             if (resp !is ApiResponse.Success) {
@@ -132,7 +141,7 @@ class UserStateViewModel @Inject constructor(
             if (user == null) {
                 return@withContext ApiResponse.exception(MoeMemosException.notLogin)
             }
-            accountService.addAccount(getAccount(host, accessToken, user))
+            accountService.addAccount(getAccount(host, accessToken, accountLabel, user))
             loadCurrentUser().mapSuccess {}
         } catch (e: Throwable) {
             ApiResponse.exception(e)
@@ -164,7 +173,7 @@ class UserStateViewModel @Inject constructor(
         }
     }
 
-    private fun getAccount(host: String, accessToken: String, user: MemosV0User): Account = Account.MemosV0(
+    private fun getAccount(host: String, accessToken: String, accountLabel: String, user: MemosV0User): Account = Account.MemosV0(
         info = MemosAccount(
             host = host,
             accessToken = accessToken,
@@ -173,10 +182,11 @@ class UserStateViewModel @Inject constructor(
             avatarUrl = user.avatarUrl ?: "",
             startDateEpochSecond = user.createdTs,
             defaultVisibility = user.toUser().defaultVisibility.name,
+            accountLabel = accountLabel.trim(),
         )
     )
 
-    private fun getAccount(host: String, accessToken: String, user: MemosV1User): Account = Account.MemosV1(
+    private fun getAccount(host: String, accessToken: String, accountLabel: String, user: MemosV1User): Account = Account.MemosV1(
         info = MemosAccount(
             host = host,
             accessToken = accessToken,
@@ -184,6 +194,7 @@ class UserStateViewModel @Inject constructor(
             name = user.username,
             avatarUrl = user.avatarUrl ?: "",
             startDateEpochSecond = user.createTime?.epochSecond ?: 0L,
+            accountLabel = accountLabel.trim(),
         )
     )
 }

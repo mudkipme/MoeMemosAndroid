@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.page.settings
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,9 +20,11 @@ import androidx.compose.ui.unit.dp
 fun SettingItem(
     icon: ImageVector,
     text: String,
+    subtitle: String? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
+    val contentDescription = if (subtitle.isNullOrBlank()) text else "$text, $subtitle"
     Surface(onClick = onClick) {
         Row(
             modifier = Modifier
@@ -31,20 +34,27 @@ fun SettingItem(
         ) {
             Icon(
                 icon,
-                contentDescription = text,
+                contentDescription = contentDescription,
                 modifier = Modifier.padding(start = 8.dp, end = 16.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (trailingIcon != null) {
-                Spacer(modifier = Modifier.weight(1f))
-                trailingIcon()
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (!subtitle.isNullOrBlank()) {
+                    Text(
+                        subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
             }
+            trailingIcon?.invoke()
         }
     }
 }

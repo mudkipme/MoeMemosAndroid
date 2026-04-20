@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Login
+import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Computer
 import androidx.compose.material.icons.outlined.PermIdentity
 import androidx.compose.material3.BottomAppBar
@@ -75,8 +76,12 @@ fun LoginPage(
     val userStateViewModel = LocalUserState.current
     val snackbarState = remember { SnackbarHostState() }
 
+    var accountLabel by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue())
+    }
+
     var host by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(userStateViewModel.host))
+        mutableStateOf(TextFieldValue())
     }
 
     var accessToken by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -116,6 +121,7 @@ fun LoginPage(
         val resp = userStateViewModel.loginMemosWithAccessToken(
             host = sanitizedHost,
             accessToken = accessToken.text.trim(),
+            accountLabel = accountLabel.text,
             allowHigherV1Version = allowHigherV1Version,
         )
         resp.suspendOnSuccess {
@@ -226,6 +232,37 @@ fun LoginPage(
                                 }
                             }
                         },
+                    value = accountLabel,
+                    onValueChange = { accountLabel = it },
+                    singleLine = true,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Badge,
+                            contentDescription = R.string.account_name.string
+                        )
+                    },
+                    label = {
+                        Text(R.string.account_name.string)
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        autoCorrectEnabled = true,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    )
+                )
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .onFocusEvent { focusState ->
+                            if (focusState.isFocused) {
+                                coroutineScope.launch {
+                                    bringIntoViewRequester.bringIntoView()
+                                }
+                            }
+                        },
                     value = host,
                     onValueChange = { host = it },
                     singleLine = true,
@@ -249,6 +286,7 @@ fun LoginPage(
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(top = 8.dp)
                         .onFocusEvent { focusState ->
                             if (focusState.isFocused) {
                                 coroutineScope.launch {

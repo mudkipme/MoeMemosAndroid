@@ -36,6 +36,7 @@
     <string name="sign_in_method">Método de login</string>
     <string name="address">Endereço</string>
     <string name="host">Host</string>
+    <string name="account_name">Nome da conta (opcional)</string>
     <string name="access_token" translatable="false">Token de Acesso</string>
     <string name="edit">Editar</string>
     <string name="close">Fechar</string>

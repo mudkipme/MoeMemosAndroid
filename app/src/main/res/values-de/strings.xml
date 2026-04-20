@@ -34,6 +34,7 @@
     <string name="sign_in_method">Anmeldemethode</string>
     <string name="address">Adresse</string>
     <string name="host">Host</string>
+    <string name="account_name">Kontoname (freiwillig)</string>
     <string name="edit">Bearbeiten</string>
     <string name="close">Schließen</string>
     <string name="add_task">Aufgabe hinzufügen</string>

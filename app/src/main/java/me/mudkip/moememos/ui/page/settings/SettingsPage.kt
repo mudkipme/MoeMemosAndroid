@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemoEditGesture
+import me.mudkip.moememos.data.model.displayTitle
 import me.mudkip.moememos.data.model.Settings
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.settingsDataStore
@@ -103,27 +104,35 @@ fun SettingsPage(
             accounts.forEach { account ->
                 when (account) {
                     is Account.MemosV0 -> item {
-                        SettingItem(icon = MemosIcon, text = account.info.name, trailingIcon = {
-                            if (currentAccount?.accountKey() == account.accountKey()) {
-                                Icon(Icons.Outlined.Check,
-                                    contentDescription = R.string.selected.string,
-                                    modifier = Modifier.padding(start = 16.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
+                        SettingItem(
+                            icon = MemosIcon,
+                            text = account.info.displayTitle(),
+                            subtitle = account.info.host,
+                            trailingIcon = {
+                                if (currentAccount?.accountKey() == account.accountKey()) {
+                                    Icon(Icons.Outlined.Check,
+                                        contentDescription = R.string.selected.string,
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                         }) {
                             navController.navigate("${RouteName.ACCOUNT}?accountKey=${account.accountKey()}")
                         }
                     }
                     is Account.MemosV1 -> item {
-                        SettingItem(icon = MemosIcon, text = account.info.name, trailingIcon = {
-                            if (currentAccount?.accountKey() == account.accountKey()) {
-                                Icon(Icons.Outlined.Check,
-                                    contentDescription = R.string.selected.string,
-                                    modifier = Modifier.padding(start = 16.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
+                        SettingItem(
+                            icon = MemosIcon,
+                            text = account.info.displayTitle(),
+                            subtitle = account.info.host,
+                            trailingIcon = {
+                                if (currentAccount?.accountKey() == account.accountKey()) {
+                                    Icon(Icons.Outlined.Check,
+                                        contentDescription = R.string.selected.string,
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                         }) {
                             navController.navigate("${RouteName.ACCOUNT}?accountKey=${account.accountKey()}")
                         }
