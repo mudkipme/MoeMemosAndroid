@@ -28,6 +28,7 @@ import me.mudkip.moememos.data.model.UserData
 import me.mudkip.moememos.data.service.AccountService
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnNotLogin
+import me.mudkip.moememos.util.toInt53Hash
 import okhttp3.OkHttpClient
 import java.time.Instant
 import javax.inject.Inject
@@ -190,11 +191,12 @@ class UserStateViewModel @Inject constructor(
         info = MemosAccount(
             host = host,
             accessToken = accessToken,
-            id = user.name.substringAfterLast('/').toLong(),
+            id = user.name.toInt53Hash(),
             name = user.username,
             avatarUrl = user.avatarUrl ?: "",
             startDateEpochSecond = user.createTime?.epochSecond ?: 0L,
             accountLabel = accountLabel.trim(),
+            remoteIdentifier = user.name,
         )
     )
 }

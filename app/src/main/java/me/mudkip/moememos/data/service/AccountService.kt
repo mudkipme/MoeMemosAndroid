@@ -608,7 +608,7 @@ class AccountService @Inject constructor(
 
     companion object {
         private val MEMOS_V0_MIN_VERSION = SemVer(0, 21, 0)
-        private val MEMOS_V1_MIN_VERSION = SemVer(0, 26, 0)
-        private val MEMOS_V1_MAX_VERSION = SemVer(0, 26, 2)
+        private val MEMOS_V1_MIN_VERSION = SemVer(0, 27, 0)
+        private val MEMOS_V1_MAX_VERSION = SemVer(0, 27, 1)
     }
 }

@@ -2,7 +2,6 @@ package me.mudkip.moememos.data.repository
 
 import android.util.Base64
 import android.util.Base64OutputStream
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType

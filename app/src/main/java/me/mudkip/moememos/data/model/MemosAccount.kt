@@ -13,6 +13,7 @@ data class MemosAccount(
     val startDateEpochSecond: Long = 0L,
     val defaultVisibility: String = MemoVisibility.PRIVATE.name,
     val accountLabel: String = "",
+    val remoteIdentifier: String = "",
 )
 
 fun MemosAccount.displayTitle(): String {
