@@ -7,7 +7,6 @@ import java.net.URI
 data class MemosAccount(
     val host: String = "",
     val accessToken: String = "",
-    val id: Long = 0L,
     val name: String = "",
     val avatarUrl: String = "",
     val startDateEpochSecond: Long = 0L,

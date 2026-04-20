@@ -1,0 +1,13 @@
+## What's Changed
+- Added support for Memos 0.27.0 and 0.27.1. Due to breaking API changes, Memos versions 0.22.0-0.26.2 are no longer supported. You can continue using Memos 0.21.0 or upgrade to 0.27.1.
+- Added Brazilian Portuguese localization by @ciro-mota.
+- Improved the home screen widget by @majo-icutech.
+- Added an optional account label to settings by jeff-bennett.
+- Fixed a crash when uploading large files.
+
+## New Contributors
+* @ciro-mota made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/341
+* @majo-icutech made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/346
+* @jeff-bennett made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/349
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/2.0.2...2.0.3
