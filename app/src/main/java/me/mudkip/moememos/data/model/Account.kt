@@ -4,8 +4,8 @@ import java.time.Instant
 
 sealed class Account {
     fun accountKey(): String = when (this) {
-        is MemosV0 -> "memos:${this.info.host}:${this.info.id}"
-        is MemosV1 -> "memos:${this.info.host}:${this.info.id}"
+        is MemosV0 -> "memos:${this.info.host}:${this.info.remoteIdentifier}"
+        is MemosV1 -> "memos:${this.info.host}:${this.info.remoteIdentifier}"
         is Local -> "local"
     }
 
@@ -50,7 +50,7 @@ private fun MemosAccount.toUser(): User {
         Instant.now()
     }
     return User(
-        identifier = id.toString(),
+        identifier = remoteIdentifier,
         name = name,
         startDate = startDate,
         defaultVisibility = visibility
