@@ -62,7 +62,7 @@
     <string name="invalid_server">Invalid server.</string>
     <string name="access_token_invalid_relogin">Your access token is invalid, please create a never expire access token and login again.</string>
     <string name="sync_failed">Sync Failed</string>
-    <string name="memos_supported_versions">Moe Memos only supports Memos 0.21.0 and Memos 0.27.0 to 0.27.1.</string>
+    <string name="memos_supported_versions">Moe Memos only supports Memos %1$s and Memos %2$s to %3$s.</string>
     <string name="unsupported_memos_version_title">Unsupported Memos Version</string>
     <string name="memos_login_version_higher_warning">Your Memos version is higher than the versions supported by Moe Memos. Compatibility issues may happen. Check the Moe Memos website before continuing.</string>
     <string name="memos_sync_version_higher_warning">Your Memos version is higher than the versions supported by Moe Memos. Force sync may corrupt unsynced data. Check the Moe Memos website before continuing.</string>
