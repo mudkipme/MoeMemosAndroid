@@ -4,8 +4,13 @@ import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -31,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -54,6 +60,7 @@ fun MemoDetailPage(
     memoIdentifier: String
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val layoutDirection = LocalLayoutDirection.current
     val memosViewModel = LocalMemos.current
     val userStateViewModel = LocalUserState.current
     val currentAccount by userStateViewModel.currentAccount.collectAsState()
@@ -99,8 +106,13 @@ fun MemoDetailPage(
 
         Column(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
+                .consumeWindowInsets(innerPadding)
+                .padding(
+                    start = innerPadding.calculateStartPadding(layoutDirection),
+                    top = innerPadding.calculateTopPadding(),
+                    end = innerPadding.calculateEndPadding(layoutDirection)
+                )
                 .verticalScroll(rememberScrollState())
         ) {
             Row(
@@ -158,6 +170,8 @@ fun MemoDetailPage(
                     }
                 }
             )
+
+            Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
         }
     }
 }
