@@ -2,8 +2,8 @@ package me.mudkip.moememos.ui.page.memos
 
 import android.net.Uri
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -115,11 +115,14 @@ fun MemosList(
             }
         },
         state = refreshState,
-        modifier = Modifier.padding(contentPadding)
+        modifier = Modifier.fillMaxSize()
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = lazyListState
+            modifier = Modifier
+                .fillMaxSize()
+                .consumeWindowInsets(contentPadding),
+            state = lazyListState,
+            contentPadding = contentPadding
         ) {
             items(filteredMemos, key = { it.identifier }) { memo ->
                 MemosCard(
