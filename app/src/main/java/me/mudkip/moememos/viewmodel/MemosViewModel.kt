@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.R
+import me.mudkip.moememos.data.constant.MemosVersionSupport
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.ResourceEntity
@@ -133,7 +134,7 @@ class MemosViewModel @Inject constructor(
         )) {
             is AccountService.SyncCompatibility.Blocked -> {
                 return@withContext ManualSyncResult.Blocked(
-                    compatibility.message ?: R.string.memos_supported_versions.string
+                    compatibility.message ?: MemosVersionSupport.supportedVersionsMessage(appContext)
                 )
             }
             is AccountService.SyncCompatibility.RequiresConfirmation -> {

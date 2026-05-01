@@ -21,6 +21,11 @@ import kotlinx.serialization.json.Json
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV1Api
+import me.mudkip.moememos.data.constant.MemosVersionSupport
+import me.mudkip.moememos.data.constant.MemosVersionSupport.MEMOS_CANARY_VERSION_NAME
+import me.mudkip.moememos.data.constant.MemosVersionSupport.MEMOS_V0_MIN_VERSION
+import me.mudkip.moememos.data.constant.MemosVersionSupport.MEMOS_V1_MAX_VERSION
+import me.mudkip.moememos.data.constant.MemosVersionSupport.MEMOS_V1_MIN_VERSION
 import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.local.MoeMemosDatabase
 import me.mudkip.moememos.data.local.entity.ResourceEntity
@@ -387,7 +392,7 @@ class AccountService @Inject constructor(
         val serverVersion = detectAccountCaseAndVersion(host)
         return when (evaluateVersionPolicy(serverVersion)) {
             VersionPolicy.SUPPORTED -> LoginCompatibility.Supported(serverVersion.accountCase)
-            VersionPolicy.TOO_LOW -> LoginCompatibility.Unsupported(R.string.memos_supported_versions.string)
+            VersionPolicy.TOO_LOW -> LoginCompatibility.Unsupported(MemosVersionSupport.supportedVersionsMessage(context))
             VersionPolicy.V1_HIGHER -> {
                 if (allowHigherV1Version) {
                     LoginCompatibility.Supported(serverVersion.accountCase)
@@ -416,7 +421,7 @@ class AccountService @Inject constructor(
             ?: return if (isAutomatic) {
                 SyncCompatibility.Blocked(null)
             } else {
-                SyncCompatibility.Blocked(R.string.memos_supported_versions.string)
+                SyncCompatibility.Blocked(MemosVersionSupport.supportedVersionsMessage(context))
             }
         return when (evaluateVersionPolicy(serverVersion)) {
             VersionPolicy.SUPPORTED -> SyncCompatibility.Allowed
@@ -424,7 +429,7 @@ class AccountService @Inject constructor(
                 if (isAutomatic) {
                     SyncCompatibility.Blocked(null)
                 } else {
-                    SyncCompatibility.Blocked(R.string.memos_supported_versions.string)
+                    SyncCompatibility.Blocked(MemosVersionSupport.supportedVersionsMessage(context))
                 }
             }
             VersionPolicy.V1_HIGHER -> {
@@ -590,13 +595,21 @@ class AccountService @Inject constructor(
     }
 
     private fun evaluateVersionPolicy(serverVersion: ServerVersionInfo): VersionPolicy {
-        val version = SemVer.parseOrNull(serverVersion.version) ?: return VersionPolicy.TOO_LOW
+        val versionName = serverVersion.version.trim()
+        val version = SemVer.parseOrNull(versionName)
         return when (serverVersion.accountCase) {
             UserData.AccountCase.MEMOS_V0 -> {
-                if (version < MEMOS_V0_MIN_VERSION) VersionPolicy.TOO_LOW else VersionPolicy.SUPPORTED
+                when {
+                    versionName.equals(MEMOS_CANARY_VERSION_NAME, ignoreCase = true) -> VersionPolicy.SUPPORTED
+                    version == null -> VersionPolicy.TOO_LOW
+                    version < MEMOS_V0_MIN_VERSION -> VersionPolicy.TOO_LOW
+                    else -> VersionPolicy.SUPPORTED
+                }
             }
             UserData.AccountCase.MEMOS_V1 -> {
                 when {
+                    versionName.equals(MEMOS_CANARY_VERSION_NAME, ignoreCase = true) -> VersionPolicy.V1_HIGHER
+                    version == null -> VersionPolicy.TOO_LOW
                     version < MEMOS_V1_MIN_VERSION -> VersionPolicy.TOO_LOW
                     version > MEMOS_V1_MAX_VERSION -> VersionPolicy.V1_HIGHER
                     else -> VersionPolicy.SUPPORTED
@@ -604,11 +617,5 @@ class AccountService @Inject constructor(
             }
             else -> VersionPolicy.TOO_LOW
         }
-    }
-
-    companion object {
-        private val MEMOS_V0_MIN_VERSION = SemVer(0, 21, 0)
-        private val MEMOS_V1_MIN_VERSION = SemVer(0, 27, 0)
-        private val MEMOS_V1_MAX_VERSION = SemVer(0, 27, 1)
     }
 }

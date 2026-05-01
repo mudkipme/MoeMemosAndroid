@@ -61,7 +61,7 @@
     <string name="invalid_server">Недопустимый сервер.</string>
     <string name="access_token_invalid_relogin">Ваш токен доступа недействителен. Создайте токен доступа без срока действия и войдите снова.</string>
     <string name="sync_failed">Синхронизация не удалась</string>
-    <string name="memos_supported_versions">Moe Memos поддерживает только Memos 0.21.0 и Memos 0.27.0–0.27.1.</string>
+    <string name="memos_supported_versions">Moe Memos поддерживает только Memos %1$s и Memos %2$s–%3$s.</string>
     <string name="unsupported_memos_version_title">Неподдерживаемая версия Memos</string>
     <string name="memos_login_version_higher_warning">Ваша версия Memos выше версий, поддерживаемых Moe Memos. Возможны проблемы совместимости. Перед продолжением проверьте сайт Moe Memos.</string>
     <string name="memos_sync_version_higher_warning">Ваша версия Memos выше версий, поддерживаемых Moe Memos. Принудительная синхронизация может повредить несинхронизированные данные. Перед продолжением проверьте сайт Moe Memos.</string>
