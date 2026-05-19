@@ -780,6 +780,7 @@ class SyncingRepository(
         memoDao.insertMemo(
             local.copy(
                 remoteId = remoteMemoId(remoteMemo),
+                date = remoteMemo.date,
                 needsSync = false,
                 isDeleted = false,
                 archived = remoteMemo.archived,

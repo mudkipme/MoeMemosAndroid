@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.mudkip.moememos.R
 import me.mudkip.moememos.data.constant.MemosVersionSupport
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.local.entity.MemoEntity
