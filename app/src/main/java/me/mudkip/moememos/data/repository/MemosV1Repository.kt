@@ -45,7 +45,7 @@ class MemosV1Repository(
         return Memo(
             remoteId = memo.name,
             content = memo.content ?: "",
-            date = memo.displayTime ?: Instant.now(),
+            date = memo.createTime ?: Instant.now(),
             pinned = memo.pinned ?: false,
             visibility = memo.visibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE,
             resources = memo.attachments?.map { convertResource(it) } ?: emptyList(),
