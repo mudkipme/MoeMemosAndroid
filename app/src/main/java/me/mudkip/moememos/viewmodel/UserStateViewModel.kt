@@ -49,6 +49,7 @@ class UserStateViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             accountService.currentAccount.collectLatest {
+                currentUser = it?.toUser()
                 host = when(it) {
                     is Account.MemosV0 -> it.info.host
                     is Account.MemosV1 -> it.info.host
