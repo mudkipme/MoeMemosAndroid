@@ -108,4 +108,18 @@
     <string name="error_unknown">不明なエラー</string>
     <string name="no_memos">メモはありません</string>
     <string name="memo_not_found">メモが見つかりません</string>
+    <!-- App lock strings -->
+    <string name="security">セキュリティ</string>
+    <string name="app_lock">アプリロック</string>
+    <string name="app_lock_summary">Moe Memos を開くときに、指紋、顔認証、または端末のロック解除方法を要求します。</string>
+    <string name="app_lock_prompt_title">Moe Memos のロック解除</string>
+    <string name="app_lock_prompt_subtitle">続行するには本人確認をしてください。</string>
+    <string name="app_lock_prompt_failed">システム認証を開始できませんでした。</string>
+    <string name="app_lock_authentication_required">メモを表示するには認証が必要です。</string>
+    <string name="app_locked_title">ロック中</string>
+    <string name="app_locked_subtitle">続行するにはシステム認証を使用してください。</string>
+    <string name="app_lock_unavailable">システム認証を利用できません。システム設定で指紋、顔認証、または端末のロック解除方法を設定してください。</string>
+    <string name="app_lock_unavailable_short">この端末ではシステム認証を利用できません。</string>
+    <string name="unlock">ロック解除</string>
+    <string name="open_system_security_settings">システムのセキュリティ設定を開く</string>
 </resources>

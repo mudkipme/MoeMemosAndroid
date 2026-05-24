@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -49,6 +50,8 @@ import me.mudkip.moememos.ext.settingsDataStore
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.component.MemosIcon
 import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.ui.security.AppLockAuthenticator
+import me.mudkip.moememos.ui.security.AppLockSession
 import me.mudkip.moememos.viewmodel.LocalUserState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +68,24 @@ fun SettingsPage(
     val accounts by userStateViewModel.accounts.collectAsState()
     val currentAccount by userStateViewModel.currentAccount.collectAsState()
     val settings by context.settingsDataStore.data.collectAsState(initial = Settings())
+    val appLockSupported = remember(context, AppLockSession.foregroundGeneration) {
+        AppLockAuthenticator.canAuthenticate(context)
+    }
     var showEditGestureDialog by remember { mutableStateOf(false) }
+
+    fun setAppLockEnabled(enabled: Boolean) {
+        if (enabled && !appLockSupported) {
+            return
+        }
+        if (enabled) {
+            AppLockSession.lock()
+        }
+        scope.launch(Dispatchers.IO) {
+            context.settingsDataStore.updateData { existingSettings ->
+                existingSettings.copy(appLockEnabled = enabled)
+            }
+        }
+    }
     val currentEditGesture = settings.usersList
         .firstOrNull { it.accountKey == settings.currentUser }
         ?.settings
@@ -182,6 +202,40 @@ fun SettingsPage(
                     }
                 ) {
                     showEditGestureDialog = true
+                }
+            }
+
+            item {
+                Text(
+                    R.string.security.string,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp, 10.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+
+            item {
+                val appLockToggleEnabled = appLockSupported || settings.appLockEnabled
+                SettingItem(
+                    icon = Icons.Outlined.Lock,
+                    text = R.string.app_lock.string,
+                    subtitle = if (appLockSupported) {
+                        R.string.app_lock_summary.string
+                    } else {
+                        R.string.app_lock_unavailable_short.string
+                    },
+                    trailingIcon = {
+                        Switch(
+                            checked = settings.appLockEnabled,
+                            onCheckedChange = null,
+                            enabled = appLockToggleEnabled,
+                        )
+                    },
+                    enabled = appLockToggleEnabled,
+                ) {
+                    setAppLockEnabled(!settings.appLockEnabled)
                 }
             }
 

@@ -107,4 +107,18 @@
     <string name="error_unknown">未知錯誤</string>
     <string name="no_memos">找不到 MEMO</string>
     <string name="memo_not_found">找不到 MEMO</string>
+    <!-- App lock strings -->
+    <string name="security">安全</string>
+    <string name="app_lock">應用程式鎖</string>
+    <string name="app_lock_summary">開啟 Moe Memos 時需要指紋、人臉或裝置密碼驗證。</string>
+    <string name="app_lock_prompt_title">解鎖 Moe Memos</string>
+    <string name="app_lock_prompt_subtitle">請確認是你本人以繼續。</string>
+    <string name="app_lock_prompt_failed">無法啟動系統驗證。</string>
+    <string name="app_lock_authentication_required">需要驗證後才能查看你的 MEMO。</string>
+    <string name="app_locked_title">已鎖定</string>
+    <string name="app_locked_subtitle">使用系統驗證以繼續。</string>
+    <string name="app_lock_unavailable">系統驗證無法使用。請在系統設定中設定指紋、人臉或裝置密碼。</string>
+    <string name="app_lock_unavailable_short">此裝置上的系統驗證無法使用。</string>
+    <string name="unlock">解鎖</string>
+    <string name="open_system_security_settings">開啟系統安全設定</string>
 </resources>
