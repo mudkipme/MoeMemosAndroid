@@ -4,9 +4,7 @@ import android.content.ActivityNotFoundException
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -39,10 +37,13 @@ import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
+import me.mudkip.moememos.ui.util.PickMultipleImagesContract
 import me.mudkip.moememos.util.extractCustomTags
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
+
+private const val MaxSelectableImages = 100
 
 @Composable
 fun MemoInputPage(
@@ -106,17 +107,26 @@ fun MemoInputPage(
         }
     }
 
-    fun uploadImage(uri: Uri) = coroutineScope.launch {
-        viewModel.upload(uri, memo?.identifier).suspendOnSuccess {
-            delay(300)
-            focusRequester.requestFocus()
-        }.suspendOnErrorMessage { message ->
-            snackbarState.showSnackbar(message)
+    fun uploadImages(uris: List<Uri>) = coroutineScope.launch {
+        uris.take(MaxSelectableImages).forEach { uri ->
+            viewModel.upload(uri, memo?.identifier).suspendOnErrorMessage { message ->
+                snackbarState.showSnackbar(message)
+            }
         }
+        delay(300)
+        focusRequester.requestFocus()
     }
 
-    val pickImage = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
-        uri?.let { uploadImage(it) }
+    fun uploadImage(uri: Uri) {
+        uploadImages(listOf(uri))
+    }
+
+    val pickImages = rememberLauncherForActivityResult(
+        PickMultipleImagesContract(MaxSelectableImages)
+    ) { uris ->
+        if (uris.isNotEmpty()) {
+            uploadImages(uris)
+        }
     }
 
     val takePhoto = rememberLauncherForActivityResult(TakePicture()) { success ->
@@ -169,7 +179,7 @@ fun MemoInputPage(
                     text = toggleTodoItemInText(text)
                 },
                 onPickImage = {
-                    pickImage.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+                    pickImages.launch(Unit)
                 },
                 onPickAttachment = {
                     pickAttachment.launch(arrayOf("*/*"))

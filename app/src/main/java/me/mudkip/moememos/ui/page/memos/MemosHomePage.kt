@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.page.memos
 
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -24,6 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Account
@@ -107,6 +110,7 @@ fun MemosHomePage(
 
         floatingActionButton = {
             ExtendedFloatingActionButton(
+                modifier = Modifier.navigationBarsPadding(),
                 onClick = {
                     rootNavController.navigate(RouteName.INPUT)
                 },
@@ -120,6 +124,7 @@ fun MemosHomePage(
             MemosList(
                 lazyListState = listState,
                 contentPadding = innerPadding,
+                additionalBottomPadding = MemoListFabAvoidancePadding,
                 onRefresh = { requestManualSync() },
                 onTagClick = { tag ->
                     navController.navigate("${RouteName.TAG}/${URLEncoder.encode(tag, "UTF-8")}") {
@@ -183,6 +188,8 @@ fun MemosHomePage(
         }
     }
 }
+
+private val MemoListFabAvoidancePadding = 96.dp
 
 private sealed class HomeSyncAlert {
     data class Blocked(val message: String) : HomeSyncAlert()
