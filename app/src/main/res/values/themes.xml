@@ -3,4 +3,21 @@
     <style name="Theme.MoeMemos" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/windowBackground</item>
     </style>
+
+    <style name="Theme.MoeMemos.MediaViewer" parent="Theme.MoeMemos">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowAnimationStyle">@style/Animation.MoeMemos.MediaViewer</item>
+    </style>
+
+    <style name="Animation.MoeMemos.MediaViewer" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@null</item>
+        <item name="android:activityOpenExitAnimation">@null</item>
+        <item name="android:activityCloseEnterAnimation">@null</item>
+        <item name="android:activityCloseExitAnimation">@null</item>
+    </style>
 </resources>

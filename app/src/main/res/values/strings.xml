@@ -11,6 +11,7 @@
     <string name="remove">Remove</string>
     <string name="resources">Resources</string>
     <string name="image">Image</string>
+    <string name="failed_to_load_image">Failed to load image</string>
     <string name="other">Other</string>
     <string name="archived">Archived</string>
     <string name="settings">Settings</string>
