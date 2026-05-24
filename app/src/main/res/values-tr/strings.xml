@@ -112,4 +112,18 @@
     <string name="error_unknown">Bilinmeyen hata</string>
     <string name="no_memos">Not bulunamadı</string>
     <string name="memo_not_found">Not bulunamadı</string>
+    <!-- App lock strings -->
+    <string name="security">Güvenlik</string>
+    <string name="app_lock">Uygulama kilidi</string>
+    <string name="app_lock_summary">Moe Memos açılırken parmak izi, yüz tanıma veya cihaz parolası iste.</string>
+    <string name="app_lock_prompt_title">Moe Memos kilidini aç</string>
+    <string name="app_lock_prompt_subtitle">Devam etmek için kimliğinizi doğrulayın.</string>
+    <string name="app_lock_prompt_failed">Sistem kimlik doğrulaması başlatılamadı.</string>
+    <string name="app_lock_authentication_required">Memolarınızı görüntülemek için kimlik doğrulaması gerekiyor.</string>
+    <string name="app_locked_title">Kilitli</string>
+    <string name="app_locked_subtitle">Devam etmek için sistem kimlik doğrulamasını kullanın.</string>
+    <string name="app_lock_unavailable">Sistem kimlik doğrulaması kullanılamıyor. Sistem ayarlarında parmak izi, yüz tanıma veya cihaz parolası ayarlayın.</string>
+    <string name="app_lock_unavailable_short">Bu cihazda sistem kimlik doğrulaması kullanılamıyor.</string>
+    <string name="unlock">Kilidi aç</string>
+    <string name="open_system_security_settings">Sistem güvenlik ayarlarını aç</string>
 </resources>

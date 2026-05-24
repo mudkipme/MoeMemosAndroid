@@ -9,6 +9,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import me.mudkip.moememos.ui.util.edgeToEdgeContentPadding
 import me.mudkip.moememos.ui.component.ArchivedMemoCard
 import me.mudkip.moememos.viewmodel.ArchivedMemoListViewModel
 import me.mudkip.moememos.viewmodel.LocalArchivedMemos
@@ -18,10 +19,12 @@ fun ArchivedMemoList(
     viewModel: ArchivedMemoListViewModel = hiltViewModel(),
     contentPadding: PaddingValues
 ) {
+    val listContentPadding = edgeToEdgeContentPadding(contentPadding)
+
     CompositionLocalProvider(LocalArchivedMemos provides viewModel) {
         LazyColumn(
             modifier = Modifier.consumeWindowInsets(contentPadding),
-            contentPadding = contentPadding
+            contentPadding = listContentPadding
         ) {
             items(viewModel.memos, key = { it.identifier }) { memo ->
                 ArchivedMemoCard(memo)

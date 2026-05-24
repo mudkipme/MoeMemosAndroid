@@ -112,4 +112,18 @@
     <string name="error_unknown">Erreur inconnue</string>
     <string name="no_memos">Aucun memo trouvé</string>
     <string name="memo_not_found">Memo introuvable</string>
+    <!-- App lock strings -->
+    <string name="security">Sécurité</string>
+    <string name="app_lock">Verrouillage de l’application</string>
+    <string name="app_lock_summary">Exiger l’empreinte digitale, la reconnaissance faciale ou le code de l’appareil à l’ouverture de Moe Memos.</string>
+    <string name="app_lock_prompt_title">Déverrouiller Moe Memos</string>
+    <string name="app_lock_prompt_subtitle">Confirmez votre identité pour continuer.</string>
+    <string name="app_lock_prompt_failed">Impossible de démarrer l’authentification système.</string>
+    <string name="app_lock_authentication_required">Une authentification est nécessaire pour afficher vos memos.</string>
+    <string name="app_locked_title">Verrouillé</string>
+    <string name="app_locked_subtitle">Utilisez l’authentification système pour continuer.</string>
+    <string name="app_lock_unavailable">L’authentification système n’est pas disponible. Configurez l’empreinte digitale, la reconnaissance faciale ou le code de l’appareil dans les paramètres système.</string>
+    <string name="app_lock_unavailable_short">L’authentification système n’est pas disponible sur cet appareil.</string>
+    <string name="unlock">Déverrouiller</string>
+    <string name="open_system_security_settings">Ouvrir les paramètres de sécurité du système</string>
 </resources>

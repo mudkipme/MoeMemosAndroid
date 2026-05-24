@@ -1,21 +1,24 @@
 package me.mudkip.moememos
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.fragment.app.FragmentActivity
 import dagger.hilt.android.AndroidEntryPoint
 import me.mudkip.moememos.ui.page.common.Navigation
+import me.mudkip.moememos.ui.security.AppLockGate
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemosViewModel
 import me.mudkip.moememos.viewmodel.UserStateViewModel
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     private val userStateViewModel: UserStateViewModel by viewModels()
     private val memosViewModel: MemosViewModel by viewModels()
 
@@ -28,13 +31,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT)
+        )
         setContent {
             CompositionLocalProvider(
                 LocalUserState provides userStateViewModel,
                 LocalMemos provides memosViewModel
             ) {
-                Navigation()
+                AppLockGate {
+                    Navigation()
+                }
             }
         }
     }

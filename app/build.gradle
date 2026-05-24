@@ -80,6 +80,7 @@ android {
 dependencies {
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.foundation:foundation:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_material"
     implementation "androidx.compose.material3:material3:$material3"
     implementation "androidx.compose.material3.adaptive:adaptive:$material3_adaptive"
@@ -87,6 +88,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
     implementation "androidx.activity:activity-compose:$activity_compose_version"
     implementation "androidx.navigation:navigation-compose:$nav_version"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
@@ -111,6 +113,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     ksp "com.google.dagger:hilt-compiler:$hilt_version"
     implementation "androidx.hilt:hilt-navigation-compose:$hilt_navigation_compose_version"
+    implementation "androidx.biometric:biometric:$biometric_version"
 
     implementation "androidx.datastore:datastore:$datastore"
     implementation "androidx.datastore:datastore-preferences:$datastore"

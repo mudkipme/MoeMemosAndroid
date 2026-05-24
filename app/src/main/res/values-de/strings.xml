@@ -110,4 +110,18 @@
     <string name="pinned_only">Nur angepinnte anzeigen</string>
     <string name="max_items">Maximale anzahl Elemente</string>
     <string name="refresh">Aktualisieren</string>
+    <!-- App lock strings -->
+    <string name="security">Sicherheit</string>
+    <string name="app_lock">App-Sperre</string>
+    <string name="app_lock_summary">Beim Öffnen von Moe Memos Fingerabdruck, Gesichtserkennung oder Geräte-PIN verlangen.</string>
+    <string name="app_lock_prompt_title">Moe Memos entsperren</string>
+    <string name="app_lock_prompt_subtitle">Bestätigen Sie Ihre Identität, um fortzufahren.</string>
+    <string name="app_lock_prompt_failed">Systemauthentifizierung konnte nicht gestartet werden.</string>
+    <string name="app_lock_authentication_required">Authentifizierung ist erforderlich, um Ihre Memos anzuzeigen.</string>
+    <string name="app_locked_title">Gesperrt</string>
+    <string name="app_locked_subtitle">Verwenden Sie die Systemauthentifizierung, um fortzufahren.</string>
+    <string name="app_lock_unavailable">Systemauthentifizierung ist nicht verfügbar. Richten Sie Fingerabdruck, Gesichtserkennung oder Geräte-PIN in den Systemeinstellungen ein.</string>
+    <string name="app_lock_unavailable_short">Systemauthentifizierung ist auf diesem Gerät nicht verfügbar.</string>
+    <string name="unlock">Entsperren</string>
+    <string name="open_system_security_settings">System-Sicherheitseinstellungen öffnen</string>
 </resources>

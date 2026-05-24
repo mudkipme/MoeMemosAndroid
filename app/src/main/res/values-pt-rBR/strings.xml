@@ -114,4 +114,18 @@
     <string name="error_unknown">Erro desconhecido</string>
     <string name="no_memos">Nenhum memo encontrado</string>
     <string name="memo_not_found">Memo não encontrado</string>
+    <!-- App lock strings -->
+    <string name="security">Segurança</string>
+    <string name="app_lock">Bloqueio do app</string>
+    <string name="app_lock_summary">Exigir impressão digital, reconhecimento facial ou senha do dispositivo ao abrir o Moe Memos.</string>
+    <string name="app_lock_prompt_title">Desbloquear Moe Memos</string>
+    <string name="app_lock_prompt_subtitle">Confirme sua identidade para continuar.</string>
+    <string name="app_lock_prompt_failed">Não foi possível iniciar a autenticação do sistema.</string>
+    <string name="app_lock_authentication_required">A autenticação é necessária para ver seus memos.</string>
+    <string name="app_locked_title">Bloqueado</string>
+    <string name="app_locked_subtitle">Use a autenticação do sistema para continuar.</string>
+    <string name="app_lock_unavailable">A autenticação do sistema não está disponível. Configure impressão digital, reconhecimento facial ou senha do dispositivo nas configurações do sistema.</string>
+    <string name="app_lock_unavailable_short">A autenticação do sistema não está disponível neste dispositivo.</string>
+    <string name="unlock">Desbloquear</string>
+    <string name="open_system_security_settings">Abrir configurações de segurança do sistema</string>
 </resources>

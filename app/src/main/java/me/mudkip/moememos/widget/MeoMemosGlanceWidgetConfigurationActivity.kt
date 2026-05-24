@@ -3,7 +3,6 @@ package me.mudkip.moememos.widget
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -54,11 +54,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.service.MemoService
+import me.mudkip.moememos.ui.security.AppLockGate
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MeoMemosGlanceWidgetConfigurationActivity : ComponentActivity() {
+class MeoMemosGlanceWidgetConfigurationActivity : FragmentActivity() {
 
     @Inject
     lateinit var memoService: MemoService
@@ -85,7 +86,9 @@ class MeoMemosGlanceWidgetConfigurationActivity : ComponentActivity() {
 
         setContent {
             MoeMemosTheme {
-                ConfigurationScreen()
+                AppLockGate {
+                    ConfigurationScreen()
+                }
             }
         }
     }

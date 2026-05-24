@@ -22,10 +22,11 @@ fun SettingItem(
     text: String,
     subtitle: String? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     val contentDescription = if (subtitle.isNullOrBlank()) text else "$text, $subtitle"
-    Surface(onClick = onClick) {
+    Surface(onClick = onClick, enabled = enabled) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -36,20 +37,32 @@ fun SettingItem(
                 icon,
                 contentDescription = contentDescription,
                 modifier = Modifier.padding(start = 8.dp, end = 16.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = if (enabled) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.56f)
+                }
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = if (enabled) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.56f)
+                    }
                 )
                 if (!subtitle.isNullOrBlank()) {
                     Text(
                         subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline,
+                        color = if (enabled) {
+                            MaterialTheme.colorScheme.outline
+                        } else {
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.56f)
+                        },
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }

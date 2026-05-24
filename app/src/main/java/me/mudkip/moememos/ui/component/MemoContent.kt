@@ -1,5 +1,7 @@
 package me.mudkip.moememos.ui.component
 
+import android.content.Intent
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -23,6 +26,7 @@ import me.mudkip.moememos.data.model.MemoRepresentable
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.ui.media.MediaViewerActivity
 import me.mudkip.moememos.viewmodel.LocalUserState
 import org.intellij.markdown.IElementType
 import org.intellij.markdown.MarkdownElementTypes
@@ -240,8 +244,11 @@ private fun isPreviewWhitespaceToken(node: ASTNode): Boolean {
 @Composable
 fun MemoResourceContent(memo: MemoRepresentable) {
     val cols = 3
-
+    val context = LocalContext.current
     val imageList = memo.resources.filter { it.mimeType?.startsWith("image/") == true }
+    val imageUrls = remember(imageList) {
+        imageList.map { resource -> resource.localUri ?: resource.uri }
+    }
     if (imageList.isNotEmpty()) {
         val rows = ceil(imageList.size.toFloat() / cols).toInt()
         for (rowIndex in 0 until rows) {
@@ -256,7 +263,16 @@ fun MemoResourceContent(memo: MemoRepresentable) {
                                     .aspectRatio(1f)
                                     .padding(2.dp)
                                     .clip(RoundedCornerShape(4.dp)),
-                                resourceIdentifier = (imageList[index] as? ResourceEntity)?.identifier
+                                resourceIdentifier = (imageList[index] as? ResourceEntity)?.identifier,
+                                onClick = {
+                                    context.startActivity(
+                                        Intent(context, MediaViewerActivity::class.java).apply {
+                                            putExtra(MediaViewerActivity.EXTRA_IMAGE_URLS, imageUrls.toTypedArray())
+                                            putExtra(MediaViewerActivity.EXTRA_INITIAL_INDEX, index)
+                                            putExtra(MediaViewerActivity.EXTRA_CAPTION, memo.content)
+                                        }
+                                    )
+                                }
                             )
                         }
                     } else {

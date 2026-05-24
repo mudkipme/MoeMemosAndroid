@@ -29,7 +29,8 @@ import java.io.File
 fun MemoImage(
     url: String,
     modifier: Modifier = Modifier,
-    resourceIdentifier: String? = null
+    resourceIdentifier: String? = null,
+    onClick: (() -> Unit)? = null,
 ) {
     var diskCacheFile: File? by remember { mutableStateOf(null) }
     val context = LocalContext.current
@@ -52,32 +53,39 @@ fun MemoImage(
         modelUri.takeIf { it.scheme == "file" }?.path?.let(::File)
     }
 
+    val imageModifier = modifier.clickable {
+        if (onClick != null) {
+            onClick()
+            return@clickable
+        }
+
+        val fileToOpen = diskCacheFile ?: modelFile
+        fileToOpen?.let {
+            val fileUri: Uri = try {
+                FileProvider.getUriForFile(context, context.packageName + ".fileprovider", it)
+            } catch (e: Throwable) {
+                Timber.d(e)
+                null
+            } ?: return@let
+
+            val intent = Intent().apply {
+                action = Intent.ACTION_VIEW
+                setDataAndType(fileUri, "image/*")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            try {
+                context.startActivity(intent)
+            } catch (e: Throwable) {
+                Timber.d(e)
+            }
+        }
+    }
+
     AsyncImage(
         model = url,
         imageLoader = imageLoader,
         contentDescription = null,
-        modifier = modifier.clickable {
-            val fileToOpen = diskCacheFile ?: modelFile
-            fileToOpen?.let {
-                val fileUri: Uri = try {
-                    FileProvider.getUriForFile(context, context.packageName + ".fileprovider", it)
-                } catch (e: Throwable) {
-                    Timber.d(e)
-                    null
-                } ?: return@let
-
-                val intent = Intent().apply {
-                    action = Intent.ACTION_VIEW
-                    setDataAndType(fileUri, "image/*")
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-                try {
-                    context.startActivity(intent)
-                } catch (e: Throwable) {
-                    Timber.d(e)
-                }
-            }
-        },
+        modifier = imageModifier,
         contentScale = ContentScale.Crop,
         onSuccess = { state ->
             val diskCache = imageLoader.diskCache

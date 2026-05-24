@@ -11,6 +11,7 @@
     <string name="remove">Remove</string>
     <string name="resources">Resources</string>
     <string name="image">Image</string>
+    <string name="failed_to_load_image">Failed to load image</string>
     <string name="other">Other</string>
     <string name="archived">Archived</string>
     <string name="settings">Settings</string>
@@ -105,6 +106,21 @@
     <string name="export_local_account">Export Local Data</string>
     <string name="local_export_success">Local data exported</string>
     <string name="local_export_failed">Failed to export local data</string>
+
+    <!-- App lock strings -->
+    <string name="security">Security</string>
+    <string name="app_lock">App lock</string>
+    <string name="app_lock_summary">Require fingerprint, face unlock, or device password when opening Moe Memos.</string>
+    <string name="app_lock_prompt_title">Unlock Moe Memos</string>
+    <string name="app_lock_prompt_subtitle">Confirm it is you to continue.</string>
+    <string name="app_lock_prompt_failed">Could not start system authentication.</string>
+    <string name="app_lock_authentication_required">Authentication is required to view your memos.</string>
+    <string name="app_locked_title">Locked</string>
+    <string name="app_locked_subtitle">Use system authentication to continue.</string>
+    <string name="app_lock_unavailable">System authentication is unavailable. Set up fingerprint, face unlock, or a device password in system settings.</string>
+    <string name="app_lock_unavailable_short">System authentication is unavailable on this device.</string>
+    <string name="unlock">Unlock</string>
+    <string name="open_system_security_settings">Open system security settings</string>
 
     <!-- Widget strings -->
     <string name="memos_widget_title">Memos</string>

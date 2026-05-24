@@ -111,4 +111,18 @@
     <string name="error_unknown">Неизвестная ошибка</string>
     <string name="no_memos">Заметки не найдены</string>
     <string name="memo_not_found">Заметка не найдена</string>
+    <!-- App lock strings -->
+    <string name="security">Безопасность</string>
+    <string name="app_lock">Блокировка приложения</string>
+    <string name="app_lock_summary">Требовать отпечаток пальца, распознавание лица или пароль устройства при открытии Moe Memos.</string>
+    <string name="app_lock_prompt_title">Разблокировать Moe Memos</string>
+    <string name="app_lock_prompt_subtitle">Подтвердите, что это вы, чтобы продолжить.</string>
+    <string name="app_lock_prompt_failed">Не удалось запустить системную аутентификацию.</string>
+    <string name="app_lock_authentication_required">Для просмотра ваших memo требуется аутентификация.</string>
+    <string name="app_locked_title">Заблокировано</string>
+    <string name="app_locked_subtitle">Используйте системную аутентификацию, чтобы продолжить.</string>
+    <string name="app_lock_unavailable">Системная аутентификация недоступна. Настройте отпечаток пальца, распознавание лица или пароль устройства в системных настройках.</string>
+    <string name="app_lock_unavailable_short">Системная аутентификация недоступна на этом устройстве.</string>
+    <string name="unlock">Разблокировать</string>
+    <string name="open_system_security_settings">Открыть системные настройки безопасности</string>
 </resources>

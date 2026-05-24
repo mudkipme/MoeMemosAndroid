@@ -25,6 +25,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Account
@@ -34,6 +36,7 @@ import me.mudkip.moememos.ext.settingsDataStore
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.component.MemosCard
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
+import me.mudkip.moememos.ui.util.edgeToEdgeContentPadding
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
@@ -47,6 +50,7 @@ fun MemosList(
     lazyListState: LazyListState = rememberLazyListState(),
     tag: String? = null,
     searchString: String? = null,
+    additionalBottomPadding: Dp = 16.dp,
     onRefresh: (suspend () -> Unit)? = null,
     onTagClick: ((String) -> Unit)? = null,
 ) {
@@ -89,6 +93,10 @@ fun MemosList(
     var listTopId: String? by rememberSaveable {
         mutableStateOf(null)
     }
+    val listContentPadding = edgeToEdgeContentPadding(
+        contentPadding,
+        additionalBottomPadding
+    )
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
@@ -122,7 +130,7 @@ fun MemosList(
                 .fillMaxSize()
                 .consumeWindowInsets(contentPadding),
             state = lazyListState,
-            contentPadding = contentPadding
+            contentPadding = listContentPadding
         ) {
             items(filteredMemos, key = { it.identifier }) { memo ->
                 MemosCard(
