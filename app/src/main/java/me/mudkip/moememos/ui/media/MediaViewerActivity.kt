@@ -4,10 +4,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.VideoView
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -92,6 +95,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.min
 
 @AndroidEntryPoint
@@ -200,8 +204,14 @@ private fun MediaViewerScreen(
     )
     var pagerScrollEnabled by remember { mutableStateOf(true) }
     var backgroundAlpha by remember { mutableFloatStateOf(1f) }
+    var overlayAlpha by remember { mutableFloatStateOf(1f) }
     var closing by remember { mutableStateOf(false) }
     val entryProgress = remember { Animatable(0f) }
+    val animatedOverlayAlpha by animateFloatAsState(
+        targetValue = overlayAlpha,
+        animationSpec = tween(150, easing = FastOutSlowInEasing),
+        label = "Media viewer overlay alpha"
+    )
     val scope = rememberCoroutineScope()
 
     fun closeWithAnimation() {
@@ -210,18 +220,23 @@ private fun MediaViewerScreen(
         }
         closing = true
         scope.launch {
-            entryProgress.animateTo(0f, animationSpec = tween(140))
+            entryProgress.animateTo(0f, animationSpec = tween(160, easing = FastOutSlowInEasing))
             onClose()
         }
     }
 
+    BackHandler(enabled = !closing) {
+        closeWithAnimation()
+    }
+
     LaunchedEffect(Unit) {
-        entryProgress.animateTo(1f, animationSpec = tween(220))
+        entryProgress.animateTo(1f, animationSpec = tween(240, easing = FastOutSlowInEasing))
     }
 
     LaunchedEffect(pagerState.currentPage) {
         pagerScrollEnabled = true
         backgroundAlpha = 1f
+        overlayAlpha = 1f
     }
 
     Box(
@@ -251,6 +266,11 @@ private fun MediaViewerScreen(
                         backgroundAlpha = alpha
                     }
                 },
+                onOverlayAlphaChange = { alpha ->
+                    if (page == pagerState.currentPage) {
+                        overlayAlpha = alpha
+                    }
+                },
                 onPagerScrollEnabledChange = { enabled ->
                     if (page == pagerState.currentPage) {
                         pagerScrollEnabled = enabled
@@ -274,7 +294,7 @@ private fun MediaViewerScreen(
                         )
                     )
                     .navigationBarsPadding()
-                    .graphicsLayer { alpha = entryProgress.value }
+                    .graphicsLayer { alpha = entryProgress.value * animatedOverlayAlpha }
                     .padding(start = 20.dp, top = 48.dp, end = 20.dp, bottom = 20.dp)
             ) {
                 Text(
@@ -294,7 +314,7 @@ private fun MediaViewerScreen(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .statusBarsPadding()
-                .graphicsLayer { alpha = entryProgress.value }
+                .graphicsLayer { alpha = entryProgress.value * animatedOverlayAlpha }
                 .padding(12.dp)
         ) {
             Icon(
@@ -314,6 +334,7 @@ private fun MediaViewerPage(
     isCurrentPage: Boolean,
     onClose: () -> Unit,
     onBackgroundAlphaChange: (Float) -> Unit,
+    onOverlayAlphaChange: (Float) -> Unit,
     onPagerScrollEnabledChange: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
@@ -329,6 +350,11 @@ private fun MediaViewerPage(
     var motionVideoPlaying by remember(imageUrl) { mutableStateOf(false) }
     var autoPlayed by remember(imageUrl) { mutableStateOf(false) }
     var interactionVersion by remember(imageUrl) { mutableIntStateOf(0) }
+    val pageOverlayAlpha by animateFloatAsState(
+        targetValue = gestureState.overlayAlpha(),
+        animationSpec = tween(150, easing = FastOutSlowInEasing),
+        label = "Media viewer page overlay alpha"
+    )
 
     fun markInteraction() {
         interactionVersion++
@@ -372,6 +398,12 @@ private fun MediaViewerPage(
     LaunchedEffect(isCurrentPage, gestureState.dismissOffsetY, gestureState.containerSize) {
         if (isCurrentPage) {
             onBackgroundAlphaChange(gestureState.backgroundAlpha())
+        }
+    }
+
+    LaunchedEffect(isCurrentPage, gestureState.scale, gestureState.dismissOffsetY, gestureState.containerSize) {
+        if (isCurrentPage) {
+            onOverlayAlphaChange(gestureState.overlayAlpha())
         }
     }
 
@@ -422,8 +454,9 @@ private fun MediaViewerPage(
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-                    scaleX = gestureState.scale
-                    scaleY = gestureState.scale
+                    val dismissScale = gestureState.dismissScale()
+                    scaleX = gestureState.scale * dismissScale
+                    scaleY = gestureState.scale * dismissScale
                     translationX = gestureState.offset.x
                     translationY = gestureState.offset.y + gestureState.dismissOffsetY
                 }
@@ -518,6 +551,7 @@ private fun MediaViewerPage(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .statusBarsPadding()
+                    .graphicsLayer { alpha = pageOverlayAlpha }
                     .padding(16.dp)
             )
         }
@@ -617,6 +651,8 @@ private fun Modifier.mediaGestureInput(
         var previousCentroid = down.position
         var previousSpan = 0f
         var totalSinglePointerDrag = Offset.Zero
+        var dismissVelocityY = 0f
+        var lastDismissEventAtMillis = 0L
         var mode = GestureMode.Undecided
 
         while (true) {
@@ -679,11 +715,24 @@ private fun Modifier.mediaGestureInput(
                 }
                 if (absY > singlePointerGestureSlop && absY > absX * 1.15f) {
                     mode = GestureMode.Dismiss
+                    dismissVelocityY = 0f
+                    lastDismissEventAtMillis = 0L
                     onInteraction()
                 }
             }
 
             if (mode == GestureMode.Dismiss) {
+                val now = System.currentTimeMillis()
+                if (lastDismissEventAtMillis > 0L) {
+                    val elapsedMillis = (now - lastDismissEventAtMillis).coerceAtLeast(1L)
+                    val instantVelocityY = pan.y / elapsedMillis * 1_000f
+                    dismissVelocityY = if (dismissVelocityY == 0f) {
+                        instantVelocityY
+                    } else {
+                        dismissVelocityY * 0.45f + instantVelocityY * 0.55f
+                    }
+                }
+                lastDismissEventAtMillis = now
                 state.applyDismissPan(pan.y)
                 change.consume()
             }
@@ -696,8 +745,11 @@ private fun Modifier.mediaGestureInput(
                 onTransformEnd()
             }
             GestureMode.Dismiss -> {
-                if (state.shouldDismiss()) {
-                    onDismiss()
+                if (state.shouldDismiss(dismissVelocityY)) {
+                    animationScope.launch {
+                        state.animateDismissOut(dismissVelocityY)
+                        onDismiss()
+                    }
                 } else {
                     animationScope.launch {
                         state.animateDismissBack()
@@ -743,7 +795,10 @@ private class MediaGestureState {
         offset = Offset.Zero
     }
 
-    fun shouldDismiss(): Boolean {
+    fun shouldDismiss(releaseVelocityY: Float): Boolean {
+        if (hasDismissVelocity(releaseVelocityY)) {
+            return true
+        }
         val height = containerSize.height.takeIf { it > 0 } ?: return abs(dismissOffsetY) > DefaultDismissThresholdPx
         return abs(dismissOffsetY) > min(height * DismissThresholdRatio, DefaultDismissThresholdPx)
     }
@@ -752,6 +807,35 @@ private class MediaGestureState {
         val height = containerSize.height.takeIf { it > 0 } ?: return 1f
         val progress = (abs(dismissOffsetY) / (height * 0.62f)).coerceIn(0f, 0.78f)
         return 1f - progress
+    }
+
+    fun overlayAlpha(): Float {
+        val height = containerSize.height.takeIf { it > 0 } ?: return if (scale > 1.01f) 0.42f else 1f
+        val dismissProgress = (abs(dismissOffsetY) / (height * 0.36f)).coerceIn(0f, 1f)
+        val zoomAlpha = if (scale > 1.01f) 0.42f else 1f
+        return min(1f - dismissProgress, zoomAlpha).coerceIn(0f, 1f)
+    }
+
+    fun dismissScale(): Float {
+        val height = containerSize.height.takeIf { it > 0 } ?: return 1f
+        val progress = (abs(dismissOffsetY) / (height * 0.42f)).coerceIn(0f, 1f)
+        return 1f - progress * (1f - MinDismissScale)
+    }
+
+    private fun dismissDirection(releaseVelocityY: Float): Float {
+        return when {
+            abs(releaseVelocityY) >= DismissVelocityThresholdPxPerSecond / 2f -> if (releaseVelocityY > 0f) 1f else -1f
+            dismissOffsetY >= 0f -> 1f
+            else -> -1f
+        }
+    }
+
+    private fun hasDismissVelocity(releaseVelocityY: Float): Boolean {
+        if (abs(releaseVelocityY) < DismissVelocityThresholdPxPerSecond) {
+            return false
+        }
+        return (dismissOffsetY > 0f && releaseVelocityY > 0f) ||
+            (dismissOffsetY < 0f && releaseVelocityY < 0f)
     }
 
     suspend fun animateDoubleTap(tapPosition: Offset) {
@@ -767,7 +851,17 @@ private class MediaGestureState {
 
     suspend fun animateDismissBack() {
         val animatable = Animatable(dismissOffsetY)
-        animatable.animateTo(0f, animationSpec = tween(180)) {
+        animatable.animateTo(0f, animationSpec = tween(200, easing = FastOutSlowInEasing)) {
+            dismissOffsetY = value
+        }
+    }
+
+    suspend fun animateDismissOut(releaseVelocityY: Float) {
+        val direction = dismissDirection(releaseVelocityY)
+        val height = containerSize.height.takeIf { it > 0 }?.toFloat() ?: DefaultDismissOutTargetPx
+        val targetOffset = direction * max(height * DismissOutTargetRatio, DefaultDismissOutTargetPx)
+        val animatable = Animatable(dismissOffsetY)
+        animatable.animateTo(targetOffset, animationSpec = tween(130, easing = FastOutSlowInEasing)) {
             dismissOffsetY = value
         }
     }
@@ -788,12 +882,12 @@ private class MediaGestureState {
         val offsetAnimatable = Animatable(offset, Offset.VectorConverter)
         coroutineScope {
             launch {
-                scaleAnimatable.animateTo(targetScale, animationSpec = tween(220)) {
+                scaleAnimatable.animateTo(targetScale, animationSpec = tween(240, easing = FastOutSlowInEasing)) {
                     scale = value
                 }
             }
             launch {
-                offsetAnimatable.animateTo(targetOffset, animationSpec = tween(220)) {
+                offsetAnimatable.animateTo(targetOffset, animationSpec = tween(240, easing = FastOutSlowInEasing)) {
                     offset = value
                 }
             }
@@ -813,7 +907,7 @@ private class MediaGestureState {
 
     private suspend fun animateOffsetTo(targetOffset: Offset) {
         val offsetAnimatable = Animatable(offset, Offset.VectorConverter)
-        offsetAnimatable.animateTo(targetOffset, animationSpec = tween(180)) {
+        offsetAnimatable.animateTo(targetOffset, animationSpec = tween(200, easing = FastOutSlowInEasing)) {
             offset = value
         }
     }
@@ -842,6 +936,10 @@ private class MediaGestureState {
         const val MaxScale = 5f
         const val DismissThresholdRatio = 0.22f
         const val DefaultDismissThresholdPx = 180f
+        const val DismissVelocityThresholdPxPerSecond = 1_400f
+        const val DismissOutTargetRatio = 0.48f
+        const val DefaultDismissOutTargetPx = 420f
+        const val MinDismissScale = 0.94f
     }
 }
 
