@@ -1,0 +1,11 @@
+## What's Changed
+* Added support for Android edge-to-edge UI.
+* Added support for Memos versions 0.27.0 to 0.29.1.
+* Improved image viewing and image picking by @shiitin.
+* Added optional biometric app lock by @shiitin.
+* Fixed default memo visibility not updating from the server.
+
+## New Contributors
+* @shiitin made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/366
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/2.0.3...2.0.4
