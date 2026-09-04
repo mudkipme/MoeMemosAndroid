@@ -54,6 +54,7 @@ import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.ui.security.AppLockAuthenticator
 import me.mudkip.moememos.ui.security.AppLockSession
 import me.mudkip.moememos.viewmodel.LocalUserState
+import me.mudkip.moememos.widget.WidgetUpdater
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -343,6 +344,7 @@ fun SettingsPage(
                                         )
                                         existingSettings.copy(usersList = users)
                                     }
+                                    WidgetUpdater.updateWidgets(context)
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()
