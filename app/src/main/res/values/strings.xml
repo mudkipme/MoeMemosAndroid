@@ -102,6 +102,8 @@
     <string name="edit_gesture_single">Single tap</string>
     <string name="edit_gesture_double">Double tap</string>
     <string name="edit_gesture_long">Long tap</string>
+    <string name="autosave">Autosave</string>
+    <string name="autosave_summary">Save every change on this device and sync it in the background</string>
     <string name="failed_to_open_attachment">Failed to open attachment</string>
     <string name="export_local_account">Export Local Data</string>
     <string name="local_export_success">Local data exported</string>

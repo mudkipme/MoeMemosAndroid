@@ -8,6 +8,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.fragment.app.FragmentActivity
 import dagger.hilt.android.AndroidEntryPoint
 import me.mudkip.moememos.ui.page.common.Navigation
@@ -22,6 +25,8 @@ class MainActivity : FragmentActivity() {
     private val userStateViewModel: UserStateViewModel by viewModels()
     private val memosViewModel: MemosViewModel by viewModels()
 
+    var pendingIntent: Intent? by mutableStateOf(null)
+
     companion object {
         const val ACTION_NEW_MEMO = "me.mudkip.moememos.action.NEW_MEMO"
         const val ACTION_EDIT_MEMO = "me.mudkip.moememos.action.EDIT_MEMO"
@@ -35,6 +40,9 @@ class MainActivity : FragmentActivity() {
             statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT)
         )
+        if (savedInstanceState == null) {
+            pendingIntent = intent
+        }
         setContent {
             CompositionLocalProvider(
                 LocalUserState provides userStateViewModel,
@@ -49,6 +57,6 @@ class MainActivity : FragmentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        setIntent(intent)
+        pendingIntent = intent
     }
 }

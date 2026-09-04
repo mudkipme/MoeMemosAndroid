@@ -14,10 +14,12 @@ import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -65,13 +67,19 @@ class MemosViewModel @Inject constructor(
     val syncStatus: StateFlow<SyncStatus> =
         memoService.syncStatus.stateIn(viewModelScope, SharingStarted.Eagerly, SyncStatus())
 
+    private val initialLoad = MutableStateFlow(false)
+
     init {
         snapshotFlow { memos.toList() }
             .onEach { matrix = calculateMatrix() }
             .launchIn(viewModelScope)
 
         viewModelScope.launch {
-            loadMemosSnapshot()
+            try {
+                loadMemosSnapshot()
+            } finally {
+                initialLoad.value = true
+            }
 
             memoService.syncStatus
                 .map { it.syncing }
@@ -100,6 +108,10 @@ class MemosViewModel @Inject constructor(
 
     suspend fun refreshLocalSnapshot() = withContext(viewModelScope.coroutineContext) {
         loadMemosSnapshot()
+    }
+
+    suspend fun awaitInitialLoad() {
+        initialLoad.first { it }
     }
 
     private fun applyMemos(latestMemos: List<MemoEntity>) {

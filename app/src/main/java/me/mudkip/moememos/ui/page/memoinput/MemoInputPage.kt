@@ -60,6 +60,9 @@ fun MemoInputPage(
     val userStateViewModel = LocalUserState.current
     val currentAccount by userStateViewModel.currentAccount.collectAsState()
     val memo = remember { memosViewModel.memos.toList().find { it.identifier == memoIdentifier } }
+    val autosaveEnabled by viewModel.autosaveEnabled.collectAsState(initial = false)
+    var autosaveIdentifier by rememberSaveable { mutableStateOf(memo?.identifier) }
+    var autosaveDirty by remember { mutableStateOf(false) }
     var initialContent by remember { mutableStateOf(memo?.content ?: "") }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(memo?.content ?: "", TextRange(memo?.content?.length ?: 0)))
@@ -78,6 +81,16 @@ fun MemoInputPage(
 
     fun submit() = coroutineScope.launch {
         val tags = extractCustomTags(text.text)
+
+        if (autosaveEnabled) {
+            viewModel.flushAutosave(text.text, currentVisibility, tags.toList(), clearDraftOnCreate = shareContent == null).suspendOnSuccess {
+                memosViewModel.refreshLocalSnapshot()
+                navController.popBackStack()
+            }.suspendOnErrorMessage { message ->
+                snackbarState.showSnackbar(message)
+            }
+            return@launch
+        }
 
         memo?.let {
             viewModel.editMemo(memo.identifier, text.text, currentVisibility, tags.toList()).suspendOnSuccess {
@@ -100,6 +113,23 @@ fun MemoInputPage(
     }
 
     fun handleExit() {
+        if (autosaveEnabled) {
+            coroutineScope.launch {
+                if (memo == null && text.text.isEmpty() && viewModel.uploadResources.isEmpty()) {
+                    viewModel.discardEmptyAutosave()
+                } else {
+                    viewModel.flushAutosave(
+                        text.text,
+                        currentVisibility,
+                        extractCustomTags(text.text).toList(),
+                        clearDraftOnCreate = shareContent == null
+                    )
+                }
+                memosViewModel.refreshLocalSnapshot()
+                navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+            }
+            return
+        }
         if (text.text != initialContent || viewModel.uploadResources.size != (memo?.resources?.size ?: 0)) {
             showExitConfirmation = true
         } else {
@@ -109,7 +139,7 @@ fun MemoInputPage(
 
     fun uploadImages(uris: List<Uri>) = coroutineScope.launch {
         uris.take(MaxSelectableImages).forEach { uri ->
-            viewModel.upload(uri, memo?.identifier).suspendOnErrorMessage { message ->
+            viewModel.upload(uri, autosaveIdentifier ?: memo?.identifier).suspendOnErrorMessage { message ->
                 snackbarState.showSnackbar(message)
             }
         }
@@ -138,7 +168,7 @@ fun MemoInputPage(
     val pickAttachment = rememberLauncherForActivityResult(OpenDocument()) { uri ->
         uri?.let {
             coroutineScope.launch {
-                viewModel.upload(it, memo?.identifier).suspendOnErrorMessage { message ->
+                viewModel.upload(it, autosaveIdentifier ?: memo?.identifier).suspendOnErrorMessage { message ->
                     snackbarState.showSnackbar(message)
                 }
             }
@@ -251,6 +281,7 @@ fun MemoInputPage(
     }
 
     LaunchedEffect(Unit) {
+        viewModel.autosaveIdentifier = autosaveIdentifier
         viewModel.uploadResources.clear()
         when {
             memo != null -> {
@@ -266,8 +297,11 @@ fun MemoInputPage(
             }
 
             else -> {
-                viewModel.draft.first()?.let {
-                    text = TextFieldValue(it, TextRange(it.length))
+                // After process death with an autosaved row, the restored text is newer than the draft
+                if (autosaveIdentifier == null) {
+                    viewModel.draft.first()?.let {
+                        text = TextFieldValue(it, TextRange(it.length))
+                    }
                 }
             }
         }
@@ -275,8 +309,41 @@ fun MemoInputPage(
         focusRequester.requestFocus()
     }
 
+    // Restarts per change; a restart cancels a previous run still waiting for the autosave mutex,
+    // so at most one write runs and one (the newest) waits.
+    LaunchedEffect(autosaveEnabled, text.text, currentVisibility, viewModel.uploadResources.size) {
+        if (!autosaveEnabled) {
+            return@LaunchedEffect
+        }
+        autosaveIdentifier = autosaveIdentifier ?: viewModel.autosaveIdentifier
+        if (autosaveIdentifier == null && text.text.isEmpty() && viewModel.uploadResources.isEmpty()) {
+            return@LaunchedEffect
+        }
+        if (!autosaveDirty && memo != null &&
+            text.text == memo.content &&
+            currentVisibility == memo.visibility &&
+            viewModel.uploadResources.size == memo.resources.size
+        ) {
+            return@LaunchedEffect
+        }
+        autosaveDirty = true
+        viewModel.autosave(
+            text.text,
+            currentVisibility,
+            extractCustomTags(text.text).toList(),
+            clearDraftOnCreate = shareContent == null
+        ).suspendOnSuccess {
+            autosaveIdentifier = data.identifier
+        }
+    }
+
     DisposableEffect(Unit) {
         onDispose {
+            if (autosaveEnabled) {
+                // Already flushed by submit/handleExit; a system-initiated dispose leaves needsSync
+                // set, so the deferred push or the next sync uploads the row.
+                return@onDispose
+            }
             if (memo == null && shareContent == null) {
                 viewModel.updateDraft(text.text)
             }

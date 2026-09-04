@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Source
 import androidx.compose.material.icons.outlined.Web
 import androidx.compose.material3.AlertDialog
@@ -53,6 +54,7 @@ import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.ui.security.AppLockAuthenticator
 import me.mudkip.moememos.ui.security.AppLockSession
 import me.mudkip.moememos.viewmodel.LocalUserState
+import me.mudkip.moememos.widget.WidgetUpdater
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,6 +93,30 @@ fun SettingsPage(
         ?.settings
         ?.editGesture
         ?: MemoEditGesture.NONE
+    val autosaveEnabled = settings.usersList
+        .firstOrNull { it.accountKey == settings.currentUser }
+        ?.settings
+        ?.autosave
+        ?: false
+
+    fun setAutosaveEnabled(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            context.settingsDataStore.updateData { existingSettings ->
+                val userIndex = existingSettings.usersList.indexOfFirst { user ->
+                    user.accountKey == existingSettings.currentUser
+                }
+                if (userIndex == -1) {
+                    return@updateData existingSettings
+                }
+                val users = existingSettings.usersList.toMutableList()
+                val user = users[userIndex]
+                users[userIndex] = user.copy(
+                    settings = user.settings.copy(autosave = enabled)
+                )
+                existingSettings.copy(usersList = users)
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier
@@ -206,6 +232,22 @@ fun SettingsPage(
             }
 
             item {
+                SettingItem(
+                    icon = Icons.Outlined.Save,
+                    text = R.string.autosave.string,
+                    subtitle = R.string.autosave_summary.string,
+                    trailingIcon = {
+                        Switch(
+                            checked = autosaveEnabled,
+                            onCheckedChange = null,
+                        )
+                    }
+                ) {
+                    setAutosaveEnabled(!autosaveEnabled)
+                }
+            }
+
+            item {
                 Text(
                     R.string.security.string,
                     modifier = Modifier
@@ -302,6 +344,7 @@ fun SettingsPage(
                                         )
                                         existingSettings.copy(usersList = users)
                                     }
+                                    WidgetUpdater.updateWidgets(context)
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()

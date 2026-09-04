@@ -31,11 +31,14 @@ import androidx.glance.text.TextStyle
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.MainActivity
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.local.entity.MemoEntity
+import me.mudkip.moememos.data.model.MemoEditGesture
 import me.mudkip.moememos.data.service.MemoService
+import me.mudkip.moememos.ext.settingsDataStore
 import java.time.Instant
 
 class MemoryGlanceWidget : GlanceAppWidget() {
@@ -46,16 +49,20 @@ class MemoryGlanceWidget : GlanceAppWidget() {
             WidgetEntryPoint::class.java
         )
         val memoService = widgetEntryPoint.memoService()
+        val settings = context.settingsDataStore.data.first()
+        val openInEditor = settings.usersList
+            .firstOrNull { it.accountKey == settings.currentUser }
+            ?.settings?.editGesture == MemoEditGesture.SINGLE
 
         provideContent {
             GlanceTheme {
-                WidgetContent(context, memoService)
+                WidgetContent(context, memoService, openInEditor)
             }
         }
     }
 
     @Composable
-    private fun WidgetContent(context: Context, memoService: MemoService) {
+    private fun WidgetContent(context: Context, memoService: MemoService, openInEditor: Boolean) {
         var memo by remember { mutableStateOf<MemoEntity?>(null) }
         var isLoading by remember { mutableStateOf(true) }
         var error by remember { mutableStateOf<String?>(null) }
@@ -122,7 +129,7 @@ class MemoryGlanceWidget : GlanceAppWidget() {
                     Column(
                         modifier = GlanceModifier
                             .fillMaxSize()
-                            .clickable(actionStartActivity(createViewMemoIntent(context, loadedMemo.identifier)))
+                            .clickable(actionStartActivity(createMemoIntent(context, loadedMemo.identifier, openInEditor)))
                     ) {
                         Text(
                             text = DateUtils.getRelativeTimeSpanString(
@@ -157,9 +164,9 @@ private fun createOpenAppIntent(context: Context): Intent =
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
     }
 
-private fun createViewMemoIntent(context: Context, memoId: String): Intent =
+private fun createMemoIntent(context: Context, memoId: String, openInEditor: Boolean): Intent =
     Intent(context, MainActivity::class.java).apply {
-        action = MainActivity.ACTION_VIEW_MEMO
+        action = if (openInEditor) MainActivity.ACTION_EDIT_MEMO else MainActivity.ACTION_VIEW_MEMO
         putExtra(MainActivity.EXTRA_MEMO_ID, memoId)
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
     }
