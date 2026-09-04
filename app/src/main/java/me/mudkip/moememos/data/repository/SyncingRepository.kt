@@ -601,7 +601,7 @@ class SyncingRepository(
             )
             if (updated is ApiResponse.Success) {
                 reconcileServerCreatedMemo(
-                    local.identifier,
+                    local,
                     updated.data.copy(archived = local.archived)
                 )
                 true
@@ -623,7 +623,7 @@ class SyncingRepository(
             val createdRemoteId = remoteMemoId(created.data)
 
             reconcileServerCreatedMemo(
-                local.identifier,
+                local,
                 created.data.copy(
                     remoteId = createdRemoteId,
                 )
@@ -656,8 +656,20 @@ class SyncingRepository(
         return pushLocalMemo(duplicateLocal.identifier, forceCreate = true)
     }
 
-    private suspend fun reconcileServerCreatedMemo(localIdentifier: String, remoteMemo: Memo) {
-        applyRemoteMemo(remoteMemo, preferredLocalIdentifier = localIdentifier)
+    private suspend fun reconcileServerCreatedMemo(pushed: MemoEntity, remoteMemo: Memo) {
+        val current = memoDao.getMemoById(pushed.identifier, accountKey)
+        if (current != null && current.lastModified != pushed.lastModified) {
+            // edited locally while the push was in flight: keep local fields, record server linkage
+            memoDao.insertMemo(
+                current.copy(
+                    remoteId = remoteMemoId(remoteMemo),
+                    lastSyncedAt = remoteMemo.updatedAt ?: remoteMemo.date,
+                    needsSync = true
+                )
+            )
+            return
+        }
+        applyRemoteMemo(remoteMemo, preferredLocalIdentifier = pushed.identifier, keepPendingResources = true)
     }
 
     private suspend fun ensureUploadedResources(localMemo: MemoEntity): UploadedResourcesResult {
@@ -716,7 +728,8 @@ class SyncingRepository(
 
     private suspend fun applyRemoteMemo(
         remoteMemo: Memo,
-        preferredLocalIdentifier: String? = null
+        preferredLocalIdentifier: String? = null,
+        keepPendingResources: Boolean = false
     ) {
         val remoteId = remoteMemoId(remoteMemo)
         val current = memoDao.getMemoByRemoteId(remoteId, accountKey)
@@ -745,6 +758,9 @@ class SyncingRepository(
         val currentResources = memoDao.getMemoResources(localIdentifier, accountKey)
         val remoteResourceIds = remoteMemo.resources.mapTo(hashSetOf()) { remoteResourceId(it) }
         currentResources.forEach { currentResource ->
+            if (keepPendingResources && currentResource.remoteId == null) {
+                return@forEach
+            }
             if (currentResource.remoteId !in remoteResourceIds) {
                 deleteLocalFile(currentResource)
                 memoDao.deleteResource(currentResource)
