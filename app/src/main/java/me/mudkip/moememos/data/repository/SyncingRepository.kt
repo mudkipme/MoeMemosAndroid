@@ -44,6 +44,7 @@ class SyncingRepository(
     private val fileStorage: FileStorage,
     private val remoteRepository: RemoteRepository,
     private val account: Account,
+    deferredPushDelayMillis: Long = 2000,
     private val onUserSynced: suspend (User) -> Unit = {},
 ) : AbstractMemoRepository() {
     private data class UploadedResourcesResult(
@@ -55,6 +56,11 @@ class SyncingRepository(
     private var currentUser: User = account.toUser()
     private val operationMutex = Mutex()
     private val operationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val deferredPushes = DeferredPushScheduler(operationScope, deferredPushDelayMillis) { identifier ->
+        if (memoDao.getMemoById(identifier, accountKey)?.needsSync == true) {
+            enqueuePushMemo(identifier)
+        }
+    }
     private var pendingDetailedSyncError: String? = null
     private val _syncStatus = MutableStateFlow(SyncStatus())
     override val syncStatus: StateFlow<SyncStatus> = _syncStatus.asStateFlow()
@@ -95,7 +101,8 @@ class SyncingRepository(
         content: String,
         visibility: MemoVisibility,
         resources: List<ResourceEntity>,
-        tags: List<String>?
+        tags: List<String>?,
+        deferPush: Boolean
     ): ApiResponse<MemoEntity> {
         return try {
             val now = Instant.now()
@@ -125,7 +132,11 @@ class SyncingRepository(
             }
 
             refreshUnsyncedCount()
-            enqueuePushMemo(localMemo.identifier)
+            if (deferPush) {
+                deferredPushes.schedule(localMemo.identifier)
+            } else {
+                enqueuePushMemo(localMemo.identifier)
+            }
             ApiResponse.Success(withResources(localMemo))
         } catch (e: Exception) {
             ApiResponse.Failure.Exception(e)
@@ -138,7 +149,8 @@ class SyncingRepository(
         resources: List<ResourceEntity>?,
         visibility: MemoVisibility?,
         tags: List<String>?,
-        pinned: Boolean?
+        pinned: Boolean?,
+        deferPush: Boolean
     ): ApiResponse<MemoEntity> {
         return try {
             val existingMemo = memoDao.getMemoById(identifier, accountKey)
@@ -174,11 +186,19 @@ class SyncingRepository(
             }
 
             refreshUnsyncedCount()
-            enqueuePushMemo(updatedMemo.identifier)
+            if (deferPush) {
+                deferredPushes.schedule(updatedMemo.identifier)
+            } else {
+                enqueuePushMemo(updatedMemo.identifier)
+            }
             ApiResponse.Success(withResources(updatedMemo))
         } catch (e: Exception) {
             ApiResponse.Failure.Exception(e)
         }
+    }
+
+    override suspend fun flushPendingPush(identifier: String) {
+        deferredPushes.flush(identifier)
     }
 
     override suspend fun deleteMemo(identifier: String): ApiResponse<Unit> {
@@ -193,6 +213,7 @@ class SyncingRepository(
                 )
             )
             refreshUnsyncedCount()
+            deferredPushes.cancel(identifier)
             enqueuePushMemo(identifier)
             ApiResponse.Success(Unit)
         } catch (e: Exception) {

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Source
 import androidx.compose.material.icons.outlined.Web
 import androidx.compose.material3.AlertDialog
@@ -91,6 +92,30 @@ fun SettingsPage(
         ?.settings
         ?.editGesture
         ?: MemoEditGesture.NONE
+    val autosaveEnabled = settings.usersList
+        .firstOrNull { it.accountKey == settings.currentUser }
+        ?.settings
+        ?.autosave
+        ?: false
+
+    fun setAutosaveEnabled(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            context.settingsDataStore.updateData { existingSettings ->
+                val userIndex = existingSettings.usersList.indexOfFirst { user ->
+                    user.accountKey == existingSettings.currentUser
+                }
+                if (userIndex == -1) {
+                    return@updateData existingSettings
+                }
+                val users = existingSettings.usersList.toMutableList()
+                val user = users[userIndex]
+                users[userIndex] = user.copy(
+                    settings = user.settings.copy(autosave = enabled)
+                )
+                existingSettings.copy(usersList = users)
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier
@@ -202,6 +227,22 @@ fun SettingsPage(
                     }
                 ) {
                     showEditGestureDialog = true
+                }
+            }
+
+            item {
+                SettingItem(
+                    icon = Icons.Outlined.Save,
+                    text = R.string.autosave.string,
+                    subtitle = R.string.autosave_summary.string,
+                    trailingIcon = {
+                        Switch(
+                            checked = autosaveEnabled,
+                            onCheckedChange = null,
+                        )
+                    }
+                ) {
+                    setAutosaveEnabled(!autosaveEnabled)
                 }
             }
 
