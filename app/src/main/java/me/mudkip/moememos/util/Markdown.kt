@@ -7,6 +7,7 @@ import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
 import org.intellij.markdown.parser.MarkdownParser
+import org.intellij.markdown.parser.CancellationToken
 
 private val customTagPattern = Regex("#([^\\s#]+)")
 private val customTagExcludedTypes = setOf(
@@ -54,8 +55,13 @@ internal fun hasAncestorOfType(node: ASTNode, types: Set<IElementType>): Boolean
     return false
 }
 
+internal fun parseMarkdown(markdownText: CharSequence): ASTNode = MarkdownParser(
+    GFMFlavourDescriptor(),
+    cancellationToken = CancellationToken.NonCancellable,
+).parse(MarkdownElementTypes.MARKDOWN_FILE, markdownText, parseInlines = true)
+
 fun extractCustomTags(markdownText: String): Set<String> {
-    val parsedTree = MarkdownParser(GFMFlavourDescriptor()).parse(MarkdownElementTypes.MARKDOWN_FILE, markdownText)
+    val parsedTree = parseMarkdown(markdownText)
     val tags = HashSet<String>()
 
     findCustomTagMatches(markdownText).forEach { result ->

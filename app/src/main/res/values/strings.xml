@@ -1,11 +1,9 @@
 <resources>
     <string name="app_name">MoeMemos</string>
-    <string name="default_card_content" translatable="false">It is what you do with the gift of life that determines who you are.      — Mewtwo</string>
     <string name="search">Search</string>
     <string name="back">Back</string>
     <string name="memos">Memos</string>
     <string name="menu">Menu</string>
-    <string name="search_hint">Search…</string>
     <string name="new_memo">New Memo</string>
     <string name="compose">Compose</string>
     <string name="remove">Remove</string>
@@ -22,23 +20,19 @@
     <string name="fill_login_form">Please fill the login form.</string>
     <string name="acknowledgements">Acknowledgements</string>
     <string name="privacy_policy">Privacy Policy</string>
-    <string name="privacy">Privacy</string>
     <string name="website">Website</string>
-    <string name="web">Web</string>
     <string name="about">About Moe Memos</string>
     <string name="add_account">Add Account</string>
     <string name="attachment">Attachment</string>
     <string name="moe_memos" translatable="false">Moe Memos</string>
-    <string name="selected">Selected</string>
-    <string name="username_and_password">Username and password</string>
+    <string name="account_selected">Selected</string>
     <string name="report_an_issue">Report an Issue</string>
     <string name="unpin">Unpin</string>
     <string name="sign_out">Sign Out</string>
-    <string name="sign_in_method">Sign in method</string>
     <string name="address">Address</string>
     <string name="host">Host</string>
     <string name="account_name">Account name (Optional)</string>
-    <string name="access_token" translatable="false">Access Token</string>
+    <string name="access_token">Access Token</string>
     <string name="edit">Edit</string>
     <string name="close">Close</string>
     <string name="add_task">Add Task</string>
@@ -47,9 +41,6 @@
     <string name="post">Post</string>
     <string name="any_thoughts">Any thoughts…</string>
     <string name="input_login_information">Please input the login information of your \n[✍️memos](https://github.com/usememos/memos) server.</string>
-    <string name="username">Username</string>
-    <string name="password">Password</string>
-    <string name="email">Email</string>
     <string name="user_state_not_found">User state not found</string>
     <string name="memos_view_model_not_found" translatable="false">Memos view model not found</string>
     <string name="archived_memo_list_view_model_not_found" translatable="false">Archived memo list view model not found</string>
@@ -79,9 +70,6 @@
     <string name="memo_visibility_protected">Visible to local members</string>
     <string name="memo_visibility_private">Only visible to you</string>
     <string name="explore">Explore</string>
-    <string name="delete_this_tag">Delete this tag?</string>
-    <string name="expand">Expand</string>
-    <string name="collapse">Collapse</string>
     <string name="view_more">View More</string>
     <string name="accounts">Accounts</string>
     <string name="account_detail">Account Detail</string>
@@ -95,7 +83,6 @@
     <string name="sync_status_sync_now">Sync now</string>
     <string name="sync_status_unsynced">Unsynced changes</string>
     <string name="memo_sync_pending">Memo not synced</string>
-    <string name="memo_sync_synced">Memo synced</string>
     <string name="preferences">Preferences</string>
     <string name="edit_gesture">Edit gesture</string>
     <string name="edit_gesture_none">None</string>
@@ -136,4 +123,6 @@
     <string name="pinned_only">Show only pinned items.</string>
     <string name="max_items">Maximum items to show</string>
     <string name="refresh">Refresh</string>
+    <string name="local_network_access">Local network access</string>
+    <string name="local_network_access_denied">Allow Nearby devices access in Settings to connect to your Memos server on the local network, then try again. Your saved memos remain available offline.</string>
 </resources>

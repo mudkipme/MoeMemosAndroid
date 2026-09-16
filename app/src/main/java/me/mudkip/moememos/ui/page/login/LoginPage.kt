@@ -60,6 +60,7 @@ import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.component.Markdown
+import me.mudkip.moememos.ui.util.rememberLocalNetworkPermissionRequest
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.LoginCompatibility
@@ -75,6 +76,7 @@ fun LoginPage(
     val lifecycleOwner = LocalLifecycleOwner.current
     val userStateViewModel = LocalUserState.current
     val snackbarState = remember { SnackbarHostState() }
+    val requestLocalNetworkPermission = rememberLocalNetworkPermissionRequest()
 
     var accountLabel by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())
@@ -103,6 +105,7 @@ fun LoginPage(
 
         val sanitizedHost = normalizedHost()
         host = TextFieldValue(sanitizedHost)
+        if (!requestLocalNetworkPermission(sanitizedHost)) return@launch
 
         if (!allowHigherV1Version) {
             when (val compatibility = userStateViewModel.checkLoginCompatibility(sanitizedHost)) {

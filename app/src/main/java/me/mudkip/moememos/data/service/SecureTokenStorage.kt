@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.nio.charset.StandardCharsets
 import java.security.GeneralSecurityException
@@ -46,11 +47,11 @@ class SecureTokenStorage @Inject constructor(
             removeToken(accountKey)
             return
         }
-        sharedPreferences.edit().putString(accountKey, encrypted).apply()
+        sharedPreferences.edit { putString(accountKey, encrypted) }
     }
 
     fun removeToken(accountKey: String) {
-        sharedPreferences.edit().remove(accountKey).apply()
+        sharedPreferences.edit { remove(accountKey) }
     }
 
     private fun encrypt(plainText: String): String? {

@@ -39,6 +39,7 @@ import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.model.MemoEditGesture
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.settingsDataStore
+import timber.log.Timber
 import java.time.Instant
 
 class MemoryGlanceWidget : GlanceAppWidget() {
@@ -54,10 +55,18 @@ class MemoryGlanceWidget : GlanceAppWidget() {
             .firstOrNull { it.accountKey == settings.currentUser }
             ?.settings?.editGesture == MemoEditGesture.SINGLE
 
-        provideContent {
-            GlanceTheme {
-                WidgetContent(context, memoService, openInEditor)
-            }
+        provideContent(createContent(context, memoService, openInEditor))
+    }
+
+    // Keep composable lambda captures outside the coroutine state machine so Compose
+    // can collect stack trace mappings for the widget content.
+    private fun createContent(
+        context: Context,
+        memoService: MemoService,
+        openInEditor: Boolean
+    ): @Composable () -> Unit = {
+        GlanceTheme {
+            WidgetContent(context, memoService, openInEditor)
         }
     }
 
@@ -76,7 +85,7 @@ class MemoryGlanceWidget : GlanceAppWidget() {
                     }
                 } catch (e: Exception) {
                     error = e.message ?: "Unknown error"
-                    android.util.Log.e("MemoryWidget", "Exception in memory widget", e)
+                    Timber.tag("MemoryWidget").e(e, "Exception in memory widget")
                 } finally {
                     isLoading = false
                 }

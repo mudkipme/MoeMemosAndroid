@@ -7,4 +7,5 @@
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:configure="me.mudkip.moememos.widget.MeoMemosGlanceWidgetConfigurationActivity"
+    android:widgetFeatures="reconfigurable"
     android:description="@string/app_name" />

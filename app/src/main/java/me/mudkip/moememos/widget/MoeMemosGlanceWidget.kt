@@ -61,6 +61,7 @@ import me.mudkip.moememos.data.model.MemoEditGesture
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.settingsDataStore
+import timber.log.Timber
 import java.time.Instant
 
 class MoeMemosGlanceWidget : GlanceAppWidget() {
@@ -78,11 +79,19 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
             .firstOrNull { it.accountKey == settings.currentUser }
             ?.settings?.editGesture == MemoEditGesture.SINGLE
 
-        provideContent {
-            val prefs = currentState<Preferences>()
-            GlanceTheme {
-                WidgetContent(context, memoService, prefs, openInEditor)
-            }
+        provideContent(createContent(context, memoService, openInEditor))
+    }
+
+    // Keep composable lambda captures outside the coroutine state machine so Compose
+    // can collect stack trace mappings for the widget content.
+    private fun createContent(
+        context: Context,
+        memoService: MemoService,
+        openInEditor: Boolean
+    ): @Composable () -> Unit = {
+        val prefs = currentState<Preferences>()
+        GlanceTheme {
+            WidgetContent(context, memoService, prefs, openInEditor)
         }
     }
 
@@ -119,7 +128,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                     }
                 } catch (e: Exception) {
                     error = e.message ?: "Unknown error"
-                    android.util.Log.e("MoeMemosWidget", "Exception in widget", e)
+                    Timber.tag("MoeMemosWidget").e(e, "Exception in widget")
                 } finally {
                     isLoading = false
                 }

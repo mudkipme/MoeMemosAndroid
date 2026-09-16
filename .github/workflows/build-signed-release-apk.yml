@@ -34,6 +34,15 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Install NDK for native library stripping
+        run: |
+          ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
+          if [[ -x "$ANDROID_TOOLS/android" ]]; then
+            "$ANDROID_TOOLS/android" --no-metrics --sdk="$ANDROID_HOME" sdk install "ndk;28.2.13676358"
+          else
+            "$ANDROID_TOOLS/sdkmanager" --sdk_root="$ANDROID_HOME" "ndk;28.2.13676358"
+          fi
+
       - name: Prepare release keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}

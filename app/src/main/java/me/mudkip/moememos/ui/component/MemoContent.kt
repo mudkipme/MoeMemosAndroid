@@ -33,8 +33,7 @@ import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.flavours.gfm.GFMElementTypes
-import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
-import org.intellij.markdown.parser.MarkdownParser
+import me.mudkip.moememos.util.parseMarkdown
 import java.net.URLEncoder
 import kotlin.math.ceil
 
@@ -98,11 +97,7 @@ private enum class PreviewAppendKind {
 }
 
 fun extractPreviewContent(markdownText: String, maxLength: Int = 500): Pair<String, Boolean> {
-    val node = MarkdownParser(GFMFlavourDescriptor()).parse(
-        MarkdownElementTypes.MARKDOWN_FILE,
-        markdownText,
-        true
-    )
+    val node = parseMarkdown(markdownText)
 
     val result = StringBuilder()
     var remainingLength = maxLength

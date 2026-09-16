@@ -157,7 +157,7 @@ fun SettingsPage(
                             trailingIcon = {
                                 if (currentAccount?.accountKey() == account.accountKey()) {
                                     Icon(Icons.Outlined.Check,
-                                        contentDescription = R.string.selected.string,
+                                        contentDescription = R.string.account_selected.string,
                                         modifier = Modifier.padding(start = 16.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -174,7 +174,7 @@ fun SettingsPage(
                             trailingIcon = {
                                 if (currentAccount?.accountKey() == account.accountKey()) {
                                     Icon(Icons.Outlined.Check,
-                                        contentDescription = R.string.selected.string,
+                                        contentDescription = R.string.account_selected.string,
                                         modifier = Modifier.padding(start = 16.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -187,7 +187,7 @@ fun SettingsPage(
                         SettingItem(icon = Icons.Outlined.Home, text = R.string.local_account.string, trailingIcon = {
                             if (currentAccount?.accountKey() == account.accountKey()) {
                                 Icon(Icons.Outlined.Check,
-                                    contentDescription = R.string.selected.string,
+                                    contentDescription = R.string.account_selected.string,
                                     modifier = Modifier.padding(start = 16.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

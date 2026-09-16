@@ -69,6 +69,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -341,7 +342,7 @@ private fun MediaViewerPage(
     val scope = rememberCoroutineScope()
     val gestureState = remember(imageUrl) { MediaGestureState() }
     val modelFile = remember(imageUrl) {
-        Uri.parse(imageUrl).takeIf { it.scheme == "file" }?.path?.let(::File)
+        imageUrl.toUri().takeIf { it.scheme == "file" }?.path?.let(::File)
     }
     var loading by remember(imageUrl) { mutableStateOf(true) }
     var failed by remember(imageUrl) { mutableStateOf(false) }
