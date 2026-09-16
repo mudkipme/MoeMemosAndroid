@@ -7,10 +7,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.ui.page.common.MemosNavHost
 import me.mudkip.moememos.viewmodel.LocalUserState
 
 @Composable
@@ -22,7 +22,7 @@ fun MemosNavigation(
     val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
     val hasExplore = currentAccount !is Account.Local
 
-    NavHost(
+    MemosNavHost(
         navController = navController,
         startDestination = RouteName.MEMOS
     ) {

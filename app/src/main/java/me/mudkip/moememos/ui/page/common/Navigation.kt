@@ -5,11 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -18,11 +13,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import me.mudkip.moememos.MainActivity
@@ -70,18 +63,9 @@ fun Navigation() {
 
     CompositionLocalProvider(LocalRootNavController provides navController) {
         MoeMemosTheme {
-            NavHost(
-                modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+            MemosNavHost(
                 navController = navController,
                 startDestination = RouteName.MEMOS,
-                enterTransition = {
-                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up,
-                        initialOffset = { it / 4 }) + fadeIn()
-                },
-                exitTransition = {
-                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down,
-                        targetOffset = { it / 4 }) + fadeOut()
-                },
             ) {
                 composable(RouteName.MEMOS) {
                     MemosPage()

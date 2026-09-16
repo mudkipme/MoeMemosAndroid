@@ -1,0 +1,13 @@
+## What's Changed
+* Added support for Memos 0.30.0.
+* Added optional autosave for the memo editor by @Ekats.
+* Added a side-by-side memo list and detail view on larger screens.
+* Updated dependencies and added support for Android 17 local network permissions.
+* Improved search, settings, photo picking, and accessibility.
+* Improved opening memos from widgets and shortcuts by @Ekats.
+* Fixed local edits being lost when syncing by @Ekats.
+
+## New Contributors
+* @Ekats made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/382
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/2.0.4...2.0.5
