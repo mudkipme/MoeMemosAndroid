@@ -23,7 +23,7 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,7 +66,7 @@ fun SideDrawer(
     val scope = rememberCoroutineScope()
     val memosViewModel = LocalMemos.current
     val userStateViewModel = LocalUserState.current
-    val currentAccount by userStateViewModel.currentAccount.collectAsState()
+    val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
     val hasExplore = currentAccount !is Account.Local
     val rootNavController = LocalRootNavController.current
     val navBackStackEntry by memosNavController.currentBackStackEntryAsState()

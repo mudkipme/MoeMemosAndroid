@@ -88,6 +88,7 @@ dependencies {
     implementation "androidx.compose.material3:material3:${rootProject.ext.material3}"
     implementation "androidx.compose.material3.adaptive:adaptive:${rootProject.ext.material3_adaptive}"
     implementation "androidx.compose.material3.adaptive:adaptive-layout:${rootProject.ext.material3_adaptive}"
+    implementation "androidx.compose.material3.adaptive:adaptive-navigation:${rootProject.ext.material3_adaptive}"
     implementation "androidx.compose.ui:ui-tooling-preview:${rootProject.ext.compose_version}"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:${rootProject.ext.lifecycle_version}"
     implementation "androidx.lifecycle:lifecycle-runtime-compose:${rootProject.ext.lifecycle_version}"

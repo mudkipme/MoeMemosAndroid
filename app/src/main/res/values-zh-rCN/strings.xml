@@ -119,4 +119,9 @@
     <string name="local_network_access">本地网络访问</string>
     <string name="local_network_access_denied">请在设置中允许访问附近的设备，然后重试连接本地网络上的 Memos 服务器。已保存的笔记仍可离线使用。</string>
     <string name="access_token">访问令牌</string>
+    <string name="more_options">更多选项</string>
+    <string name="clear_search">清除搜索</string>
+    <string name="retry">重试</string>
+    <string name="failed_to_load_memos">无法加载笔记</string>
+    <string name="select_memo">选择一条笔记阅读</string>
 </resources>

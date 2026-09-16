@@ -30,13 +30,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -186,14 +185,14 @@ fun MemosCardActionButton(
     val clipboardManager = context.getSystemService(ClipboardManager::class.java)
     val memosViewModel = LocalMemos.current
     val userStateViewModel = LocalUserState.current
-    val currentAccount by userStateViewModel.currentAccount.collectAsState()
+    val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
     val rootNavController = LocalRootNavController.current
     val scope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf(false) }
     val memoLabel = stringResource(R.string.memo)
 
     Box {
-        IconButton(onClick = { menuExpanded = true }) {
+        ActionIconButton(label = stringResource(R.string.more_options), onClick = { menuExpanded = true }) {
             Icon(Icons.Filled.MoreVert, contentDescription = null)
         }
         DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {

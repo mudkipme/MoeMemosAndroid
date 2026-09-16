@@ -14,7 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -47,8 +47,8 @@ fun AccountPage(
     }
     val userStateViewModel = LocalUserState.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val selectedAccount by viewModel.selectedAccountState.collectAsState()
-    val currentAccount by userStateViewModel.currentAccount.collectAsState()
+    val selectedAccount by viewModel.selectedAccountState.collectAsStateWithLifecycle()
+    val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
     val memosAccount = selectedAccount.toMemosAccount()
     val isLocalAccount = selectedAccountKey == Account.Local().accountKey() || selectedAccount is Account.Local
     val showSwitchAccountButton = selectedAccountKey != currentAccount?.accountKey()

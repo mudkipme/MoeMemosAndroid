@@ -19,11 +19,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,7 +82,7 @@ fun ArchivedMemosCardActionButton(
     Box(modifier = Modifier
         .fillMaxSize()
         .wrapContentSize(Alignment.TopEnd)) {
-        IconButton(onClick = { menuExpanded = true }) {
+        ActionIconButton(label = stringResource(R.string.more_options), onClick = { menuExpanded = true }) {
             Icon(Icons.Filled.MoreVert, contentDescription = null)
         }
         DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {

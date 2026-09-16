@@ -118,4 +118,9 @@
     <string name="local_network_access">Zugriff auf das lokale Netzwerk</string>
     <string name="local_network_access_denied">Erlaube in den Einstellungen den Zugriff auf Geräte in der Nähe, um deinen Memos-Server im lokalen Netzwerk zu erreichen, und versuche es erneut. Deine gespeicherten Memos bleiben offline verfügbar.</string>
     <string name="access_token">Zugriffstoken</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="clear_search">Suche löschen</string>
+    <string name="retry">Erneut versuchen</string>
+    <string name="failed_to_load_memos">Notizen konnten nicht geladen werden</string>
+    <string name="select_memo">Notiz zum Lesen auswählen</string>
 </resources>

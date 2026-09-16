@@ -118,4 +118,9 @@
     <string name="refresh">Yenile</string>
     <string name="local_network_access">Yerel ağ erişimi</string>
     <string name="local_network_access_denied">Yerel ağdaki Memos sunucunuza bağlanmak için Ayarlar üzerinden Yakındaki cihazlar erişimine izin verin ve yeniden deneyin. Kaydedilmiş notlarınız çevrimdışı kullanılabilir.</string>
+    <string name="more_options">Diğer seçenekler</string>
+    <string name="clear_search">Aramayı temizle</string>
+    <string name="retry">Yeniden dene</string>
+    <string name="failed_to_load_memos">Notlar yüklenemedi</string>
+    <string name="select_memo">Okumak için bir not seçin</string>
 </resources>

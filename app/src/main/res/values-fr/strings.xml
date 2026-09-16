@@ -118,4 +118,9 @@
     <string name="refresh">Actualiser</string>
     <string name="local_network_access">Accès au réseau local</string>
     <string name="local_network_access_denied">Autorisez l’accès aux appareils à proximité dans les paramètres pour vous connecter à votre serveur Memos sur le réseau local, puis réessayez. Vos mémos enregistrés restent disponibles hors ligne.</string>
+    <string name="more_options">Plus d’options</string>
+    <string name="clear_search">Effacer la recherche</string>
+    <string name="retry">Réessayer</string>
+    <string name="failed_to_load_memos">Impossible de charger les mémos</string>
+    <string name="select_memo">Sélectionnez un mémo à lire</string>
 </resources>

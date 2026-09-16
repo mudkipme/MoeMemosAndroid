@@ -215,6 +215,7 @@ fun AppLockGate(
         context.applicationContext.settingsDataStore.data
             .map<AppSettings, AppSettings?> { settings -> settings }
     }
+    // Keep observing security settings while stopped; do not resume with a stale lock policy.
     val settingsState = settingsFlow.collectAsState(initial = null)
     val settings = settingsState.value
     var isResumed by remember(lifecycleOwner) {
