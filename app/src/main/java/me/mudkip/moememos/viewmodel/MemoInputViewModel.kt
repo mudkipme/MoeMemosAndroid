@@ -1,7 +1,6 @@
 package me.mudkip.moememos.viewmodel
 
 import android.app.Application
-import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
@@ -11,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.suspendOnSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.map
@@ -31,10 +29,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MemoInputViewModel @Inject constructor(
-    @ApplicationContext application: Context,
+    application: Application,
     private val memoService: MemoService
-) : AndroidViewModel(application as Application) {
-    private val context = application
+) : AndroidViewModel(application) {
+    private val context: Application get() = getApplication()
     val draft = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.settings?.draft
     }

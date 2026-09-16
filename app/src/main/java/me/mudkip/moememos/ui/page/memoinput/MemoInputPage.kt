@@ -14,7 +14,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +37,9 @@ import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
-import me.mudkip.moememos.ui.util.PickMultipleImagesContract
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import me.mudkip.moememos.util.extractCustomTags
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
@@ -58,9 +60,9 @@ fun MemoInputPage(
     val lifecycleOwner = LocalLifecycleOwner.current
     val memosViewModel = LocalMemos.current
     val userStateViewModel = LocalUserState.current
-    val currentAccount by userStateViewModel.currentAccount.collectAsState()
+    val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
     val memo = remember { memosViewModel.memos.toList().find { it.identifier == memoIdentifier } }
-    val autosaveEnabled by viewModel.autosaveEnabled.collectAsState(initial = false)
+    val autosaveEnabled by viewModel.autosaveEnabled.collectAsStateWithLifecycle(initialValue = false)
     var autosaveIdentifier by rememberSaveable { mutableStateOf(memo?.identifier) }
     var autosaveDirty by remember { mutableStateOf(false) }
     var initialContent by remember { mutableStateOf(memo?.content ?: "") }
@@ -152,7 +154,7 @@ fun MemoInputPage(
     }
 
     val pickImages = rememberLauncherForActivityResult(
-        PickMultipleImagesContract(MaxSelectableImages)
+        PickMultipleVisualMedia(MaxSelectableImages)
     ) { uris ->
         if (uris.isNotEmpty()) {
             uploadImages(uris)
@@ -209,7 +211,7 @@ fun MemoInputPage(
                     text = toggleTodoItemInText(text)
                 },
                 onPickImage = {
-                    pickImages.launch(Unit)
+                    pickImages.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
                 },
                 onPickAttachment = {
                     pickAttachment.launch(arrayOf("*/*"))

@@ -4,7 +4,6 @@
     <string name="back">戻る</string>
     <string name="memos">メモ</string>
     <string name="menu">メニュー</string>
-    <string name="search_hint">検索…</string>
     <string name="new_memo">新しいメモ</string>
     <string name="compose">作成</string>
     <string name="remove">削除</string>
@@ -20,18 +19,14 @@
     <string name="fill_login_form">ログインフォームを入力してください。</string>
     <string name="acknowledgements">謝辞</string>
     <string name="privacy_policy">プライバシー ポリシー</string>
-    <string name="privacy">プライバシー</string>
     <string name="website">ウェブサイト</string>
-    <string name="web">ウェブ</string>
     <string name="about">Moe Memos について</string>
     <string name="add_account">アカウントの追加</string>
     <string name="attachment">添付ファイル</string>
-    <string name="selected">選択済み</string>
-    <string name="username_and_password">ユーザー名とパスワード</string>
+    <string name="account_selected">選択済み</string>
     <string name="report_an_issue">問題の報告</string>
     <string name="unpin">ピン留め解除</string>
     <string name="sign_out">サインアウト</string>
-    <string name="sign_in_method">サインイン方法</string>
     <string name="address">アドレス</string>
     <string name="host">ホスト</string>
     <string name="account_name">アカウント名（任意）</string>
@@ -43,9 +38,6 @@
     <string name="post">投稿</string>
     <string name="any_thoughts">ご意見は…</string>
     <string name="input_login_information">[✍️memos](https://github.com/usememos/memos) サーバーのログイン情報を入力してください。</string>
-    <string name="username">ユーザー名</string>
-    <string name="password">パスワード</string>
-    <string name="email">メール</string>
     <string name="user_state_not_found">ユーザー状態が見つかりません</string>
     <string name="cancel">キャンセル</string>
     <string name="confirm">確認</string>
@@ -72,9 +64,6 @@
     <string name="memo_visibility_protected">ローカルメンバーに表示</string>
     <string name="memo_visibility_private">あなただけに表示</string>
     <string name="explore">共有メモ</string>
-    <string name="delete_this_tag">このタグを削除しますか？</string>
-    <string name="expand">展開</string>
-    <string name="collapse">折りたたむ</string>
     <string name="view_more">もっと見る</string>
     <string name="accounts">アカウント</string>
     <string name="preferences">設定</string>
@@ -94,7 +83,6 @@
     <string name="sync_status_sync_now">今すぐ同期</string>
     <string name="sync_status_unsynced">未同期の変更</string>
     <string name="memo_sync_pending">メモは未同期</string>
-    <string name="memo_sync_synced">メモは同期済み</string>
     <string name="failed_to_open_attachment">添付ファイルを開けませんでした</string>
     <string name="export_local_account">ローカルデータをエクスポート</string>
     <string name="local_export_success">ローカルデータをエクスポートしました</string>
@@ -122,4 +110,19 @@
     <string name="app_lock_unavailable_short">この端末ではシステム認証を利用できません。</string>
     <string name="unlock">ロック解除</string>
     <string name="open_system_security_settings">システムのセキュリティ設定を開く</string>
+    <string name="failed_to_load_image">画像を読み込めませんでした</string>
+    <string name="autosave">自動保存</string>
+    <string name="autosave_summary">すべての変更をこの端末に保存し、バックグラウンドで同期します</string>
+    <string name="filter_by_tag">タグで絞り込む</string>
+    <string name="pinned_only">固定したメモのみ</string>
+    <string name="max_items">最大表示件数</string>
+    <string name="refresh">更新</string>
+    <string name="local_network_access">ローカルネットワークへのアクセス</string>
+    <string name="local_network_access_denied">設定で「付近のデバイス」へのアクセスを許可してから、ローカルネットワーク上の Memos サーバーへの接続を再試行してください。保存済みのメモはオフラインでも利用できます。</string>
+    <string name="access_token">アクセストークン</string>
+    <string name="more_options">その他のオプション</string>
+    <string name="clear_search">検索をクリア</string>
+    <string name="retry">再試行</string>
+    <string name="failed_to_load_memos">メモを読み込めませんでした</string>
+    <string name="select_memo">読むメモを選択してください</string>
 </resources>

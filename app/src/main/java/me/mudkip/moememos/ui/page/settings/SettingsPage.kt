@@ -17,16 +17,15 @@ import androidx.compose.material.icons.outlined.Web
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import me.mudkip.moememos.ui.component.ActionIconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,9 +66,9 @@ fun SettingsPage(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
-    val accounts by userStateViewModel.accounts.collectAsState()
-    val currentAccount by userStateViewModel.currentAccount.collectAsState()
-    val settings by context.settingsDataStore.data.collectAsState(initial = Settings())
+    val accounts by userStateViewModel.accounts.collectAsStateWithLifecycle()
+    val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
+    val settings by context.settingsDataStore.data.collectAsStateWithLifecycle(initialValue = Settings())
     val appLockSupported = remember(context, AppLockSession.foregroundGeneration) {
         AppLockAuthenticator.canAuthenticate(context)
     }
@@ -125,7 +124,7 @@ fun SettingsPage(
             LargeTopAppBar(
                 title = { Text(text = R.string.settings.string) },
                 navigationIcon = {
-                    IconButton(onClick = {
+                    ActionIconButton(label = R.string.back.string, onClick = {
                         navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = R.string.back.string)
@@ -157,7 +156,7 @@ fun SettingsPage(
                             trailingIcon = {
                                 if (currentAccount?.accountKey() == account.accountKey()) {
                                     Icon(Icons.Outlined.Check,
-                                        contentDescription = R.string.selected.string,
+                                        contentDescription = R.string.account_selected.string,
                                         modifier = Modifier.padding(start = 16.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -174,7 +173,7 @@ fun SettingsPage(
                             trailingIcon = {
                                 if (currentAccount?.accountKey() == account.accountKey()) {
                                     Icon(Icons.Outlined.Check,
-                                        contentDescription = R.string.selected.string,
+                                        contentDescription = R.string.account_selected.string,
                                         modifier = Modifier.padding(start = 16.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -187,7 +186,7 @@ fun SettingsPage(
                         SettingItem(icon = Icons.Outlined.Home, text = R.string.local_account.string, trailingIcon = {
                             if (currentAccount?.accountKey() == account.accountKey()) {
                                 Icon(Icons.Outlined.Check,
-                                    contentDescription = R.string.selected.string,
+                                    contentDescription = R.string.account_selected.string,
                                     modifier = Modifier.padding(start = 16.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -232,19 +231,13 @@ fun SettingsPage(
             }
 
             item {
-                SettingItem(
+                SettingSwitchItem(
                     icon = Icons.Outlined.Save,
                     text = R.string.autosave.string,
                     subtitle = R.string.autosave_summary.string,
-                    trailingIcon = {
-                        Switch(
-                            checked = autosaveEnabled,
-                            onCheckedChange = null,
-                        )
-                    }
-                ) {
-                    setAutosaveEnabled(!autosaveEnabled)
-                }
+                    checked = autosaveEnabled,
+                    onCheckedChange = ::setAutosaveEnabled,
+                )
             }
 
             item {
@@ -260,7 +253,7 @@ fun SettingsPage(
 
             item {
                 val appLockToggleEnabled = appLockSupported || settings.appLockEnabled
-                SettingItem(
+                SettingSwitchItem(
                     icon = Icons.Outlined.Lock,
                     text = R.string.app_lock.string,
                     subtitle = if (appLockSupported) {
@@ -268,17 +261,10 @@ fun SettingsPage(
                     } else {
                         R.string.app_lock_unavailable_short.string
                     },
-                    trailingIcon = {
-                        Switch(
-                            checked = settings.appLockEnabled,
-                            onCheckedChange = null,
-                            enabled = appLockToggleEnabled,
-                        )
-                    },
+                    checked = settings.appLockEnabled,
                     enabled = appLockToggleEnabled,
-                ) {
-                    setAppLockEnabled(!settings.appLockEnabled)
-                }
+                    onCheckedChange = ::setAppLockEnabled,
+                )
             }
 
             item {

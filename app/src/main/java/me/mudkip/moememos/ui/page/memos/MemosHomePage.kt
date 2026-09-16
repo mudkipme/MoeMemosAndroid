@@ -1,6 +1,5 @@
 package me.mudkip.moememos.ui.page.memos
 
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -11,13 +10,13 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import me.mudkip.moememos.ui.component.ActionIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
@@ -39,19 +37,30 @@ import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.ManualSyncResult
 import java.net.URLEncoder
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemosHomePage(
     drawerState: DrawerState? = null,
     navController: NavHostController
+) {
+    MemoBrowser { onMemoClick ->
+        MemosHomePageContent(drawerState, navController, onMemoClick)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MemosHomePageContent(
+    drawerState: DrawerState? = null,
+    navController: NavHostController,
+    onMemoClick: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val rootNavController = LocalRootNavController.current
     val memosViewModel = LocalMemos.current
     val userStateViewModel = LocalUserState.current
-    val currentAccount by userStateViewModel.currentAccount.collectAsState()
-    val syncStatus by memosViewModel.syncStatus.collectAsState()
+    val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
+    val syncStatus by memosViewModel.syncStatus.collectAsStateWithLifecycle()
 
     val expandedFab by remember {
         derivedStateOf {
@@ -82,7 +91,7 @@ fun MemosHomePage(
                 title = { Text(text = R.string.memos.string) },
                 navigationIcon = {
                     if (drawerState != null) {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        ActionIconButton(label = R.string.menu.string, onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
                         }
                     }
@@ -99,7 +108,7 @@ fun MemosHomePage(
                             }
                         )
                     }
-                    IconButton(onClick = {
+                    ActionIconButton(label = R.string.search.string, onClick = {
                         navController.navigate(RouteName.SEARCH)
                     }) {
                         Icon(Icons.Filled.Search, contentDescription = R.string.search.string)
@@ -110,7 +119,6 @@ fun MemosHomePage(
 
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                modifier = Modifier.navigationBarsPadding(),
                 onClick = {
                     rootNavController.navigate(RouteName.INPUT)
                 },
@@ -122,6 +130,7 @@ fun MemosHomePage(
 
         content = { innerPadding ->
             MemosList(
+                onMemoClick = onMemoClick,
                 lazyListState = listState,
                 contentPadding = innerPadding,
                 additionalBottomPadding = MemoListFabAvoidancePadding,

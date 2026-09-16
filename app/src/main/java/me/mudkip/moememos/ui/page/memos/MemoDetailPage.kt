@@ -20,14 +20,14 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import me.mudkip.moememos.ui.component.ActionIconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,10 +60,18 @@ fun MemoDetailPage(
     memoIdentifier: String
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    MemoDetailContent(memoIdentifier) {
+        navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun MemoDetailContent(memoIdentifier: String, onBack: () -> Unit) {
     val layoutDirection = LocalLayoutDirection.current
     val memosViewModel = LocalMemos.current
     val userStateViewModel = LocalUserState.current
-    val currentAccount by userStateViewModel.currentAccount.collectAsState()
+    val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val memo = remember(memosViewModel.memos.toList(), memoIdentifier) {
         memosViewModel.memos.firstOrNull { it.identifier == memoIdentifier }
@@ -73,7 +81,7 @@ fun MemoDetailPage(
     LaunchedEffect(memo?.identifier) {
         when {
             memo != null -> hadMemo = true
-            hadMemo -> navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+            hadMemo -> onBack()
         }
     }
 
@@ -82,7 +90,7 @@ fun MemoDetailPage(
             TopAppBar(
                 title = { Text(text = R.string.memo.string) },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStackIfLifecycleIsResumed(lifecycleOwner) }) {
+                    ActionIconButton(label = R.string.back.string, onClick = onBack) {
                         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = R.string.back.string)
                     }
                 },

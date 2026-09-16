@@ -209,7 +209,7 @@ class MeoMemosGlanceWidgetConfigurationActivity : FragmentActivity() {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Max Items",
+                                text = stringResource(R.string.max_items),
                                 style = MaterialTheme.typography.titleMedium
                             )
                             Text(

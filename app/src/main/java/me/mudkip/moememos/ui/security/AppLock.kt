@@ -36,7 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -211,9 +211,12 @@ fun AppLockGate(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val settingsState = context.applicationContext.settingsDataStore.data
-        .map<AppSettings, AppSettings?> { settings -> settings }
-        .collectAsState(initial = null)
+    val settingsFlow = remember(context) {
+        context.applicationContext.settingsDataStore.data
+            .map<AppSettings, AppSettings?> { settings -> settings }
+    }
+    // Keep observing security settings while stopped; do not resume with a stale lock policy.
+    val settingsState = settingsFlow.collectAsState(initial = null)
     val settings = settingsState.value
     var isResumed by remember(lifecycleOwner) {
         mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
@@ -259,20 +262,23 @@ fun AppLockGate(
     val canStartAuthentication = activity != null && canAuthenticate
     var promptError by remember(AppLockSession.lockGeneration) { mutableStateOf<CharSequence?>(null) }
 
+    val unavailableMessage = stringResource(R.string.app_lock_unavailable)
+    val authenticationRequiredMessage = stringResource(R.string.app_lock_authentication_required)
+
     fun requestAuthentication() {
         val fragmentActivity = activity ?: run {
-            promptError = context.getString(R.string.app_lock_unavailable)
+            promptError = unavailableMessage
             return
         }
         if (!canStartAuthentication) {
-            promptError = context.getString(R.string.app_lock_unavailable)
+            promptError = unavailableMessage
             return
         }
         AppLockAuthenticator.authenticate(
             activity = fragmentActivity,
             onSuccess = { promptError = null },
             onError = { error ->
-                promptError = error ?: context.getString(R.string.app_lock_authentication_required)
+                promptError = error ?: authenticationRequiredMessage
             }
         )
     }

@@ -1,8 +1,10 @@
 package me.mudkip.moememos.ui.theme
 
-import android.app.Activity
-import android.os.Build
 import android.graphics.Color
+import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -43,6 +45,26 @@ private val DarkColorScheme = darkColorScheme(
     inverseSurface = md_theme_dark_inverseSurface,
     inversePrimary = md_theme_dark_inversePrimary,
     surfaceTint = md_theme_dark_surfaceTint,
+    surfaceDim = md_theme_dark_surfaceDim,
+    surfaceBright = md_theme_dark_surfaceBright,
+    surfaceContainerLowest = md_theme_dark_surfaceContainerLowest,
+    surfaceContainerLow = md_theme_dark_surfaceContainerLow,
+    surfaceContainer = md_theme_dark_surfaceContainer,
+    surfaceContainerHigh = md_theme_dark_surfaceContainerHigh,
+    surfaceContainerHighest = md_theme_dark_surfaceContainerHighest,
+    outlineVariant = md_theme_dark_outlineVariant,
+    primaryFixed = md_theme_primaryFixed,
+    primaryFixedDim = md_theme_primaryFixedDim,
+    onPrimaryFixed = md_theme_onPrimaryFixed,
+    onPrimaryFixedVariant = md_theme_onPrimaryFixedVariant,
+    secondaryFixed = md_theme_secondaryFixed,
+    secondaryFixedDim = md_theme_secondaryFixedDim,
+    onSecondaryFixed = md_theme_onSecondaryFixed,
+    onSecondaryFixedVariant = md_theme_onSecondaryFixedVariant,
+    tertiaryFixed = md_theme_tertiaryFixed,
+    tertiaryFixedDim = md_theme_tertiaryFixedDim,
+    onTertiaryFixed = md_theme_onTertiaryFixed,
+    onTertiaryFixedVariant = md_theme_onTertiaryFixedVariant,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -73,6 +95,26 @@ private val LightColorScheme = lightColorScheme(
     inverseSurface = md_theme_light_inverseSurface,
     inversePrimary = md_theme_light_inversePrimary,
     surfaceTint = md_theme_light_surfaceTint,
+    surfaceDim = md_theme_light_surfaceDim,
+    surfaceBright = md_theme_light_surfaceBright,
+    surfaceContainerLowest = md_theme_light_surfaceContainerLowest,
+    surfaceContainerLow = md_theme_light_surfaceContainerLow,
+    surfaceContainer = md_theme_light_surfaceContainer,
+    surfaceContainerHigh = md_theme_light_surfaceContainerHigh,
+    surfaceContainerHighest = md_theme_light_surfaceContainerHighest,
+    outlineVariant = md_theme_light_outlineVariant,
+    primaryFixed = md_theme_primaryFixed,
+    primaryFixedDim = md_theme_primaryFixedDim,
+    onPrimaryFixed = md_theme_onPrimaryFixed,
+    onPrimaryFixedVariant = md_theme_onPrimaryFixedVariant,
+    secondaryFixed = md_theme_secondaryFixed,
+    secondaryFixedDim = md_theme_secondaryFixedDim,
+    onSecondaryFixed = md_theme_onSecondaryFixed,
+    onSecondaryFixedVariant = md_theme_onSecondaryFixedVariant,
+    tertiaryFixed = md_theme_tertiaryFixed,
+    tertiaryFixedDim = md_theme_tertiaryFixedDim,
+    onTertiaryFixed = md_theme_onTertiaryFixed,
+    onTertiaryFixedVariant = md_theme_onTertiaryFixedVariant,
 )
 
 @Composable
@@ -93,11 +135,13 @@ fun MoeMemosTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = Color.TRANSPARENT
-            window.navigationBarColor = Color.TRANSPARENT
+            val activity = view.context as ComponentActivity
+            activity.enableEdgeToEdge(
+                statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { darkTheme },
+                navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { darkTheme },
+            )
+            val window = activity.window
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                window.isStatusBarContrastEnforced = false
                 window.isNavigationBarContrastEnforced = false
             }
             WindowCompat.getInsetsController(window, view).apply {

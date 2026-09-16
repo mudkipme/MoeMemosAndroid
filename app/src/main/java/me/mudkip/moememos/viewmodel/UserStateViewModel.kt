@@ -40,7 +40,7 @@ class UserStateViewModel @Inject constructor(
     var currentUser: User? by mutableStateOf(null)
         private set
 
-    var host: String = ""
+    var host: String by mutableStateOf("")
         private set
     val okHttpClient: OkHttpClient get() = accountService.httpClient
     val accounts = accountService.accounts.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())

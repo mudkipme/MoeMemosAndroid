@@ -5,7 +5,6 @@
     <string name="back">返回</string>
     <string name="memos">靈感</string>
     <string name="menu">選單</string>
-    <string name="search_hint">搜點什麼…</string>
     <string name="new_memo">新 MEMO</string>
     <string name="compose">撰寫</string>
     <string name="remove">刪除</string>
@@ -20,18 +19,14 @@
     <string name="fill_login_form">請填寫所有欄位</string>
     <string name="acknowledgements">致謝</string>
     <string name="privacy_policy">隱私政策</string>
-    <string name="privacy">隱私</string>
     <string name="website">官網</string>
-    <string name="web">官網</string>
     <string name="about">關於 Moe Memos</string>
     <string name="add_account">登入</string>
     <string name="attachment">附件</string>
-    <string name="selected">已選中</string>
-    <string name="username_and_password">使用者名稱與密碼</string>
+    <string name="account_selected">已選中</string>
     <string name="report_an_issue">反饋 Bug</string>
     <string name="unpin">取消置頂</string>
     <string name="sign_out">退出登入</string>
-    <string name="sign_in_method">登入方式</string>
     <string name="address">地址</string>
     <string name="host">伺服器地址</string>
     <string name="account_name">帳戶名稱（選填）</string>
@@ -44,9 +39,6 @@
     <string name="any_thoughts">任何想法…</string>
     <string name="input_login_information">請輸入您的 [✍️memos](https://github.com/usememos/memos) 伺服器的登入資訊。</string>
     <string name="day">天</string>
-    <string name="username">使用者名稱</string>
-    <string name="password">密碼</string>
-    <string name="email">郵箱</string>
     <string name="user_state_not_found">使用者狀態丟失</string>
     <string name="cancel">取消</string>
     <string name="confirm">確認</string>
@@ -73,9 +65,6 @@
     <string name="memo_visibility_protected">本地使用者可見</string>
     <string name="memo_visibility_private">僅自己可見</string>
     <string name="explore">探索</string>
-    <string name="delete_this_tag">刪除此標籤？</string>
-    <string name="expand">展開</string>
-    <string name="collapse">收合</string>
     <string name="view_more">查看更多</string>
     <string name="accounts">帳戶</string>
     <string name="preferences">偏好設定</string>
@@ -95,7 +84,6 @@
     <string name="sync_status_sync_now">立即同步</string>
     <string name="sync_status_unsynced">尚未同步的變更</string>
     <string name="memo_sync_pending">MEMO 尚未同步</string>
-    <string name="memo_sync_synced">MEMO 已同步</string>
     <string name="failed_to_open_attachment">無法開啟附件</string>
     <string name="export_local_account">匯出本地資料</string>
     <string name="local_export_success">本地資料已匯出</string>
@@ -121,4 +109,19 @@
     <string name="app_lock_unavailable_short">此裝置上的系統驗證無法使用。</string>
     <string name="unlock">解鎖</string>
     <string name="open_system_security_settings">開啟系統安全設定</string>
+    <string name="failed_to_load_image">圖片載入失敗</string>
+    <string name="autosave">自動儲存</string>
+    <string name="autosave_summary">在此裝置上儲存每次變更並在背景同步</string>
+    <string name="filter_by_tag">依標籤篩選</string>
+    <string name="pinned_only">僅顯示置頂筆記</string>
+    <string name="max_items">最大項目數</string>
+    <string name="refresh">重新整理</string>
+    <string name="local_network_access">區域網路存取</string>
+    <string name="local_network_access_denied">請在設定中允許存取附近的裝置，然後重試連線至區域網路上的 Memos 伺服器。已儲存的筆記仍可離線使用。</string>
+    <string name="access_token">存取權杖</string>
+    <string name="more_options">更多選項</string>
+    <string name="clear_search">清除搜尋</string>
+    <string name="retry">重試</string>
+    <string name="failed_to_load_memos">無法載入筆記</string>
+    <string name="select_memo">選擇一則筆記閱讀</string>
 </resources>

@@ -2,6 +2,8 @@ package me.mudkip.moememos.ui.page.memos
 
 import android.net.Uri
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,7 +18,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,13 +55,14 @@ fun MemosList(
     additionalBottomPadding: Dp = 16.dp,
     onRefresh: (suspend () -> Unit)? = null,
     onTagClick: ((String) -> Unit)? = null,
+    onMemoClick: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val navController = LocalRootNavController.current
     val viewModel = LocalMemos.current
     val userStateViewModel = LocalUserState.current
-    val currentAccount by userStateViewModel.currentAccount.collectAsState()
-    val settings by context.settingsDataStore.data.collectAsState(initial = Settings())
+    val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
+    val settings by context.settingsDataStore.data.collectAsStateWithLifecycle(initialValue = Settings())
     val editGesture = settings.usersList
         .firstOrNull { it.accountKey == settings.currentUser }
         ?.settings
@@ -132,11 +135,18 @@ fun MemosList(
             state = lazyListState,
             contentPadding = listContentPadding
         ) {
+            if (filteredMemos.isEmpty()) {
+                item(key = "empty") {
+                    Text(stringResource(R.string.no_memos), modifier = Modifier.padding(24.dp))
+                }
+            }
             items(filteredMemos, key = { it.identifier }) { memo ->
                 MemosCard(
                     memo = memo,
                     onClick = { selectedMemo ->
-                        navController.navigate(
+                        if (onMemoClick != null) {
+                            onMemoClick(selectedMemo.identifier)
+                        } else navController.navigate(
                             "${RouteName.MEMO_DETAIL}?memoId=${Uri.encode(selectedMemo.identifier)}"
                         )
                     },

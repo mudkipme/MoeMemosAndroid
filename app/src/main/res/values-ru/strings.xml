@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MoeMemos</string>
-    <string name="default_card_content" translatable="false">Именно то, что вы делаете с даром жизни, определяет, кто вы есть. — Мьютво</string>
     <string name="search">Поиск</string>
     <string name="back">Назад</string>
     <string name="memos">Memos</string>
     <string name="menu">Меню</string>
-    <string name="search_hint">Что найти?</string>
     <string name="new_memo">Новая Заметка</string>
     <string name="compose">Составить заметку</string>
     <string name="remove">Удалить</string>
@@ -21,18 +19,14 @@
     <string name="fill_login_form">Пожалуйста, заполните форму входа в систему.</string>
     <string name="acknowledgements">Лицензии</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
-    <string name="privacy">Конфиденциальность</string>
     <string name="website">Веб-сайт</string>
-    <string name="web">Веб</string>
     <string name="about">О Moe Memos</string>
     <string name="add_account">Войти в систему</string>
     <string name="attachment">Вложение</string>
-    <string name="selected">Выбрано</string>
-    <string name="username_and_password">Имя пользователя и пароль</string>
+    <string name="account_selected">Выбрано</string>
     <string name="report_an_issue">Сообщить о проблеме</string>
     <string name="unpin">Открепить</string>
     <string name="sign_out">Выйти из аккаунта</string>
-    <string name="sign_in_method">Метод входа в систему</string>
     <string name="address">Адрес</string>
     <string name="host">Хост</string>
     <string name="account_name">Название аккаунта (необязательно)</string>
@@ -42,16 +36,10 @@
     <string name="add_image">Добавить изображение</string>
     <string name="take_photo">Сделать снимок</string>
     <string name="post">Сообщение</string>
-    <string name="any_thoughts">Ваши любые мысли...</string>
+    <string name="any_thoughts">Ваши любые мысли…</string>
     <string name="input_login_information">Пожалуйста, введите регистрационные данные вашего \n[✍️memos](https://github.com/usememos/memos) сервера.</string>
     <string name="day">День</string>
-    <string name="username">Имя пользователя</string>
-    <string name="password">Пароль</string>
-    <string name="email">Емейл</string>
     <string name="user_state_not_found">Пользователь не найден</string>
-    <string name="memos_view_model_not_found" translatable="false">Модель просмотра заметок не найдена.</string>
-    <string name="archived_memo_list_view_model_not_found" translatable="false">Модель просмотра архивированного списка заметок не найдена</string>
-    <string name="nav_host_controller_not_found" translatable="false">главный навигационный контроллер не найден</string>
     <string name="cancel">Отмена</string>
     <string name="confirm">Подтвердить</string>
     <string name="delete_this_memo">Удалить эту заметку?</string>
@@ -77,9 +65,6 @@
     <string name="memo_visibility_protected">Видимый для локальных пользователей</string>
     <string name="memo_visibility_private">Доступно только вам</string>
     <string name="explore">Больше</string>
-    <string name="delete_this_tag">Удалить этот тег?</string>
-    <string name="expand">Развернуть</string>
-    <string name="collapse">Скрыть</string>
     <string name="view_more">Показать больше</string>
     <string name="accounts">Аккаунты</string>
     <string name="preferences">Настройки</string>
@@ -99,7 +84,6 @@
     <string name="sync_status_sync_now">Синхронизировать сейчас</string>
     <string name="sync_status_unsynced">Несинхронизированные изменения</string>
     <string name="memo_sync_pending">Заметка не синхронизирована</string>
-    <string name="memo_sync_synced">Заметка синхронизирована</string>
     <string name="failed_to_open_attachment">Не удалось открыть вложение</string>
     <string name="export_local_account">Экспортировать локальные данные</string>
     <string name="local_export_success">Локальные данные экспортированы</string>
@@ -125,4 +109,19 @@
     <string name="app_lock_unavailable_short">Системная аутентификация недоступна на этом устройстве.</string>
     <string name="unlock">Разблокировать</string>
     <string name="open_system_security_settings">Открыть системные настройки безопасности</string>
+    <string name="failed_to_load_image">Не удалось загрузить изображение</string>
+    <string name="autosave">Автосохранение</string>
+    <string name="autosave_summary">Сохранять каждое изменение на этом устройстве и синхронизировать в фоновом режиме</string>
+    <string name="filter_by_tag">Фильтровать по тегу</string>
+    <string name="pinned_only">Только закреплённые заметки</string>
+    <string name="max_items">Максимальное количество</string>
+    <string name="refresh">Обновить</string>
+    <string name="local_network_access">Доступ к локальной сети</string>
+    <string name="local_network_access_denied">Разрешите доступ к устройствам поблизости в настройках, чтобы подключиться к серверу Memos в локальной сети, и повторите попытку. Сохранённые заметки остаются доступными без интернета.</string>
+    <string name="access_token">Токен доступа</string>
+    <string name="more_options">Другие действия</string>
+    <string name="clear_search">Очистить поиск</string>
+    <string name="retry">Повторить</string>
+    <string name="failed_to_load_memos">Не удалось загрузить заметки</string>
+    <string name="select_memo">Выберите заметку для чтения</string>
 </resources>

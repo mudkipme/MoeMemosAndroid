@@ -39,7 +39,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import me.mudkip.moememos.ui.component.ActionIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -88,12 +88,13 @@ internal fun MemoInputTopBar(
             }
         },
         navigationIcon = {
-            IconButton(onClick = onClose) {
+            ActionIconButton(label = stringResource(R.string.close), onClick = onClose) {
                 Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.close))
             }
         },
         actions = {
-            IconButton(
+            ActionIconButton(
+                label = stringResource(R.string.post),
                 enabled = canSubmit,
                 onClick = onSubmit
             ) {
@@ -108,7 +109,7 @@ private fun FormattingButtons(
     onFormat: (MarkdownFormat) -> Unit,
 ) {
     MarkdownFormat.entries.forEach { format ->
-        IconButton(onClick = { onFormat(format) }) {
+        ActionIconButton(label = format.label, onClick = { onFormat(format) }) {
             when (format) {
                 MarkdownFormat.BOLD -> Icon(Icons.Outlined.FormatBold, contentDescription = format.label)
                 MarkdownFormat.ITALIC -> Icon(Icons.Outlined.FormatItalic, contentDescription = format.label)
@@ -182,7 +183,7 @@ internal fun MemoInputBottomBar(
                                 )
                             }
                         }
-                        IconButton(onClick = { onVisibilityExpandedChange(!visibilityMenuExpanded) }) {
+                        ActionIconButton(label = stringResource(currentVisibility.titleResource), onClick = { onVisibilityExpandedChange(!visibilityMenuExpanded) }) {
                             Icon(
                                 currentVisibility.icon,
                                 contentDescription = stringResource(currentVisibility.titleResource)
@@ -192,7 +193,7 @@ internal fun MemoInputBottomBar(
                 }
 
                 if (tags.isEmpty()) {
-                    IconButton(onClick = onHashTagClick) {
+                    ActionIconButton(label = stringResource(R.string.tag), onClick = onHashTagClick) {
                         Icon(Icons.Outlined.Tag, contentDescription = stringResource(R.string.tag))
                     }
                 } else {
@@ -215,25 +216,25 @@ internal fun MemoInputBottomBar(
                                 )
                             }
                         }
-                        IconButton(onClick = { onTagExpandedChange(!tagMenuExpanded) }) {
+                        ActionIconButton(label = stringResource(R.string.tags), onClick = { onTagExpandedChange(!tagMenuExpanded) }) {
                             Icon(Icons.Outlined.Tag, contentDescription = stringResource(R.string.tag))
                         }
                     }
                 }
 
-                IconButton(onClick = onToggleTodoItem) {
+                ActionIconButton(label = stringResource(R.string.add_task), onClick = onToggleTodoItem) {
                     Icon(Icons.Outlined.CheckBox, contentDescription = stringResource(R.string.add_task))
                 }
 
-                IconButton(onClick = onPickImage) {
+                ActionIconButton(label = stringResource(R.string.add_image), onClick = onPickImage) {
                     Icon(Icons.Outlined.Image, contentDescription = stringResource(R.string.add_image))
                 }
 
-                IconButton(onClick = onPickAttachment) {
+                ActionIconButton(label = stringResource(R.string.attachment), onClick = onPickAttachment) {
                     Icon(Icons.Outlined.Attachment, contentDescription = stringResource(R.string.attachment))
                 }
 
-                IconButton(onClick = onTakePhoto) {
+                ActionIconButton(label = stringResource(R.string.take_photo), onClick = onTakePhoto) {
                     Icon(Icons.Outlined.PhotoCamera, contentDescription = stringResource(R.string.take_photo))
                 }
 

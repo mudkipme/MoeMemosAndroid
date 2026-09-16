@@ -1,7 +1,10 @@
 package me.mudkip.moememos.ui.page.common
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -17,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -35,6 +39,8 @@ import me.mudkip.moememos.ui.page.memos.TagMemoPage
 import me.mudkip.moememos.ui.page.resource.ResourceListPage
 import me.mudkip.moememos.ui.page.settings.SettingsPage
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
+import me.mudkip.moememos.ui.util.rememberLocalNetworkPermissionRequest
+import me.mudkip.moememos.util.usesLocalNetwork
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 
@@ -44,6 +50,22 @@ fun Navigation() {
     val userStateViewModel = LocalUserState.current
     val memosViewModel = LocalMemos.current
     val context = LocalContext.current
+    val requestLocalNetworkPermission = rememberLocalNetworkPermissionRequest()
+
+    val currentHost = userStateViewModel.host
+    LaunchedEffect(currentHost) {
+        if (Build.VERSION.SDK_INT >= 37 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_LOCAL_NETWORK) !=
+                PackageManager.PERMISSION_GRANTED &&
+            currentHost.isNotBlank() &&
+            usesLocalNetwork(currentHost) &&
+            requestLocalNetworkPermission(currentHost) &&
+            currentHost == userStateViewModel.host
+        ) {
+            userStateViewModel.loadCurrentUser()
+            memosViewModel.loadMemos()
+        }
+    }
     var shareContent by remember { mutableStateOf<ShareContent?>(null) }
 
     CompositionLocalProvider(LocalRootNavController provides navController) {

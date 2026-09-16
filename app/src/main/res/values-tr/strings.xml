@@ -1,11 +1,9 @@
 <resources>
     <string name="app_name">MoeMemos</string>
-    <string name="default_card_content" translatable="false">It is what you do with the gift of life that determines who you are.      — Mewtwo</string>
     <string name="search">Ara</string>
     <string name="back">Geri</string>
     <string name="memos">Notlar</string>
     <string name="menu">Menü</string>
-    <string name="search_hint">Ara…</string>
     <string name="new_memo">Yeni Not</string>
     <string name="compose">Oluştur</string>
     <string name="remove">Kaldır</string>
@@ -21,38 +19,27 @@
     <string name="fill_login_form">Lütfen giriş formunu doldurun.</string>
     <string name="acknowledgements">Teşekkürler</string>
     <string name="privacy_policy">Gizlilik Politikası</string>
-    <string name="privacy">Gizlilik</string>
     <string name="website">Web Sitesi</string>
-    <string name="web">Web</string>
     <string name="about">Moe Memos Hakkında</string>
     <string name="add_account">Giriş yap</string>
     <string name="attachment">Ek</string>
-    <string name="moe_memos" translatable="false">Moe Notlar</string>
-    <string name="selected">Seçilen</string>
-    <string name="username_and_password">Kullanıcı adı ve şifre</string>
+    <string name="account_selected">Seçilen</string>
     <string name="report_an_issue">Bir Sorun Bildir</string>
     <string name="unpin">Sabitlemeyi kaldır</string>
     <string name="sign_out">Çıkış yap</string>
-    <string name="sign_in_method">Giriş yöntemi</string>
     <string name="address">Adres</string>
     <string name="host">Ana bilgisayar</string>
     <string name="account_name">Hesap adı (isteğe bağlı)</string>
-    <string name="access_token" translatable="false">Access Token</string>
+    <string name="access_token">Access Token</string>
     <string name="edit">Düzenle</string>
     <string name="close">Kapat</string>
     <string name="add_task">Görev Ekle</string>
     <string name="add_image">Resim Ekle</string>
     <string name="take_photo">Fotoğraf Çek</string>
     <string name="post">Gönder</string>
-    <string name="any_thoughts">Herhangi bir düşünce...</string>
+    <string name="any_thoughts">Herhangi bir düşünce…</string>
     <string name="input_login_information">Lütfen \n[✍️notlarınızın](https://github.com/usememos/memos) sunucusunun giriş bilgilerini girin.</string>
-    <string name="username">Kullanıcı adı</string>
-    <string name="password">Şifre</string>
-    <string name="email">E-posta</string>
     <string name="user_state_not_found">Kullanıcı durumu bulunamadı</string>
-    <string name="memos_view_model_not_found" translatable="false">Memos view model not found</string>
-    <string name="archived_memo_list_view_model_not_found" translatable="false">Archived memo list view model not found</string>
-    <string name="nav_host_controller_not_found" translatable="false">nav host controller not found</string>
     <string name="cancel">İptal</string>
     <string name="confirm">Onayla</string>
     <string name="delete_this_memo">Bu notu silmek istiyor musunuz?</string>
@@ -78,9 +65,6 @@
     <string name="memo_visibility_private">Sadece sizin için görünür</string>
     <string name="explore">Keşfet</string>
     <string name="copy_link">Bağlantıyı kopyala</string>
-    <string name="delete_this_tag">Bu etiketi silmek istiyor musunuz?</string>
-    <string name="expand">Genişlet</string>
-    <string name="collapse">Daralt</string>
     <string name="view_more">Daha fazla göster</string>
     <string name="accounts">Hesaplar</string>
     <string name="preferences">Tercihler</string>
@@ -100,7 +84,6 @@
     <string name="sync_status_sync_now">Şimdi senkronize et</string>
     <string name="sync_status_unsynced">Senkronize edilmemiş değişiklikler</string>
     <string name="memo_sync_pending">Not senkronize edilmedi</string>
-    <string name="memo_sync_synced">Not senkronize edildi</string>
     <string name="failed_to_open_attachment">Ek açılamadı</string>
     <string name="export_local_account">Yerel verileri dışa aktar</string>
     <string name="local_export_success">Yerel veriler dışa aktarıldı</string>
@@ -126,4 +109,18 @@
     <string name="app_lock_unavailable_short">Bu cihazda sistem kimlik doğrulaması kullanılamıyor.</string>
     <string name="unlock">Kilidi aç</string>
     <string name="open_system_security_settings">Sistem güvenlik ayarlarını aç</string>
+    <string name="failed_to_load_image">Görüntü yüklenemedi</string>
+    <string name="autosave">Otomatik kaydet</string>
+    <string name="autosave_summary">Her değişikliği bu cihaza kaydet ve arka planda eşitle</string>
+    <string name="filter_by_tag">Etikete göre filtrele</string>
+    <string name="pinned_only">Yalnızca sabitlenmiş notlar</string>
+    <string name="max_items">En fazla öğe</string>
+    <string name="refresh">Yenile</string>
+    <string name="local_network_access">Yerel ağ erişimi</string>
+    <string name="local_network_access_denied">Yerel ağdaki Memos sunucunuza bağlanmak için Ayarlar üzerinden Yakındaki cihazlar erişimine izin verin ve yeniden deneyin. Kaydedilmiş notlarınız çevrimdışı kullanılabilir.</string>
+    <string name="more_options">Diğer seçenekler</string>
+    <string name="clear_search">Aramayı temizle</string>
+    <string name="retry">Yeniden dene</string>
+    <string name="failed_to_load_memos">Notlar yüklenemedi</string>
+    <string name="select_memo">Okumak için bir not seçin</string>
 </resources>

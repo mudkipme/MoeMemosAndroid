@@ -1,20 +1,18 @@
 package me.mudkip.moememos.ui.page.settings
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 
 @Composable
 fun SettingItem(
@@ -25,49 +23,62 @@ fun SettingItem(
     enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
-    val contentDescription = if (subtitle.isNullOrBlank()) text else "$text, $subtitle"
-    Surface(onClick = onClick, enabled = enabled) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp, 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                icon,
-                contentDescription = contentDescription,
-                modifier = Modifier.padding(start = 8.dp, end = 16.dp),
-                tint = if (enabled) {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                } else {
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.56f)
-                }
+    SettingRow(icon, text, subtitle, trailingIcon, enabled,
+        Modifier.clickable(enabled = enabled, onClick = onClick))
+}
+
+@Composable
+fun SettingSwitchItem(
+    icon: ImageVector,
+    text: String,
+    subtitle: String? = null,
+    checked: Boolean,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    SettingRow(
+        icon, text, subtitle,
+        trailingContent = {
+            Switch(
+                checked = checked,
+                onCheckedChange = null,
+                enabled = enabled,
+                modifier = Modifier.clearAndSetSemantics {},
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (enabled) {
-                        MaterialTheme.colorScheme.onSurface
-                    } else {
-                        MaterialTheme.colorScheme.outline.copy(alpha = 0.56f)
-                    }
-                )
-                if (!subtitle.isNullOrBlank()) {
-                    Text(
-                        subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (enabled) {
-                            MaterialTheme.colorScheme.outline
-                        } else {
-                            MaterialTheme.colorScheme.outline.copy(alpha = 0.56f)
-                        },
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
-                }
-            }
-            trailingIcon?.invoke()
-        }
-    }
+        },
+        enabled = enabled,
+        modifier = Modifier.toggleable(
+            value = checked,
+            enabled = enabled,
+            role = Role.Switch,
+            onValueChange = onCheckedChange,
+        ),
+    )
+}
+
+@Composable
+private fun SettingRow(
+    icon: ImageVector,
+    text: String,
+    subtitle: String?,
+    trailingContent: @Composable (() -> Unit)?,
+    enabled: Boolean,
+    modifier: Modifier,
+) {
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val secondaryColor = MaterialTheme.colorScheme.onSurfaceVariant
+    ListItem(
+        modifier = modifier,
+        headlineContent = { Text(text) },
+        supportingContent = subtitle?.takeIf { it.isNotBlank() }?.let {
+            { Text(it) }
+        },
+        leadingContent = { Icon(icon, contentDescription = null) },
+        trailingContent = trailingContent,
+        colors = ListItemDefaults.colors(
+            headlineColor = if (enabled) contentColor else contentColor.copy(alpha = 0.38f),
+            supportingColor = if (enabled) secondaryColor else contentColor.copy(alpha = 0.38f),
+            leadingIconColor = if (enabled) secondaryColor else contentColor.copy(alpha = 0.38f),
+        ),
+    )
 }

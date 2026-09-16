@@ -5,7 +5,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import me.mudkip.moememos.ui.component.ActionIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -18,12 +18,24 @@ import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.RouteName
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TagMemoPage(
     drawerState: DrawerState? = null,
     tag: String,
     navController: NavHostController
+) {
+    MemoBrowser { onMemoClick ->
+        TagMemoPageContent(drawerState, tag, navController, onMemoClick)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TagMemoPageContent(
+    drawerState: DrawerState? = null,
+    tag: String,
+    navController: NavHostController,
+    onMemoClick: (String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val normalizedCurrentTag = remember(tag) { normalizeTag(tag) }
@@ -34,23 +46,17 @@ fun TagMemoPage(
                 title = { Text(tag) },
                 navigationIcon = {
                     if (drawerState != null) {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        ActionIconButton(label = R.string.menu.string, onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Filled.Menu, contentDescription = R.string.menu.string)
                         }
                     }
                 },
-//                actions = {
-//                    IconButton(onClick = {
-//
-//                    }) {
-//                        Icon(Icons.Filled.Search, contentDescription = "Search")
-//                    }
-//                }
             )
         },
 
         content = { innerPadding ->
             MemosList(
+                onMemoClick = onMemoClick,
                 contentPadding = innerPadding,
                 tag = tag,
                 onTagClick = { clickedTag ->

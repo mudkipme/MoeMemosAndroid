@@ -1,11 +1,9 @@
 <resources>
     <string name="app_name">MoeMemos</string>
-    <string name="default_card_content" translatable="false">É o que você faz com o dom da vida que determina quem você é.      — Mewtwo</string>
     <string name="search">Pesquisar</string>
     <string name="back">Voltar</string>
     <string name="memos">Memos</string>
     <string name="menu">Menu</string>
-    <string name="search_hint">Pesquisar…</string>
     <string name="new_memo">Novo Memo</string>
     <string name="compose">Escrever</string>
     <string name="remove">Remover</string>
@@ -21,23 +19,18 @@
     <string name="fill_login_form">Por favor, preencha o formulário de login.</string>
     <string name="acknowledgements">Agradecimentos</string>
     <string name="privacy_policy">Política de Privacidade</string>
-    <string name="privacy">Privacidade</string>
     <string name="website">Website</string>
-    <string name="web">Web</string>
     <string name="about">Sobre o Moe Memos</string>
     <string name="add_account">Adicionar Conta</string>
     <string name="attachment">Anexo</string>
-    <string name="moe_memos" translatable="false">Moe Memos</string>
-    <string name="selected">Selecionado</string>
-    <string name="username_and_password">Usuário e senha</string>
+    <string name="account_selected">Selecionado</string>
     <string name="report_an_issue">Reportar um Problema</string>
     <string name="unpin">Desafixar</string>
     <string name="sign_out">Sair</string>
-    <string name="sign_in_method">Método de login</string>
     <string name="address">Endereço</string>
     <string name="host">Host</string>
     <string name="account_name">Nome da conta (opcional)</string>
-    <string name="access_token" translatable="false">Token de Acesso</string>
+    <string name="access_token">Token de Acesso</string>
     <string name="edit">Editar</string>
     <string name="close">Fechar</string>
     <string name="add_task">Adicionar Tarefa</string>
@@ -46,13 +39,7 @@
     <string name="post">Publicar</string>
     <string name="any_thoughts">Quaisquer pensamentos…</string>
     <string name="input_login_information">Por favor, insira as informações de login do seu servidor \n[✍️memos](https://github.com/usememos/memos).</string>
-    <string name="username">Usuário</string>
-    <string name="password">Senha</string>
-    <string name="email">Email</string>
     <string name="user_state_not_found">Estado do usuário não encontrado</string>
-    <string name="memos_view_model_not_found" translatable="false">Modelo de visualização do Memos não encontrado</string>
-    <string name="archived_memo_list_view_model_not_found" translatable="false">Modelo de visualização arquivados do Memos não encontrado</string>
-    <string name="nav_host_controller_not_found" translatable="false">Controlador de host de navegação não encontrado</string>
     <string name="cancel">Cancelar</string>
     <string name="confirm">Confirmar</string>
     <string name="delete_this_memo">Excluir este Memo?</string>
@@ -78,9 +65,6 @@
     <string name="memo_visibility_protected">Visível aos membros locais</string>
     <string name="memo_visibility_private">Visível apenas a você</string>
     <string name="explore">Explorar</string>
-    <string name="delete_this_tag">Excluir esta tag?</string>
-    <string name="expand">Expandir</string>
-    <string name="collapse">Recolher</string>
     <string name="view_more">Ver Mais</string>
     <string name="accounts">Contas</string>
     <string name="account_detail">Detalhes da Conta</string>
@@ -94,7 +78,6 @@
     <string name="sync_status_sync_now">Sincronizar agora</string>
     <string name="sync_status_unsynced">Mudanças não sincronizadas</string>
     <string name="memo_sync_pending">Memo não sincronizado</string>
-    <string name="memo_sync_synced">Memo sincronizado</string>
     <string name="preferences">Preferências</string>
     <string name="edit_gesture">Editar gesto</string>
     <string name="edit_gesture_none">Nenhum</string>
@@ -128,4 +111,18 @@
     <string name="app_lock_unavailable_short">A autenticação do sistema não está disponível neste dispositivo.</string>
     <string name="unlock">Desbloquear</string>
     <string name="open_system_security_settings">Abrir configurações de segurança do sistema</string>
+    <string name="failed_to_load_image">Falha ao carregar a imagem</string>
+    <string name="autosave">Salvamento automático</string>
+    <string name="autosave_summary">Salve cada alteração neste dispositivo e sincronize em segundo plano</string>
+    <string name="filter_by_tag">Filtrar por tag</string>
+    <string name="pinned_only">Somente memos fixados</string>
+    <string name="max_items">Número máximo</string>
+    <string name="refresh">Atualizar</string>
+    <string name="local_network_access">Acesso à rede local</string>
+    <string name="local_network_access_denied">Permita o acesso a dispositivos próximos nas configurações para conectar ao servidor Memos na rede local e tente novamente. Seus memos salvos continuam disponíveis offline.</string>
+    <string name="more_options">Mais opções</string>
+    <string name="clear_search">Limpar pesquisa</string>
+    <string name="retry">Tentar novamente</string>
+    <string name="failed_to_load_memos">Não foi possível carregar as notas</string>
+    <string name="select_memo">Selecione uma nota para ler</string>
 </resources>

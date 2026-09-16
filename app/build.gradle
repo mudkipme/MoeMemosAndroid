@@ -18,7 +18,9 @@ def hasReleaseSigning = [
 ].every { it != null && !it.trim().isEmpty() }
 
 android {
-    compileSdk = 36
+    compileSdk = 37
+    // Provides llvm-strip for native libraries bundled by AndroidX.
+    ndkVersion = '28.2.13676358'
 
     dependenciesInfo {
         // Disables dependency metadata when building APKs.
@@ -30,7 +32,7 @@ android {
     defaultConfig {
         applicationId = "me.mudkip.moememos"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 49
         versionName = "2.0.4"
 
@@ -54,6 +56,7 @@ android {
     buildTypes {
         release {
             minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             crunchPngs = false
             if (hasReleaseSigning) {
@@ -78,63 +81,64 @@ android {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:$core_ktx_version"
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.foundation:foundation:$compose_version"
-    implementation "androidx.compose.material:material-icons-extended:$compose_material"
-    implementation "androidx.compose.material3:material3:$material3"
-    implementation "androidx.compose.material3.adaptive:adaptive:$material3_adaptive"
-    implementation "androidx.compose.material3.adaptive:adaptive-layout:$material3_adaptive"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
-    implementation "androidx.activity:activity-compose:$activity_compose_version"
-    implementation "androidx.navigation:navigation-compose:$nav_version"
-    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
-    implementation "androidx.paging:paging-compose:$paging_version"
-    implementation "androidx.room:room-runtime:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
-    ksp "androidx.room:room-compiler:$room_version"
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-kotlinx-serialization:$retrofit_version"
-    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-    implementation "com.squareup.okhttp3:okhttp-urlconnection:$okhttp_version"
-    implementation "com.github.skydoves:sandwich:$sandwich"
-    implementation "com.github.skydoves:sandwich-retrofit:$sandwich"
-    implementation "com.github.skydoves:sandwich-retrofit-serialization:$sandwich"
-    implementation "io.coil-kt.coil3:coil-compose:$coil_version"
-    implementation "io.coil-kt.coil3:coil-network-okhttp:$coil_version"
-    implementation "org.jetbrains:markdown:$markdown_version"
-    implementation "com.mikepenz:multiplatform-markdown-renderer-m3:$markdown_renderer_version"
-    implementation "com.mikepenz:multiplatform-markdown-renderer-code:$markdown_renderer_version"
-    implementation "com.mikepenz:multiplatform-markdown-renderer-coil3:$markdown_renderer_version"
+    implementation "androidx.core:core-ktx:${rootProject.ext.core_ktx_version}"
+    implementation "androidx.compose.ui:ui:${rootProject.ext.compose_version}"
+    implementation "androidx.compose.foundation:foundation:${rootProject.ext.compose_version}"
+    implementation "androidx.compose.material:material-icons-extended:${rootProject.ext.compose_material}"
+    implementation "androidx.compose.material3:material3:${rootProject.ext.material3}"
+    implementation "androidx.compose.material3.adaptive:adaptive:${rootProject.ext.material3_adaptive}"
+    implementation "androidx.compose.material3.adaptive:adaptive-layout:${rootProject.ext.material3_adaptive}"
+    implementation "androidx.compose.material3.adaptive:adaptive-navigation:${rootProject.ext.material3_adaptive}"
+    implementation "androidx.compose.ui:ui-tooling-preview:${rootProject.ext.compose_version}"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${rootProject.ext.lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:${rootProject.ext.lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-process:${rootProject.ext.lifecycle_version}"
+    implementation "androidx.activity:activity-compose:${rootProject.ext.activity_compose_version}"
+    implementation "androidx.navigation:navigation-compose:${rootProject.ext.nav_version}"
+    implementation "androidx.paging:paging-runtime-ktx:${rootProject.ext.paging_version}"
+    implementation "androidx.paging:paging-compose:${rootProject.ext.paging_version}"
+    implementation "androidx.room:room-runtime:${rootProject.ext.room_version}"
+    implementation "androidx.room:room-ktx:${rootProject.ext.room_version}"
+    ksp "androidx.room:room-compiler:${rootProject.ext.room_version}"
+    implementation "com.squareup.retrofit2:retrofit:${rootProject.ext.retrofit_version}"
+    implementation "com.squareup.retrofit2:converter-kotlinx-serialization:${rootProject.ext.retrofit_version}"
+    implementation "com.squareup.okhttp3:okhttp:${rootProject.ext.okhttp_version}"
+    implementation "com.squareup.okhttp3:okhttp-urlconnection:${rootProject.ext.okhttp_version}"
+    implementation "com.github.skydoves:sandwich:${rootProject.ext.sandwich}"
+    implementation "com.github.skydoves:sandwich-retrofit:${rootProject.ext.sandwich}"
+    implementation "com.github.skydoves:sandwich-retrofit-serialization:${rootProject.ext.sandwich}"
+    implementation "io.coil-kt.coil3:coil-compose:${rootProject.ext.coil_version}"
+    implementation "io.coil-kt.coil3:coil-network-okhttp:${rootProject.ext.coil_version}"
+    implementation "org.jetbrains:markdown:${rootProject.ext.markdown_version}"
+    implementation "com.mikepenz:multiplatform-markdown-renderer-m3:${rootProject.ext.markdown_renderer_version}"
+    implementation "com.mikepenz:multiplatform-markdown-renderer-code:${rootProject.ext.markdown_renderer_version}"
+    implementation "com.mikepenz:multiplatform-markdown-renderer-coil3:${rootProject.ext.markdown_renderer_version}"
 
-    implementation "com.google.dagger:hilt-android:$hilt_version"
-    ksp "com.google.dagger:hilt-compiler:$hilt_version"
-    implementation "androidx.hilt:hilt-navigation-compose:$hilt_navigation_compose_version"
-    implementation "androidx.biometric:biometric:$biometric_version"
+    implementation "com.google.dagger:hilt-android:${rootProject.ext.hilt_version}"
+    ksp "com.google.dagger:hilt-compiler:${rootProject.ext.hilt_version}"
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel-compose:${rootProject.ext.hilt_compose_version}"
+    implementation "androidx.biometric:biometric:${rootProject.ext.biometric_version}"
 
-    implementation "androidx.datastore:datastore:$datastore"
-    implementation "androidx.datastore:datastore-preferences:$datastore"
-    implementation "androidx.datastore:datastore-preferences-core:$datastore"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0"
+    implementation "androidx.datastore:datastore:${rootProject.ext.datastore}"
+    implementation "androidx.datastore:datastore-preferences:${rootProject.ext.datastore}"
+    implementation "androidx.datastore:datastore-preferences-core:${rootProject.ext.datastore}"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0"
     implementation "com.jakewharton.timber:timber:5.0.1"
-    implementation "net.swiftzer.semver:semver:$semver_version"
+    implementation "net.swiftzer.semver:semver:${rootProject.ext.semver_version}"
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0"
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:${rootProject.ext.compose_version}"
+    debugImplementation "androidx.compose.ui:ui-tooling:${rootProject.ext.compose_version}"
+    debugImplementation "androidx.compose.ui:ui-test-manifest:${rootProject.ext.compose_version}"
     
     // Glance for App Widget
-    implementation "androidx.glance:glance:$glance_version"
-    implementation "androidx.glance:glance-appwidget:$glance_version"
-    implementation "androidx.glance:glance-material3:$glance_version"
-    implementation "androidx.work:work-runtime-ktx:$work_version"
+    implementation "androidx.glance:glance:${rootProject.ext.glance_version}"
+    implementation "androidx.glance:glance-appwidget:${rootProject.ext.glance_version}"
+    implementation "androidx.glance:glance-material3:${rootProject.ext.glance_version}"
+    implementation "androidx.work:work-runtime-ktx:${rootProject.ext.work_version}"
 }
 
 ksp {

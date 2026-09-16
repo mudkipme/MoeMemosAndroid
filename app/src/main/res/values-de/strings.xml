@@ -4,7 +4,6 @@
     <string name="back">Zurück</string>
     <string name="memos">Memos</string>
     <string name="menu">Menü</string>
-    <string name="search_hint">Suchen…</string>
     <string name="new_memo">Neue Notiz</string>
     <string name="compose">Verfassen</string>
     <string name="remove">Entfernen</string>
@@ -20,18 +19,14 @@
     <string name="fill_login_form">Bitte fülle die Anmeldedaten aus.</string>
     <string name="acknowledgements">Abhängigkeiten</string>
     <string name="privacy_policy">Datenschutzerklärung</string>
-    <string name="privacy">Privatspäre</string>
     <string name="website">Webseite</string>
-    <string name="web">Web</string>
     <string name="about">Über Moe Memos</string>
     <string name="add_account">Account hinzufügen</string>
     <string name="attachment">Anhang</string>
-    <string name="selected">Ausgewählt</string>
-    <string name="username_and_password">Nutzername und Passwort</string>
+    <string name="account_selected">Ausgewählt</string>
     <string name="report_an_issue">Einen Fehler melden</string>
     <string name="unpin">Abpinnen</string>
     <string name="sign_out">Abmelden</string>
-    <string name="sign_in_method">Anmeldemethode</string>
     <string name="address">Adresse</string>
     <string name="host">Host</string>
     <string name="account_name">Kontoname (freiwillig)</string>
@@ -43,9 +38,6 @@
     <string name="post">Posten</string>
     <string name="any_thoughts">Ein Gedanke…</string>
     <string name="input_login_information">Bitte gib die Anmeldeinformationen von deinem \n[✍️memos](https://github.com/usememos/memos)-Server ein.</string>
-    <string name="username">Nutzername</string>
-    <string name="password">Passwort</string>
-    <string name="email">Email</string>
     <string name="user_state_not_found">Benutzerdaten nicht gefunden</string>
     <string name="cancel">Abbrechen</string>
     <string name="confirm">Bestätigen</string>
@@ -72,9 +64,6 @@
     <string name="memo_visibility_protected">Für Mitglieder sichtbar</string>
     <string name="memo_visibility_private">Nur für dich wichtig</string>
     <string name="explore">Erkunden</string>
-    <string name="delete_this_tag">Diesen Tag löschen?</string>
-    <string name="expand">Erweitern</string>
-    <string name="collapse">Einklappen</string>
     <string name="view_more">Mehr anzeigen</string>
     <string name="accounts">Konten</string>
     <string name="preferences">Einstellungen</string>
@@ -94,7 +83,6 @@
     <string name="sync_status_sync_now">Jetzt synchronisieren</string>
     <string name="sync_status_unsynced">Nicht synchronisierte Änderungen</string>
     <string name="memo_sync_pending">Memo nicht synchronisiert</string>
-    <string name="memo_sync_synced">Memo synchronisiert</string>
     <string name="failed_to_open_attachment">Anhang konnte nicht geöffnet werden</string>
     <string name="export_local_account">Lokale Daten exportieren</string>
     <string name="local_export_success">Lokale Daten exportiert</string>
@@ -124,4 +112,15 @@
     <string name="app_lock_unavailable_short">Systemauthentifizierung ist auf diesem Gerät nicht verfügbar.</string>
     <string name="unlock">Entsperren</string>
     <string name="open_system_security_settings">System-Sicherheitseinstellungen öffnen</string>
+    <string name="failed_to_load_image">Bild konnte nicht geladen werden</string>
+    <string name="autosave">Automatisch speichern</string>
+    <string name="autosave_summary">Jede Änderung auf diesem Gerät speichern und im Hintergrund synchronisieren</string>
+    <string name="local_network_access">Zugriff auf das lokale Netzwerk</string>
+    <string name="local_network_access_denied">Erlaube in den Einstellungen den Zugriff auf Geräte in der Nähe, um deinen Memos-Server im lokalen Netzwerk zu erreichen, und versuche es erneut. Deine gespeicherten Memos bleiben offline verfügbar.</string>
+    <string name="access_token">Zugriffstoken</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="clear_search">Suche löschen</string>
+    <string name="retry">Erneut versuchen</string>
+    <string name="failed_to_load_memos">Notizen konnten nicht geladen werden</string>
+    <string name="select_memo">Notiz zum Lesen auswählen</string>
 </resources>
