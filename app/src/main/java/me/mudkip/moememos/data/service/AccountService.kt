@@ -499,8 +499,8 @@ class AccountService @Inject constructor(
             return ServerVersionInfo(UserData.AccountCase.MEMOS_V0, memosV0Version)
         }
 
-        val memosV1Profile = createMemosV1Client(host, null).second.getProfile().getOrThrow()
-        val memosV1Version = memosV1Profile.version.trim()
+        val memosV1Profile = createMemosV1Client(host, null).second.getProfile().getOrNull()
+        val memosV1Version = memosV1Profile?.version?.trim().orEmpty()
         if (memosV1Version.isNotEmpty()) {
             return ServerVersionInfo(UserData.AccountCase.MEMOS_V1, memosV1Version)
         }

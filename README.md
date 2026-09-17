@@ -8,7 +8,7 @@
 
 You can use Moe Memos with either a self-hosted [✍️memos](https://github.com/usememos/memos) server or locally on your device (no server required).
 
-**Note: Current Moe Memos version supports Memos 0.21.0 and Memos 0.27.0 to 0.30.0. Memos update may introduce breaking API changes. If you are using a version higher than 0.30.0, it is recommended to use [Mortis](https://github.com/mudkipme/mortis) to convert the newer Memos API to the Memos 0.21.0 API and re-login in Moe Memos.**
+**Note: Current Moe Memos version supports Memos 0.21.0 and Memos 0.27.0 to 1.0.0 (including the latest Memos API). Memos update may introduce breaking API changes. If you are using an older version (0.22.x - 0.26.x), it is recommended to use [Mortis](https://github.com/mudkipme/mortis) to convert the Memos API to the Memos 0.21.0 API and re-login in Moe Memos.**
 
 ## Installation
 

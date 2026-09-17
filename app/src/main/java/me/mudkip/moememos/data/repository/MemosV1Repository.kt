@@ -152,14 +152,25 @@ class MemosV1Repository(
         pinned: Boolean?,
         archived: Boolean?
     ): ApiResponse<Memo> {
-        val resp = memosApi.updateMemo(getId(remoteId), UpdateMemoRequest(
-            content = content,
-            visibility = visibility?.let { MemosVisibility.fromMemoVisibility(it) },
-            pinned = pinned,
-            state = archived?.let { isArchived -> if (isArchived) MemosV1State.ARCHIVED else MemosV1State.NORMAL },
-            updateTime = Instant.now(),
-            attachments = resourceRemoteIds?.map { MemosV1Resource(name = getName(it)) }
-        )).mapSuccess { convertMemo(this) }
+        val mask = mutableListOf<String>()
+        if (content != null) mask.add("content")
+        if (visibility != null) mask.add("visibility")
+        if (pinned != null) mask.add("pinned")
+        if (archived != null) mask.add("state")
+        if (resourceRemoteIds != null) mask.add("attachments")
+
+        val resp = memosApi.updateMemo(
+            memoId = getId(remoteId),
+            updateMask = if (mask.isEmpty()) null else mask.joinToString(","),
+            body = UpdateMemoRequest(
+                content = content,
+                visibility = visibility?.let { MemosVisibility.fromMemoVisibility(it) },
+                pinned = pinned,
+                state = archived?.let { isArchived -> if (isArchived) MemosV1State.ARCHIVED else MemosV1State.NORMAL },
+                updateTime = Instant.now(),
+                attachments = resourceRemoteIds?.map { MemosV1Resource(name = getName(it)) }
+            )
+        ).mapSuccess { convertMemo(this) }
         return resp
     }
 
@@ -208,10 +219,11 @@ class MemosV1Repository(
             return resp
         }
 
-        return memosApi.getUserSetting(getId(resp.data.identifier)).mapSuccess {
+        val settingResp = memosApi.getUserSetting(getId(resp.data.identifier)).getOrNull()
+        return ApiResponse.Success(
             resp.data.copy(
-                defaultVisibility = generalSetting?.memoVisibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE
+                defaultVisibility = settingResp?.generalSetting?.memoVisibility?.toMemoVisibility() ?: MemoVisibility.PRIVATE
             )
-        }
+        )
     }
 }

@@ -34,7 +34,11 @@ interface MemosV1Api {
     suspend fun createMemo(@Body body: MemosV1CreateMemoRequest): ApiResponse<MemosV1Memo>
 
     @PATCH("api/v1/memos/{id}")
-    suspend fun updateMemo(@Path("id") memoId: String, @Body body: UpdateMemoRequest): ApiResponse<MemosV1Memo>
+    suspend fun updateMemo(
+        @Path("id") memoId: String,
+        @Query("updateMask") updateMask: String? = null,
+        @Body body: UpdateMemoRequest
+    ): ApiResponse<MemosV1Memo>
 
     @DELETE("api/v1/memos/{id}")
     suspend fun deleteMemo(@Path("id") memoId: String): ApiResponse<Unit>
