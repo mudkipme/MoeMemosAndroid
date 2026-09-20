@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.page.settings
 
+import android.app.Activity
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,6 +46,7 @@ import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemoEditGesture
 import me.mudkip.moememos.data.model.Settings
 import me.mudkip.moememos.data.model.displayTitle
+import me.mudkip.moememos.data.mtls.MtlsManager
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.settingsDataStore
 import me.mudkip.moememos.ext.string
@@ -73,6 +75,31 @@ fun SettingsPage(
         AppLockAuthenticator.canAuthenticate(context)
     }
     var showEditGestureDialog by remember { mutableStateOf(false) }
+    var showRemoveCertificateDialog by remember { mutableStateOf(false) }
+    var hasClientCertificate by remember {
+        mutableStateOf(
+            MtlsManager.hasSelectedCertificate(context)
+        )
+    }
+
+    fun chooseClientCertificate() {
+        val activity = context as? Activity
+            ?: return
+
+        MtlsManager.chooseCertificate(
+            activity
+        ) { success ->
+            if (success) {
+                hasClientCertificate = true
+            }
+        }
+    }
+
+    fun removeClientCertificate() {
+        MtlsManager.clearSelectedCertificate(context)
+        hasClientCertificate = false
+        showRemoveCertificateDialog = false
+    }
 
     fun setAppLockEnabled(enabled: Boolean) {
         if (enabled && !appLockSupported) {
@@ -87,6 +114,7 @@ fun SettingsPage(
             }
         }
     }
+
     val currentEditGesture = settings.usersList
         .firstOrNull { it.accountKey == settings.currentUser }
         ?.settings
@@ -127,7 +155,10 @@ fun SettingsPage(
                     ActionIconButton(label = R.string.back.string, onClick = {
                         navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = R.string.back.string)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = R.string.back.string
+                        )
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -155,16 +186,18 @@ fun SettingsPage(
                             subtitle = account.info.host,
                             trailingIcon = {
                                 if (currentAccount?.accountKey() == account.accountKey()) {
-                                    Icon(Icons.Outlined.Check,
+                                    Icon(
+                                        Icons.Outlined.Check,
                                         contentDescription = R.string.account_selected.string,
                                         modifier = Modifier.padding(start = 16.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
-                        }) {
+                            }) {
                             navController.navigate("${RouteName.ACCOUNT}?accountKey=${account.accountKey()}")
                         }
                     }
+
                     is Account.MemosV1 -> item {
                         SettingItem(
                             icon = MemosIcon,
@@ -172,26 +205,32 @@ fun SettingsPage(
                             subtitle = account.info.host,
                             trailingIcon = {
                                 if (currentAccount?.accountKey() == account.accountKey()) {
-                                    Icon(Icons.Outlined.Check,
+                                    Icon(
+                                        Icons.Outlined.Check,
                                         contentDescription = R.string.account_selected.string,
                                         modifier = Modifier.padding(start = 16.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
-                        }) {
+                            }) {
                             navController.navigate("${RouteName.ACCOUNT}?accountKey=${account.accountKey()}")
                         }
                     }
+
                     is Account.Local -> item {
-                        SettingItem(icon = Icons.Outlined.Home, text = R.string.local_account.string, trailingIcon = {
-                            if (currentAccount?.accountKey() == account.accountKey()) {
-                                Icon(Icons.Outlined.Check,
-                                    contentDescription = R.string.account_selected.string,
-                                    modifier = Modifier.padding(start = 16.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }) {
+                        SettingItem(
+                            icon = Icons.Outlined.Home,
+                            text = R.string.local_account.string,
+                            trailingIcon = {
+                                if (currentAccount?.accountKey() == account.accountKey()) {
+                                    Icon(
+                                        Icons.Outlined.Check,
+                                        contentDescription = R.string.account_selected.string,
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }) {
                             navController.navigate("${RouteName.ACCOUNT}?accountKey=${account.accountKey()}")
                         }
                     }
@@ -266,6 +305,31 @@ fun SettingsPage(
                     onCheckedChange = ::setAppLockEnabled,
                 )
             }
+            item {
+                SettingItem(
+                    icon = Icons.Outlined.Lock,
+                    text = R.string.client_certificate.string,
+                    subtitle = if (hasClientCertificate) {
+                        R.string.client_certificate_selected.string
+                    } else {
+                        R.string.client_certificate_not_selected.string
+                    }
+                ) {
+                    chooseClientCertificate()
+                }
+            }
+
+            if (hasClientCertificate) {
+                item {
+                    SettingItem(
+                        icon = Icons.Outlined.Lock,
+                        text = R.string.remove_client_certificate.string,
+                        subtitle = R.string.remove_client_certificate_message.string
+                    ) {
+                        showRemoveCertificateDialog = true
+                    }
+                }
+            }
 
             item {
                 Text(
@@ -297,13 +361,48 @@ fun SettingsPage(
             }
 
             item {
-                SettingItem(icon = Icons.Outlined.BugReport, text = R.string.report_an_issue.string) {
+                SettingItem(
+                    icon = Icons.Outlined.BugReport,
+                    text = R.string.report_an_issue.string
+                ) {
                     uriHandler.openUri("https://github.com/mudkipme/MoeMemosAndroid/issues")
                 }
             }
         }
     }
-
+    if (showRemoveCertificateDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showRemoveCertificateDialog = false
+            },
+            title = {
+                Text(R.string.remove_client_certificate_title.string)
+            },
+            text = {
+                Text(
+                    R.string.remove_client_certificate_message.string
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        removeClientCertificate()
+                    }
+                ) {
+                    Text(R.string.remove.string)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showRemoveCertificateDialog = false
+                    }
+                ) {
+                    Text(R.string.cancel.string)
+                }
+            }
+        )
+    }
     if (showEditGestureDialog) {
         AlertDialog(
             onDismissRequest = { showEditGestureDialog = false },
@@ -317,9 +416,10 @@ fun SettingsPage(
                                 showEditGestureDialog = false
                                 scope.launch(Dispatchers.IO) {
                                     context.settingsDataStore.updateData { existingSettings ->
-                                        val userIndex = existingSettings.usersList.indexOfFirst { user ->
-                                            user.accountKey == existingSettings.currentUser
-                                        }
+                                        val userIndex =
+                                            existingSettings.usersList.indexOfFirst { user ->
+                                                user.accountKey == existingSettings.currentUser
+                                            }
                                         if (userIndex == -1) {
                                             return@updateData existingSettings
                                         }

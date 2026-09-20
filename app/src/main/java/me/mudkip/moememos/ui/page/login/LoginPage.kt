@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.page.login
 
+import android.app.Activity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,10 +17,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Computer
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PermIdentity
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -33,6 +36,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -56,6 +61,7 @@ import androidx.navigation.NavHostController
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
+import me.mudkip.moememos.data.mtls.MtlsManager
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.suspendOnErrorMessage
@@ -90,6 +96,14 @@ fun LoginPage(
         mutableStateOf(TextFieldValue())
     }
 
+    val context = LocalContext.current
+
+    var hasClientCertificate by remember {
+        mutableStateOf(
+            MtlsManager.hasSelectedCertificate(context)
+        )
+    }
+
     var loginCompatibilityWarning by remember { mutableStateOf<String?>(null) }
 
     fun normalizedHost(): String {
@@ -114,6 +128,7 @@ fun LoginPage(
                     snackbarState.showSnackbar(compatibility.message)
                     return@launch
                 }
+
                 is LoginCompatibility.RequiresConfirmation -> {
                     loginCompatibilityWarning = compatibility.message
                     return@launch
@@ -135,9 +150,9 @@ fun LoginPage(
                 launchSingleTop = true
             }
         }
-        .suspendOnErrorMessage {
-            snackbarState.showSnackbar(it)
-        }
+            .suspendOnErrorMessage {
+                snackbarState.showSnackbar(it)
+            }
     }
 
     if (loginCompatibilityWarning != null) {
@@ -178,7 +193,10 @@ fun LoginPage(
                         IconButton(onClick = {
                             navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                         }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = R.string.back.string)
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = R.string.back.string
+                            )
                         }
                     }
                 },
@@ -318,6 +336,53 @@ fun LoginPage(
                     ),
                     keyboardActions = KeyboardActions(onGo = { login() })
                 )
+                Column(
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    Text(
+                        text = R.string.client_certificate.string,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Text(
+                        text = if (hasClientCertificate) {
+                            R.string.client_certificate_selected.string
+                        } else {
+                            R.string.client_certificate_not_selected.string
+                        },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Button(
+                        modifier = Modifier.padding(top = 8.dp),
+                        onClick = {
+                            val activity = context as? Activity
+                                ?: return@Button
+
+                            MtlsManager.chooseCertificate(
+                                activity
+                            ) { success ->
+                                if (success) {
+                                    hasClientCertificate = true
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Lock,
+                            contentDescription = null
+                        )
+
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = if (hasClientCertificate) {
+                                R.string.change_certificate.string
+                            } else {
+                                R.string.select_certificate.string
+                            }
+                        )
+                    }
+                }
             }
         }
     }
