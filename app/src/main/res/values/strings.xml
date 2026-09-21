@@ -33,6 +33,14 @@
     <string name="host">Host</string>
     <string name="account_name">Account name (Optional)</string>
     <string name="access_token">Access Token</string>
+    <string name="client_certificate">Client certificate</string>
+    <string name="client_certificate_selected">Certificate selected</string>
+    <string name="client_certificate_not_selected">No certificate selected</string>
+    <string name="select_certificate">Select certificate</string>
+    <string name="change_certificate">Change certificate</string>
+    <string name="remove_client_certificate">Remove client certificate</string>
+    <string name="remove_client_certificate_title">Remove client certificate?</string>
+    <string name="remove_client_certificate_message">Moe Memos will no longer use the selected client certificate.</string>
     <string name="edit">Edit</string>
     <string name="close">Close</string>
     <string name="add_task">Add Task</string>
