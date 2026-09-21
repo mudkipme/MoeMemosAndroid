@@ -69,6 +69,7 @@
     <string name="memo_visibility_public">Visible to guests</string>
     <string name="memo_visibility_protected">Visible to local members</string>
     <string name="memo_visibility_private">Only visible to you</string>
+    <string name="memo_visibility_space">Visible to space members</string>
     <string name="explore">Explore</string>
     <string name="view_more">View More</string>
     <string name="accounts">Accounts</string>

@@ -5,7 +5,8 @@ import java.time.Instant
 enum class MemoVisibility {
     PRIVATE,
     PROTECTED,
-    PUBLIC
+    PUBLIC,
+    SPACE
 }
 
 data class Memo(

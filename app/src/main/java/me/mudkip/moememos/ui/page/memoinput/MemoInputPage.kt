@@ -195,6 +195,7 @@ fun MemoInputPage(
             MemoInputBottomBar(
                 currentAccount = currentAccount,
                 currentVisibility = currentVisibility,
+                showSpaceVisibility = memo?.visibility == MemoVisibility.SPACE,
                 visibilityMenuExpanded = visibilityMenuExpanded,
                 onVisibilityExpandedChange = { visibilityMenuExpanded = it },
                 onVisibilitySelected = { currentVisibility = it },
