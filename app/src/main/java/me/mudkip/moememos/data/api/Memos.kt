@@ -25,12 +25,15 @@ enum class MemosVisibility {
     @SerialName("PROTECTED")
     PROTECTED,
     @SerialName("PUBLIC")
-    PUBLIC;
+    PUBLIC,
+    @SerialName("SPACE")
+    SPACE;
 
     fun toMemoVisibility(): MemoVisibility = when (this) {
         PRIVATE -> MemoVisibility.PRIVATE
         PROTECTED -> MemoVisibility.PROTECTED
         PUBLIC -> MemoVisibility.PUBLIC
+        SPACE -> MemoVisibility.SPACE
         else -> MemoVisibility.PRIVATE
     }
 
@@ -39,6 +42,7 @@ enum class MemosVisibility {
             MemoVisibility.PRIVATE -> PRIVATE
             MemoVisibility.PROTECTED -> PROTECTED
             MemoVisibility.PUBLIC -> PUBLIC
+            MemoVisibility.SPACE -> SPACE
         }
     }
 }

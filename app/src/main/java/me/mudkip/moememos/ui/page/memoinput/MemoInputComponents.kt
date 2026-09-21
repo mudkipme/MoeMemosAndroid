@@ -130,6 +130,7 @@ private fun FormattingButtons(
 internal fun MemoInputBottomBar(
     currentAccount: Account?,
     currentVisibility: MemoVisibility,
+    showSpaceVisibility: Boolean,
     visibilityMenuExpanded: Boolean,
     onVisibilityExpandedChange: (Boolean) -> Unit,
     onVisibilitySelected: (MemoVisibility) -> Unit,
@@ -162,26 +163,28 @@ internal fun MemoInputBottomBar(
                             onDismissRequest = { onVisibilityExpandedChange(false) },
                             properties = PopupProperties(focusable = false)
                         ) {
-                            enumValues<MemoVisibility>().forEach { visibility ->
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(visibility.titleResource)) },
-                                    onClick = {
-                                        onVisibilitySelected(visibility)
-                                        onVisibilityExpandedChange(false)
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            visibility.icon,
-                                            contentDescription = stringResource(visibility.titleResource)
-                                        )
-                                    },
-                                    trailingIcon = {
-                                        if (currentVisibility == visibility) {
-                                            Icon(Icons.Outlined.Check, contentDescription = null)
+                            MemoVisibility.entries
+                                .filter { it != MemoVisibility.SPACE || showSpaceVisibility }
+                                .forEach { visibility ->
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(visibility.titleResource)) },
+                                        onClick = {
+                                            onVisibilitySelected(visibility)
+                                            onVisibilityExpandedChange(false)
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                visibility.icon,
+                                                contentDescription = stringResource(visibility.titleResource)
+                                            )
+                                        },
+                                        trailingIcon = {
+                                            if (currentVisibility == visibility) {
+                                                Icon(Icons.Outlined.Check, contentDescription = null)
+                                            }
                                         }
-                                    }
-                                )
-                            }
+                                    )
+                                }
                         }
                         ActionIconButton(label = stringResource(currentVisibility.titleResource), onClick = { onVisibilityExpandedChange(!visibilityMenuExpanded) }) {
                             Icon(
