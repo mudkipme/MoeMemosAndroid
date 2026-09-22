@@ -4,6 +4,7 @@
     <locale android:name="zh-Hans"/>
     <locale android:name="zh-Hant"/>
     <locale android:name="ru"/>
+    <locale android:name="uk"/>
     <locale android:name="fr"/>
     <locale android:name="tr"/>
     <locale android:name="it"/>
