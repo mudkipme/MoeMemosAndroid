@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import me.mudkip.moememos.MainActivity
 import me.mudkip.moememos.data.model.ShareContent
+import me.mudkip.moememos.ext.navigateToMemoEditor
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.account.AccountPage
 import me.mudkip.moememos.ui.page.account.AddAccountPage
@@ -164,7 +165,7 @@ fun Navigation() {
                     if (memosViewModel.memos.none { it.identifier == memoId }) {
                         navController.navigate("${RouteName.MEMO_DETAIL}?memoId=${Uri.encode(memoId)}")
                     } else {
-                        navController.navigate("${RouteName.EDIT}?memoId=${Uri.encode(memoId)}")
+                        navController.navigateToMemoEditor(memoId)
                     }
                 }
             }
