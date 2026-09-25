@@ -53,6 +53,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
@@ -242,6 +243,60 @@ class AccountService @Inject constructor(
             purgeAccountData(accountKey)
             secureTokenStorage.removeToken(accountKey)
         }
+    }
+
+    /**
+     * Copies every local memo (with its attachments) into the server account [targetAccountKey] as
+     * new, unsynced memos; that account's next sync uploads them. The local memos are kept.
+     * Returns how many memos were copied.
+     */
+    suspend fun copyLocalMemosToAccount(targetAccountKey: String): Int {
+        val localKey = Account.Local().accountKey()
+        val target = accounts.first().firstOrNull { it.accountKey() == targetAccountKey }
+        require(target != null && target !is Account.Local) { "Not a server account: $targetAccountKey" }
+
+        val memoDao = database.memoDao()
+        val memos = memoDao.getAllMemosForSync(localKey).filterNot { it.isDeleted }
+        val resourcesByMemo = memos.associate { memo ->
+            memo.identifier to memoDao.getMemoResources(memo.identifier, localKey)
+        }
+        // Check every attachment first, so a missing file does not leave a partial copy behind
+        resourcesByMemo.values.flatten().forEach { resource ->
+            if (localFileForResource(resource)?.exists() != true) {
+                throw IllegalStateException("Missing attachment file: ${resource.filename}")
+            }
+        }
+
+        val now = Instant.now()
+        for (memo in memos) {
+            val copyIdentifier = UUID.randomUUID().toString()
+            val copiedResources = resourcesByMemo.getValue(memo.identifier).map { resource ->
+                val uri = localFileForResource(resource)!!.inputStream().use { input ->
+                    fileStorage.saveFile(targetAccountKey, input, UUID.randomUUID().toString() + "_" + resource.filename)
+                }
+                resource.copy(
+                    identifier = UUID.randomUUID().toString(),
+                    remoteId = null,
+                    accountKey = targetAccountKey,
+                    uri = uri.toString(),
+                    localUri = uri.toString(),
+                    memoId = copyIdentifier
+                )
+            }
+            memoDao.insertMemo(
+                memo.copy(
+                    identifier = copyIdentifier,
+                    remoteId = null,
+                    accountKey = targetAccountKey,
+                    needsSync = true,
+                    isDeleted = false,
+                    lastModified = now,
+                    lastSyncedAt = null
+                )
+            )
+            copiedResources.forEach { memoDao.insertResource(it) }
+        }
+        return memos.size
     }
 
     suspend fun exportLocalAccountZip(destinationUri: Uri) {
