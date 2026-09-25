@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.MemoWithResources
 import me.mudkip.moememos.data.local.entity.ResourceEntity
+import java.time.Instant
 
 @Dao
 interface MemoDao {
@@ -46,6 +47,20 @@ interface MemoDao {
 
     @Upsert
     suspend fun insertMemo(memo: MemoEntity)
+
+    /**
+     * Upserts [memo] only if its stored row still has [expectedLastModified], i.e. nothing wrote the
+     * row since the caller read it. Returns false (and writes nothing) otherwise or if the row is gone.
+     */
+    @Transaction
+    suspend fun insertMemoIfUnchanged(memo: MemoEntity, expectedLastModified: Instant): Boolean {
+        val current = getMemoById(memo.identifier, memo.accountKey) ?: return false
+        if (current.lastModified != expectedLastModified) {
+            return false
+        }
+        insertMemo(memo)
+        return true
+    }
 
     @Delete
     suspend fun deleteMemo(memo: MemoEntity)

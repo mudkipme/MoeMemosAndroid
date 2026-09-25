@@ -68,10 +68,20 @@ class MemoInputViewModel @Inject constructor(
     suspend fun flushAutosave(content: String, visibility: MemoVisibility, tags: List<String>, clearDraftOnCreate: Boolean = false): ApiResponse<MemoEntity> {
         val response = autosave(content, visibility, tags, clearDraftOnCreate)
         response.suspendOnSuccess {
-            autosaveIdentifier?.let { memoService.getRepository().flushPendingPush(it) }
+            // Not cancellable: flush drops the deferred push before enqueueing the real one
+            withContext(NonCancellable) {
+                autosaveIdentifier?.let { memoService.getRepository().flushPendingPush(it) }
+            }
             WidgetUpdater.updateWidgets(getApplication())
         }
         return response
+    }
+
+    // In viewModelScope, so it outlives the page's composition (leaving the app, app lock).
+    fun flushAutosaveInBackground(content: String, visibility: MemoVisibility, tags: List<String>, clearDraftOnCreate: Boolean = false) {
+        viewModelScope.launch {
+            flushAutosave(content, visibility, tags, clearDraftOnCreate)
+        }
     }
 
     suspend fun discardEmptyAutosave() = autosaveMutex.withLock {

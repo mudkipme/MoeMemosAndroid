@@ -153,18 +153,22 @@ class SyncingRepository(
         deferPush: Boolean
     ): ApiResponse<MemoEntity> {
         return try {
-            val existingMemo = memoDao.getMemoById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+            var updatedMemo: MemoEntity
+            // Compare-and-set so a push reconcile landing between the read and the write (it records
+            // remoteId) is not overwritten with the stale copy, which would re-create the memo remotely.
+            do {
+                val existingMemo = memoDao.getMemoById(identifier, accountKey)
+                    ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
 
-            val updatedMemo = existingMemo.copy(
-                content = content ?: existingMemo.content,
-                visibility = visibility ?: existingMemo.visibility,
-                pinned = pinned ?: existingMemo.pinned,
-                needsSync = true,
-                isDeleted = false,
-                lastModified = Instant.now()
-            )
-            memoDao.insertMemo(updatedMemo)
+                updatedMemo = existingMemo.copy(
+                    content = content ?: existingMemo.content,
+                    visibility = visibility ?: existingMemo.visibility,
+                    pinned = pinned ?: existingMemo.pinned,
+                    needsSync = true,
+                    isDeleted = false,
+                    lastModified = nextLastModified(existingMemo)
+                )
+            } while (!memoDao.insertMemoIfUnchanged(updatedMemo, existingMemo.lastModified))
 
             if (resources != null) {
                 val existingResources = memoDao.getMemoResources(identifier, accountKey)
@@ -466,7 +470,9 @@ class SyncingRepository(
 
         for (remoteMemo in remoteMemos) {
             val remoteId = remoteMemoId(remoteMemo)
-            val local = localByRemoteId[remoteId]
+            // Re-read: the snapshot can be seconds old by now, and the editor keeps writing while a
+            // sync runs (autosave). Writes below are also conditional on the row being unchanged.
+            val local = localByRemoteId[remoteId]?.let { memoDao.getMemoById(it.identifier, accountKey) }
 
             if (local == null) {
                 applyRemoteMemo(remoteMemo)
@@ -475,14 +481,14 @@ class SyncingRepository(
 
             if (local.isDeleted) {
                 if (!local.needsSync) {
-                    applyRemoteMemo(remoteMemo, local.identifier)
+                    applyRemoteMemo(remoteMemo, local.identifier, expectedLastModified = local.lastModified)
                     continue
                 }
 
                 val remoteChanged = hasRemoteChanged(local, remoteMemo)
                 val equivalent = memoEquivalent(local, remoteMemo)
                 if (remoteChanged || !equivalent) {
-                    applyRemoteMemo(remoteMemo, local.identifier)
+                    applyRemoteMemo(remoteMemo, local.identifier, expectedLastModified = local.lastModified)
                 } else {
                     val deleted = remoteRepository.deleteMemo(remoteId)
                     if (deleted is ApiResponse.Success) {
@@ -504,7 +510,7 @@ class SyncingRepository(
             val remoteChanged = hasRemoteChanged(local, remoteMemo)
 
             when {
-                !localChanged -> applyRemoteMemo(remoteMemo, local.identifier)
+                !localChanged -> applyRemoteMemo(remoteMemo, local.identifier, expectedLastModified = local.lastModified)
                 !remoteChanged -> {
                     if (!pushLocalMemo(local.identifier)) {
                         recordFailure()
@@ -519,7 +525,8 @@ class SyncingRepository(
         }
 
         val latestLocals = memoDao.getAllMemosForSync(accountKey)
-        for (local in latestLocals) {
+        for (snapshot in latestLocals) {
+            val local = memoDao.getMemoById(snapshot.identifier, accountKey) ?: continue
             if (local.remoteId != null && remoteById.containsKey(local.remoteId)) {
                 continue
             }
@@ -678,17 +685,31 @@ class SyncingRepository(
     }
 
     private suspend fun reconcileServerCreatedMemo(pushed: MemoEntity, remoteMemo: Memo) {
-        val current = memoDao.getMemoById(pushed.identifier, accountKey)
-        if (current != null && current.lastModified != pushed.lastModified) {
-            // edited locally while the push was in flight: keep local fields, record server linkage
-            memoDao.insertMemo(
-                current.copy(
-                    remoteId = remoteMemoId(remoteMemo),
-                    lastSyncedAt = remoteMemo.updatedAt ?: remoteMemo.date,
-                    needsSync = true
+        // Each write is conditional on the row being unchanged since it was read, so a local edit
+        // landing in between (autosave writes on every keystroke) is never overwritten; retry instead.
+        for (attempt in 1..MAX_RECONCILE_ATTEMPTS) {
+            val current = memoDao.getMemoById(pushed.identifier, accountKey) ?: break
+            val written = if (current.lastModified != pushed.lastModified) {
+                // edited locally while the push was in flight: keep local fields, record server linkage
+                memoDao.insertMemoIfUnchanged(
+                    current.copy(
+                        remoteId = remoteMemoId(remoteMemo),
+                        lastSyncedAt = remoteMemo.updatedAt ?: remoteMemo.date,
+                        needsSync = true
+                    ),
+                    current.lastModified
                 )
-            )
-            return
+            } else {
+                applyRemoteMemo(
+                    remoteMemo,
+                    preferredLocalIdentifier = pushed.identifier,
+                    keepPendingResources = true,
+                    expectedLastModified = pushed.lastModified
+                )
+            }
+            if (written) {
+                return
+            }
         }
         applyRemoteMemo(remoteMemo, preferredLocalIdentifier = pushed.identifier, keepPendingResources = true)
     }
@@ -747,11 +768,16 @@ class SyncingRepository(
         return synced
     }
 
+    /**
+     * Overwrites the local row with [remoteMemo]. With [expectedLastModified] the write only happens
+     * if the row still has that lastModified; returns false when it was skipped for that reason.
+     */
     private suspend fun applyRemoteMemo(
         remoteMemo: Memo,
         preferredLocalIdentifier: String? = null,
-        keepPendingResources: Boolean = false
-    ) {
+        keepPendingResources: Boolean = false,
+        expectedLastModified: Instant? = null
+    ): Boolean {
         val remoteId = remoteMemoId(remoteMemo)
         val current = memoDao.getMemoByRemoteId(remoteId, accountKey)
             ?: preferredLocalIdentifier?.let { memoDao.getMemoById(it, accountKey) }
@@ -759,22 +785,27 @@ class SyncingRepository(
         val localIdentifier = current?.identifier ?: UUID.randomUUID().toString()
         val remoteUpdatedAt = remoteMemo.updatedAt ?: remoteMemo.date
 
-        memoDao.insertMemo(
-            MemoEntity(
-                identifier = localIdentifier,
-                remoteId = remoteId,
-                accountKey = accountKey,
-                content = remoteMemo.content,
-                date = remoteMemo.date,
-                visibility = remoteMemo.visibility,
-                pinned = remoteMemo.pinned,
-                archived = remoteMemo.archived,
-                needsSync = false,
-                isDeleted = false,
-                lastModified = remoteUpdatedAt,
-                lastSyncedAt = remoteUpdatedAt
-            )
+        val remoteEntity = MemoEntity(
+            identifier = localIdentifier,
+            remoteId = remoteId,
+            accountKey = accountKey,
+            content = remoteMemo.content,
+            date = remoteMemo.date,
+            visibility = remoteMemo.visibility,
+            pinned = remoteMemo.pinned,
+            archived = remoteMemo.archived,
+            needsSync = false,
+            isDeleted = false,
+            lastModified = remoteUpdatedAt,
+            lastSyncedAt = remoteUpdatedAt
         )
+        if (current != null && expectedLastModified != null) {
+            if (!memoDao.insertMemoIfUnchanged(remoteEntity, expectedLastModified)) {
+                return false
+            }
+        } else {
+            memoDao.insertMemo(remoteEntity)
+        }
 
         val currentResources = memoDao.getMemoResources(localIdentifier, accountKey)
         val remoteResourceIds = remoteMemo.resources.mapTo(hashSetOf()) { remoteResourceId(it) }
@@ -811,10 +842,12 @@ class SyncingRepository(
                 )
             )
         }
+        return true
     }
 
     private suspend fun markSynced(local: MemoEntity, remoteMemo: Memo) {
-        memoDao.insertMemo(
+        // Skipped if the row was edited after `local` was read: it keeps needsSync and gets pushed.
+        memoDao.insertMemoIfUnchanged(
             local.copy(
                 remoteId = remoteMemoId(remoteMemo),
                 date = remoteMemo.date,
@@ -822,7 +855,8 @@ class SyncingRepository(
                 isDeleted = false,
                 archived = remoteMemo.archived,
                 lastSyncedAt = remoteMemo.updatedAt ?: remoteMemo.date
-            )
+            ),
+            local.lastModified
         )
     }
 
@@ -915,6 +949,14 @@ class SyncingRepository(
         }
     }
 
+    // Strictly after the stored value, so a compare-and-set on lastModified sees every local write
+    // even when two land in the same millisecond (the column keeps millisecond precision).
+    private fun nextLastModified(existing: MemoEntity): Instant {
+        val now = Instant.now()
+        val minimum = existing.lastModified.plusMillis(1)
+        return if (now.isBefore(minimum)) minimum else now
+    }
+
     private suspend fun refreshUnsyncedCount() {
         val count = memoDao.countUnsyncedMemos(accountKey)
         _syncStatus.update { it.copy(unsyncedCount = count) }
@@ -985,6 +1027,7 @@ class SyncingRepository(
     }
 
     companion object {
+        private const val MAX_RECONCILE_ATTEMPTS = 5
         private const val ATTACHMENT_UPLOAD_FAILED_MESSAGE =
             "Failed to upload one or more attachments during sync"
     }

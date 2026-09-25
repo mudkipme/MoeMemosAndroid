@@ -26,6 +26,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.delay
@@ -65,6 +67,7 @@ fun MemoInputPage(
     val autosaveEnabled by viewModel.autosaveEnabled.collectAsStateWithLifecycle(initialValue = false)
     var autosaveIdentifier by rememberSaveable { mutableStateOf(memo?.identifier) }
     var autosaveDirty by remember { mutableStateOf(false) }
+    var exiting by remember { mutableStateOf(false) }
     var initialContent by remember { mutableStateOf(memo?.content ?: "") }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(memo?.content ?: "", TextRange(memo?.content?.length ?: 0)))
@@ -86,6 +89,7 @@ fun MemoInputPage(
 
         if (autosaveEnabled) {
             viewModel.flushAutosave(text.text, currentVisibility, tags.toList(), clearDraftOnCreate = shareContent == null).suspendOnSuccess {
+                exiting = true
                 memosViewModel.refreshLocalSnapshot()
                 navController.popBackStack()
             }.suspendOnErrorMessage { message ->
@@ -117,7 +121,11 @@ fun MemoInputPage(
     fun handleExit() {
         if (autosaveEnabled) {
             coroutineScope.launch {
-                if (memo == null && text.text.isEmpty() && viewModel.uploadResources.isEmpty()) {
+                // Only a row this editor created may be discarded. `memo` is also null when editing a
+                // memo the list has not loaded (e.g. after process death); that memo must not be deleted.
+                val autosaveRow = viewModel.autosaveIdentifier
+                val ownsAutosaveRow = autosaveRow == null || autosaveRow != memoIdentifier
+                if (ownsAutosaveRow && text.text.isEmpty() && viewModel.uploadResources.isEmpty()) {
                     viewModel.discardEmptyAutosave()
                 } else {
                     viewModel.flushAutosave(
@@ -127,6 +135,7 @@ fun MemoInputPage(
                         clearDraftOnCreate = shareContent == null
                     )
                 }
+                exiting = true
                 memosViewModel.refreshLocalSnapshot()
                 navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
             }
@@ -337,6 +346,25 @@ fun MemoInputPage(
             clearDraftOnCreate = shareContent == null
         ).suspendOnSuccess {
             autosaveIdentifier = data.identifier
+        }
+    }
+
+    // Leaving the app: rewrite the latest text and push it now. The deferred push only lives as long
+    // as the process, and the app lock tears this page down on return without calling handleExit.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP && autosaveEnabled && autosaveDirty && !exiting) {
+                viewModel.flushAutosaveInBackground(
+                    text.text,
+                    currentVisibility,
+                    extractCustomTags(text.text).toList(),
+                    clearDraftOnCreate = shareContent == null
+                )
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
