@@ -84,8 +84,22 @@ fun MemoInputPage(
         setOf("text/")
     }
 
+    // An existing memo nothing was changed in. Autosave must not write it back on Send/Back: `memo`
+    // comes from the list, which is not refreshed while a push or sync runs, so its content can be
+    // older than the database and writing it would revert newer changes.
+    fun isUntouchedExistingMemo() = !autosaveDirty && memo != null &&
+        text.text == memo.content &&
+        currentVisibility == memo.visibility &&
+        viewModel.uploadResources.size == memo.resources.size
+
     fun submit() = coroutineScope.launch {
         val tags = extractCustomTags(text.text)
+
+        if (autosaveEnabled && isUntouchedExistingMemo()) {
+            exiting = true
+            navController.popBackStack()
+            return@launch
+        }
 
         if (autosaveEnabled) {
             viewModel.flushAutosave(text.text, currentVisibility, tags.toList(), clearDraftOnCreate = shareContent == null).suspendOnSuccess {
@@ -127,7 +141,7 @@ fun MemoInputPage(
                 val ownsAutosaveRow = autosaveRow == null || autosaveRow != memoIdentifier
                 if (ownsAutosaveRow && text.text.isEmpty() && viewModel.uploadResources.isEmpty()) {
                     viewModel.discardEmptyAutosave()
-                } else {
+                } else if (!isUntouchedExistingMemo()) {
                     viewModel.flushAutosave(
                         text.text,
                         currentVisibility,
@@ -331,11 +345,7 @@ fun MemoInputPage(
         if (autosaveIdentifier == null && text.text.isEmpty() && viewModel.uploadResources.isEmpty()) {
             return@LaunchedEffect
         }
-        if (!autosaveDirty && memo != null &&
-            text.text == memo.content &&
-            currentVisibility == memo.visibility &&
-            viewModel.uploadResources.size == memo.resources.size
-        ) {
+        if (isUntouchedExistingMemo()) {
             return@LaunchedEffect
         }
         autosaveDirty = true
