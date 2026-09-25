@@ -92,6 +92,8 @@ class MemoInputViewModel @Inject constructor(
         }
     }
 
+    suspend fun loadMemo(identifier: String): MemoEntity? = memoService.getRepository().getMemo(identifier)
+
     suspend fun createMemo(content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<MemoEntity> = withContext(viewModelScope.coroutineContext) {
         val response = memoService.getRepository().createMemo(content, visibility, uploadResources, tags)
         // Update widgets when a new memo is created

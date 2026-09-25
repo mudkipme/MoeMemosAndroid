@@ -64,6 +64,9 @@ fun MemoInputPage(
     val userStateViewModel = LocalUserState.current
     val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
     val memo = remember { memosViewModel.memos.toList().find { it.identifier == memoIdentifier } }
+    // What the editor was loaded from: `memo`, replaced by the database row once it is read (the list
+    // copy above is not refreshed while a push or sync runs, so it can be older).
+    var baseline by remember { mutableStateOf(memo) }
     val autosaveEnabled by viewModel.autosaveEnabled.collectAsStateWithLifecycle(initialValue = false)
     var autosaveIdentifier by rememberSaveable { mutableStateOf(memo?.identifier) }
     var autosaveDirty by remember { mutableStateOf(false) }
@@ -84,13 +87,15 @@ fun MemoInputPage(
         setOf("text/")
     }
 
-    // An existing memo nothing was changed in. Autosave must not write it back on Send/Back: `memo`
-    // comes from the list, which is not refreshed while a push or sync runs, so its content can be
-    // older than the database and writing it would revert newer changes.
-    fun isUntouchedExistingMemo() = !autosaveDirty && memo != null &&
-        text.text == memo.content &&
-        currentVisibility == memo.visibility &&
-        viewModel.uploadResources.size == memo.resources.size
+    // An existing memo nothing was changed in. Autosave must not write it back on Send/Back: if the
+    // text is older than the database (see `baseline`), writing it would revert newer changes.
+    fun isUntouchedExistingMemo(): Boolean {
+        val base = baseline ?: return false
+        return !autosaveDirty &&
+            text.text == base.content &&
+            currentVisibility == base.visibility &&
+            viewModel.uploadResources.size == base.resources.size
+    }
 
     fun submit() = coroutineScope.launch {
         val tags = extractCustomTags(text.text)
@@ -155,7 +160,7 @@ fun MemoInputPage(
             }
             return
         }
-        if (text.text != initialContent || viewModel.uploadResources.size != (memo?.resources?.size ?: 0)) {
+        if (text.text != initialContent || viewModel.uploadResources.size != (baseline?.resources?.size ?: 0)) {
             showExitConfirmation = true
         } else {
             navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
@@ -313,6 +318,16 @@ fun MemoInputPage(
             memo != null -> {
                 viewModel.uploadResources.addAll(memo.resources)
                 initialContent = memo.content
+                // Adopt the database row if the list copy was stale and nothing was edited yet
+                val fresh = viewModel.loadMemo(memo.identifier)
+                if (fresh != null && fresh != memo && isUntouchedExistingMemo()) {
+                    baseline = fresh
+                    initialContent = fresh.content
+                    currentVisibility = fresh.visibility
+                    viewModel.uploadResources.clear()
+                    viewModel.uploadResources.addAll(fresh.resources)
+                    text = TextFieldValue(fresh.content, TextRange(fresh.content.length))
+                }
             }
 
             shareContent != null -> {

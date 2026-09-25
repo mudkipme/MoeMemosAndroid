@@ -40,6 +40,10 @@ class LocalDatabaseRepository(
         }
     }
 
+    override suspend fun getMemo(identifier: String): MemoEntity? {
+        return memoDao.getMemoById(identifier, accountKey)?.let { withResources(it) }
+    }
+
     override suspend fun listArchivedMemos(): ApiResponse<List<MemoEntity>> {
         return try {
             val memos = memoDao.getArchivedMemos(accountKey).map { withResources(it) }
