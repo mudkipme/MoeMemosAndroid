@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
+import androidx.room.withTransaction
 import com.skydoves.sandwich.getOrNull
 import com.skydoves.sandwich.getOrThrow
 import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
@@ -53,6 +54,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
@@ -243,6 +245,74 @@ class AccountService @Inject constructor(
             secureTokenStorage.removeToken(accountKey)
         }
     }
+
+    /**
+     * Copies every local memo (with its attachments) into the server account [targetAccountKey] as
+     * new, unsynced memos; that account's next sync uploads them. The local memos are kept.
+     *
+     * Safe to interrupt and to run again: each copy's identifier is derived from the target account
+     * and the local memo, so memos copied by an earlier (possibly interrupted) run are skipped, even
+     * after they were uploaded. Each memo is written together with its attachments in one
+     * transaction, so a memo is either fully copied or not at all. Returns how many memos were copied.
+     */
+    suspend fun copyLocalMemosToAccount(targetAccountKey: String): Int {
+        val localKey = Account.Local().accountKey()
+        val target = accounts.first().firstOrNull { it.accountKey() == targetAccountKey }
+        require(target != null && target !is Account.Local) { "Not a server account: $targetAccountKey" }
+
+        val memoDao = database.memoDao()
+        val pending = memoDao.getAllMemosForSync(localKey)
+            .filterNot { it.isDeleted }
+            .filter { memoDao.getMemoById(transferredIdentifier(targetAccountKey, it.identifier), targetAccountKey) == null }
+        val resourcesByMemo = pending.associate { memo ->
+            memo.identifier to memoDao.getMemoResources(memo.identifier, localKey)
+        }
+        // Check every attachment first, so a missing file stops the transfer before anything is copied
+        resourcesByMemo.values.flatten().forEach { resource ->
+            if (localFileForResource(resource)?.exists() != true) {
+                throw IllegalStateException("Missing attachment file: ${resource.filename}")
+            }
+        }
+
+        val now = Instant.now()
+        for (memo in pending) {
+            val copyIdentifier = transferredIdentifier(targetAccountKey, memo.identifier)
+            // Files first, at paths derived from the copy, so a retry after an interruption overwrites
+            // them instead of leaving a second set behind
+            val copiedResources = resourcesByMemo.getValue(memo.identifier).map { resource ->
+                val copyResourceIdentifier = transferredIdentifier(targetAccountKey, resource.identifier)
+                val uri = localFileForResource(resource)!!.inputStream().use { input ->
+                    fileStorage.saveFile(targetAccountKey, input, copyResourceIdentifier + "_" + resource.filename)
+                }
+                resource.copy(
+                    identifier = copyResourceIdentifier,
+                    remoteId = null,
+                    accountKey = targetAccountKey,
+                    uri = uri.toString(),
+                    localUri = uri.toString(),
+                    memoId = copyIdentifier
+                )
+            }
+            database.withTransaction {
+                memoDao.insertMemo(
+                    memo.copy(
+                        identifier = copyIdentifier,
+                        remoteId = null,
+                        accountKey = targetAccountKey,
+                        needsSync = true,
+                        isDeleted = false,
+                        lastModified = now,
+                        lastSyncedAt = null
+                    )
+                )
+                copiedResources.forEach { memoDao.insertResource(it) }
+            }
+        }
+        return pending.size
+    }
+
+    private fun transferredIdentifier(targetAccountKey: String, localIdentifier: String): String =
+        UUID.nameUUIDFromBytes("transfer:$targetAccountKey:$localIdentifier".toByteArray()).toString()
 
     suspend fun exportLocalAccountZip(destinationUri: Uri) {
         val accountKey = Account.Local().accountKey()
