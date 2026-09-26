@@ -53,10 +53,10 @@ import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemoEditGesture
 import me.mudkip.moememos.ext.icon
+import me.mudkip.moememos.ext.navigateToMemoEditor
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
-import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 
@@ -79,21 +79,21 @@ fun MemosCard(
         .combinedClickable(
             onClick = {
                 if (editGesture == MemoEditGesture.SINGLE) {
-                    rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.identifier}")
+                    rootNavController.navigateToMemoEditor(memo.identifier)
                 } else {
                     onClick(memo)
                 }
             },
             onLongClick = if (editGesture == MemoEditGesture.LONG) {
                 {
-                    rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.identifier}")
+                    rootNavController.navigateToMemoEditor(memo.identifier)
                 }
             } else {
                 null
             },
             onDoubleClick = if (editGesture == MemoEditGesture.DOUBLE) {
                 {
-                    rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.identifier}")
+                    rootNavController.navigateToMemoEditor(memo.identifier)
                 }
             } else {
                 null
@@ -232,7 +232,7 @@ fun MemosCardActionButton(
             DropdownMenuItem(
                 text = { Text(R.string.edit.string) },
                 onClick = {
-                    rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.identifier}")
+                    rootNavController.navigateToMemoEditor(memo.identifier)
                 },
                 leadingIcon = {
                     Icon(

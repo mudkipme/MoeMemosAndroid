@@ -26,6 +26,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.delay
@@ -62,9 +64,13 @@ fun MemoInputPage(
     val userStateViewModel = LocalUserState.current
     val currentAccount by userStateViewModel.currentAccount.collectAsStateWithLifecycle()
     val memo = remember { memosViewModel.memos.toList().find { it.identifier == memoIdentifier } }
+    // What the editor was loaded from: `memo`, replaced by the database row once it is read (the list
+    // copy above is not refreshed while a push or sync runs, so it can be older).
+    var baseline by remember { mutableStateOf(memo) }
     val autosaveEnabled by viewModel.autosaveEnabled.collectAsStateWithLifecycle(initialValue = false)
     var autosaveIdentifier by rememberSaveable { mutableStateOf(memo?.identifier) }
     var autosaveDirty by remember { mutableStateOf(false) }
+    var exiting by remember { mutableStateOf(false) }
     var initialContent by remember { mutableStateOf(memo?.content ?: "") }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(memo?.content ?: "", TextRange(memo?.content?.length ?: 0)))
@@ -81,11 +87,28 @@ fun MemoInputPage(
         setOf("text/")
     }
 
+    // An existing memo nothing was changed in. Autosave must not write it back on Send/Back: if the
+    // text is older than the database (see `baseline`), writing it would revert newer changes.
+    fun isUntouchedExistingMemo(): Boolean {
+        val base = baseline ?: return false
+        return !autosaveDirty &&
+            text.text == base.content &&
+            currentVisibility == base.visibility &&
+            viewModel.uploadResources.size == base.resources.size
+    }
+
     fun submit() = coroutineScope.launch {
         val tags = extractCustomTags(text.text)
 
+        if (autosaveEnabled && isUntouchedExistingMemo()) {
+            exiting = true
+            navController.popBackStack()
+            return@launch
+        }
+
         if (autosaveEnabled) {
             viewModel.flushAutosave(text.text, currentVisibility, tags.toList(), clearDraftOnCreate = shareContent == null).suspendOnSuccess {
+                exiting = true
                 memosViewModel.refreshLocalSnapshot()
                 navController.popBackStack()
             }.suspendOnErrorMessage { message ->
@@ -117,9 +140,13 @@ fun MemoInputPage(
     fun handleExit() {
         if (autosaveEnabled) {
             coroutineScope.launch {
-                if (memo == null && text.text.isEmpty() && viewModel.uploadResources.isEmpty()) {
+                // Only a row this editor created may be discarded. `memo` is also null when editing a
+                // memo the list has not loaded (e.g. after process death); that memo must not be deleted.
+                val autosaveRow = viewModel.autosaveIdentifier
+                val ownsAutosaveRow = autosaveRow == null || autosaveRow != memoIdentifier
+                if (ownsAutosaveRow && text.text.isEmpty() && viewModel.uploadResources.isEmpty()) {
                     viewModel.discardEmptyAutosave()
-                } else {
+                } else if (!isUntouchedExistingMemo()) {
                     viewModel.flushAutosave(
                         text.text,
                         currentVisibility,
@@ -127,12 +154,13 @@ fun MemoInputPage(
                         clearDraftOnCreate = shareContent == null
                     )
                 }
+                exiting = true
                 memosViewModel.refreshLocalSnapshot()
                 navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
             }
             return
         }
-        if (text.text != initialContent || viewModel.uploadResources.size != (memo?.resources?.size ?: 0)) {
+        if (text.text != initialContent || viewModel.uploadResources.size != (baseline?.resources?.size ?: 0)) {
             showExitConfirmation = true
         } else {
             navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
@@ -290,6 +318,16 @@ fun MemoInputPage(
             memo != null -> {
                 viewModel.uploadResources.addAll(memo.resources)
                 initialContent = memo.content
+                // Adopt the database row if the list copy was stale and nothing was edited yet
+                val fresh = viewModel.loadMemo(memo.identifier)
+                if (fresh != null && fresh != memo && isUntouchedExistingMemo()) {
+                    baseline = fresh
+                    initialContent = fresh.content
+                    currentVisibility = fresh.visibility
+                    viewModel.uploadResources.clear()
+                    viewModel.uploadResources.addAll(fresh.resources)
+                    text = TextFieldValue(fresh.content, TextRange(fresh.content.length))
+                }
             }
 
             shareContent != null -> {
@@ -322,11 +360,7 @@ fun MemoInputPage(
         if (autosaveIdentifier == null && text.text.isEmpty() && viewModel.uploadResources.isEmpty()) {
             return@LaunchedEffect
         }
-        if (!autosaveDirty && memo != null &&
-            text.text == memo.content &&
-            currentVisibility == memo.visibility &&
-            viewModel.uploadResources.size == memo.resources.size
-        ) {
+        if (isUntouchedExistingMemo()) {
             return@LaunchedEffect
         }
         autosaveDirty = true
@@ -337,6 +371,25 @@ fun MemoInputPage(
             clearDraftOnCreate = shareContent == null
         ).suspendOnSuccess {
             autosaveIdentifier = data.identifier
+        }
+    }
+
+    // Leaving the app: rewrite the latest text and push it now. The deferred push only lives as long
+    // as the process, and the app lock tears this page down on return without calling handleExit.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP && autosaveEnabled && autosaveDirty && !exiting) {
+                viewModel.flushAutosaveInBackground(
+                    text.text,
+                    currentVisibility,
+                    extractCustomTags(text.text).toList(),
+                    clearDraftOnCreate = shareContent == null
+                )
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
