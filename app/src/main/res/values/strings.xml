@@ -105,10 +105,10 @@
     <string name="local_export_success">Local data exported</string>
     <string name="local_export_failed">Failed to export local data</string>
     <string name="transfer_local_memos">Transfer to Server</string>
-    <string name="transfer_local_memos_message">Copy all local memos and their attachments to this account. They upload on its next sync. The local memos are kept, so transferring twice creates duplicates.</string>
+    <string name="transfer_local_memos_message">Copy all local memos and their attachments to this account. They upload on its next sync. The local memos are kept. Memos already transferred to this account are skipped, so you can run it again if it was interrupted.</string>
     <string name="transfer_local_memos_success">%1$d memos copied to %2$s</string>
     <string name="transfer_local_memos_failed">Failed to transfer local memos</string>
-    <string name="transfer_local_memos_empty">No local memos to transfer</string>
+    <string name="transfer_local_memos_empty">No new local memos to transfer</string>
 
     <!-- App lock strings -->
     <string name="security">Security</string>
