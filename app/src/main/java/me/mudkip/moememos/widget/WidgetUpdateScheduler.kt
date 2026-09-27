@@ -2,6 +2,7 @@ package me.mudkip.moememos.widget
 
 import android.content.Context
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -47,6 +48,11 @@ object WidgetUpdateScheduler {
         val memoryWidgetIds = manager.getGlanceIds(MemoryGlanceWidget::class.java)
 
         memosWidgetIds.forEach { glanceId ->
+            // update() alone only redraws a widget whose session is still running; its memo list
+            // reloads when refreshKey changes, so bump it like the widget's refresh button does
+            updateAppWidgetState(context, glanceId) { prefs ->
+                prefs[MoeMemosWidgetKeys.refreshKey] = (prefs[MoeMemosWidgetKeys.refreshKey] ?: 0L) + 1
+            }
             MoeMemosGlanceWidget().update(context, glanceId)
         }
         memoryWidgetIds.forEach { glanceId ->
