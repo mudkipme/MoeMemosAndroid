@@ -653,13 +653,27 @@ class SyncingRepository(
             }
 
             val createdRemoteId = remoteMemoId(created.data)
+            var remoteMemo = created.data.copy(remoteId = createdRemoteId)
 
-            reconcileServerCreatedMemo(
-                local,
-                created.data.copy(
+            // Create cannot set pinned or archived; apply them right away so the memo keeps them
+            if (local.pinned || local.archived) {
+                val updated = remoteRepository.updateMemo(
                     remoteId = createdRemoteId,
+                    content = local.content,
+                    resourceRemoteIds = remoteResourceIds,
+                    visibility = local.visibility,
+                    pinned = local.pinned,
+                    archived = local.archived
                 )
-            )
+                if (updated !is ApiResponse.Success) {
+                    // Keep the server linkage and needsSync: the next push is an update and retries
+                    reconcileServerCreatedMemo(local, remoteMemo, keepLocal = true)
+                    return false
+                }
+                remoteMemo = updated.data.copy(remoteId = createdRemoteId, archived = local.archived)
+            }
+
+            reconcileServerCreatedMemo(local, remoteMemo)
             true
         }
     }
@@ -688,12 +702,12 @@ class SyncingRepository(
         return pushLocalMemo(duplicateLocal.identifier, forceCreate = true)
     }
 
-    private suspend fun reconcileServerCreatedMemo(pushed: MemoEntity, remoteMemo: Memo) {
+    private suspend fun reconcileServerCreatedMemo(pushed: MemoEntity, remoteMemo: Memo, keepLocal: Boolean = false) {
         // Each write is conditional on the row being unchanged since it was read, so a local edit
         // landing in between (autosave writes on every keystroke) is never overwritten; retry instead.
         for (attempt in 1..MAX_RECONCILE_ATTEMPTS) {
             val current = memoDao.getMemoById(pushed.identifier, accountKey) ?: break
-            val written = if (current.lastModified != pushed.lastModified) {
+            val written = if (keepLocal || current.lastModified != pushed.lastModified) {
                 // edited locally while the push was in flight: keep local fields, record server linkage
                 memoDao.insertMemoIfUnchanged(
                     current.copy(
@@ -715,7 +729,9 @@ class SyncingRepository(
                 return
             }
         }
-        applyRemoteMemo(remoteMemo, preferredLocalIdentifier = pushed.identifier, keepPendingResources = true)
+        if (!keepLocal) {
+            applyRemoteMemo(remoteMemo, preferredLocalIdentifier = pushed.identifier, keepPendingResources = true)
+        }
     }
 
     private suspend fun ensureUploadedResources(localMemo: MemoEntity): UploadedResourcesResult {

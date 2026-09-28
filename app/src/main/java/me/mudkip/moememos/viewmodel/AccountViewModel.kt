@@ -11,6 +11,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -72,6 +73,15 @@ class AccountViewModel @AssistedInject constructor(
             else -> {
                 instanceProfile = null
             }
+        }
+    }
+
+    suspend fun transferLocalMemos(targetAccountKey: String): Result<Int> = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+        if (selectedAccountKey != Account.Local().accountKey()) {
+            return@withContext Result.failure(IllegalStateException("Transfer is available for local account only"))
+        }
+        runCatching {
+            accountService.copyLocalMemosToAccount(targetAccountKey)
         }
     }
 

@@ -16,6 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -26,6 +29,7 @@ import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemosAccount
+import me.mudkip.moememos.data.model.displayTitle
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.page.common.RouteName
@@ -53,6 +57,9 @@ fun AccountPage(
     val isLocalAccount = selectedAccountKey == Account.Local().accountKey() || selectedAccount is Account.Local
     val showSwitchAccountButton = selectedAccountKey != currentAccount?.accountKey()
     val coroutineScope = rememberCoroutineScope()
+    val accounts by userStateViewModel.accounts.collectAsStateWithLifecycle()
+    val transferTargets = accounts.filter { it !is Account.Local }
+    var transferInProgress by remember { mutableStateOf(false) }
     val exportLauncher = rememberLauncherForActivityResult(CreateDocument("application/zip")) { uri ->
         if (uri == null) {
             return@rememberLauncherForActivityResult
@@ -86,12 +93,40 @@ fun AccountPage(
             LocalAccountPage(
                 innerPadding = innerPadding,
                 showSwitchAccountButton = showSwitchAccountButton,
+                transferTargets = transferTargets,
+                transferInProgress = transferInProgress,
                 onSwitchAccount = {
                     coroutineScope.launch {
                         userStateViewModel.switchAccount(selectedAccountKey)
                             .onSuccess {
                                 navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                             }
+                    }
+                },
+                onTransferLocalMemos = { target ->
+                    transferInProgress = true
+                    coroutineScope.launch {
+                        val result = viewModel.transferLocalMemos(target.accountKey())
+                        transferInProgress = false
+                        result.onSuccess { count ->
+                            if (count == 0) {
+                                Toast.makeText(navController.context, R.string.transfer_local_memos_empty.string, Toast.LENGTH_SHORT).show()
+                                return@onSuccess
+                            }
+                            val name = target.getAccountInfo()?.displayTitle().orEmpty()
+                            Toast.makeText(
+                                navController.context,
+                                navController.context.getString(R.string.transfer_local_memos_success, count, name),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            // Show the copies where they went; returning to the list syncs them up.
+                            // The switch happens even if loading the user fails (server offline).
+                            userStateViewModel.switchAccount(target.accountKey())
+                            navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
+                        }.onFailure { error ->
+                            val message = error.localizedMessage ?: R.string.transfer_local_memos_failed.string
+                            Toast.makeText(navController.context, message, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 },
                 onExportLocalAccount = {
