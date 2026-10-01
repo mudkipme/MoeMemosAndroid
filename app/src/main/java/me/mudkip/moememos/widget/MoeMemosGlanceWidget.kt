@@ -61,6 +61,7 @@ import me.mudkip.moememos.data.model.MemoEditGesture
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.settingsDataStore
+import me.mudkip.moememos.util.hasCustomTag
 import timber.log.Timber
 import java.time.Instant
 
@@ -113,7 +114,7 @@ class MoeMemosGlanceWidget : GlanceAppWidget() {
                     memoService.getRepository().listMemos().suspendOnSuccess {
                         // Filter and sort memos
                         val filteredMemos = data.filter { memo ->
-                            val matchesTag = filterTag == null || memo.content.contains("#$filterTag")
+                            val matchesTag = filterTag == null || hasCustomTag(memo.content, filterTag)
                             val matchesPinned = !pinnedOnly || memo.pinned
                             matchesTag && matchesPinned
                         }

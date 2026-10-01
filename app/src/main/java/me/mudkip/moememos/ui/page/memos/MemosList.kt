@@ -40,6 +40,7 @@ import me.mudkip.moememos.ui.component.MemosCard
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.util.edgeToEdgeContentPadding
 import me.mudkip.moememos.ui.page.common.RouteName
+import me.mudkip.moememos.util.hasCustomTag
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.ManualSyncResult
@@ -78,8 +79,7 @@ fun MemosList(
 
         tag?.let { tag ->
             fullList = fullList.filter { memo ->
-                memo.content.contains("#$tag") ||
-                        memo.content.contains("#$tag/")
+                hasCustomTag(memo.content, tag)
             }
         }
 

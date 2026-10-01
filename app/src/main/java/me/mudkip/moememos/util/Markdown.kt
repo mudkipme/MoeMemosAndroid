@@ -76,6 +76,11 @@ fun extractCustomTags(markdownText: String): Set<String> {
     return tags
 }
 
+/** Matches a parsed tag or its descendants, preserving case-sensitive tag names. */
+fun hasCustomTag(markdownText: String, tag: String): Boolean {
+    return extractCustomTags(markdownText).any { it == tag || it.startsWith("$tag/") }
+}
+
 fun ASTNode.findNodeAtPosition(position: Int): ASTNode? {
     if (position in startOffset until endOffset) {
         for (child in children) {
