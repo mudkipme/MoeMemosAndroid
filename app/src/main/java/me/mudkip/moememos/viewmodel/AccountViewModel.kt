@@ -12,6 +12,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -22,11 +26,16 @@ import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.service.AccountService
+import me.mudkip.moememos.data.service.LocalBackupService
+import me.mudkip.moememos.data.service.LocalImportPreview
+import me.mudkip.moememos.data.service.LocalImportResult
+import me.mudkip.moememos.data.service.PreparedLocalImport
 
 @HiltViewModel(assistedFactory = AccountViewModel.AccountViewModelFactory::class)
 class AccountViewModel @AssistedInject constructor(
     @Assisted val selectedAccountKey: String,
-    private val accountService: AccountService
+    private val accountService: AccountService,
+    private val localBackupService: LocalBackupService,
 ): ViewModel() {
     sealed class RemoteApi {
         class MemosV0(val api: MemosV0Api): RemoteApi()
@@ -85,12 +94,72 @@ class AccountViewModel @AssistedInject constructor(
         }
     }
 
-    suspend fun exportLocalAccount(destinationUri: Uri): Result<Unit> = withContext(viewModelScope.coroutineContext) {
-        if (selectedAccountKey != Account.Local().accountKey()) {
-            return@withContext Result.failure(IllegalStateException("Export is available for local account only"))
+    var backupBusy by mutableStateOf(false)
+        private set
+    var importPreview: LocalImportPreview? by mutableStateOf(null)
+        private set
+    var importResult: LocalImportResult? by mutableStateOf(null)
+        private set
+    var backupError: String? by mutableStateOf(null)
+        private set
+    var exportSucceeded by mutableStateOf(false)
+        private set
+    private var preparedImport: PreparedLocalImport? = null
+
+    fun exportLocalAccount(destinationUri: Uri) = backupOperation {
+        localBackupService.export(destinationUri)
+        exportSucceeded = true
+    }
+
+    fun prepareLocalImport(sourceUri: Uri) = backupOperation {
+        dismissImportPreview()
+        val prepared = localBackupService.prepareImport(sourceUri)
+        preparedImport = prepared
+        importPreview = prepared.preview
+    }
+
+    fun restoreLocalImport() = backupOperation {
+        val prepared = preparedImport ?: return@backupOperation
+        preparedImport = null
+        importPreview = null
+        try {
+            importResult = localBackupService.restore(prepared)
+        } finally {
+            withContext(NonCancellable + Dispatchers.IO) { prepared.close() }
         }
-        runCatching {
-            accountService.exportLocalAccountZip(destinationUri)
+    }
+
+    fun dismissImportPreview() {
+        val prepared = preparedImport
+        preparedImport = null
+        importPreview = null
+        if (prepared != null) CoroutineScope(Dispatchers.IO).launch { prepared.close() }
+    }
+
+    fun clearBackupMessage() {
+        backupError = null
+        importResult = null
+        exportSucceeded = false
+    }
+
+    private fun backupOperation(action: suspend () -> Unit) {
+        if (backupBusy || selectedAccountKey != Account.Local().accountKey()) return
+        backupBusy = true
+        clearBackupMessage()
+        viewModelScope.launch {
+            try {
+                action()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                backupError = error.localizedMessage ?: "Unable to read or write local backup"
+            } finally {
+                backupBusy = false
+            }
         }
+    }
+
+    override fun onCleared() {
+        dismissImportPreview()
     }
 }
