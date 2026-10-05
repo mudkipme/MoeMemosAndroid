@@ -24,7 +24,7 @@ Or download and install the APK package from the [Releases section](https://gith
 ## Features
 
 - Write memos like tweeting to yourself
-- Use Moe Memos locally on your device (with export) or sync with your own ✍️memos server
+- Use Moe Memos locally on your device (with backup and restore) or sync with your own ✍️memos server
 - Offline-first experience with automatic sync when you are back online
 - Material You design with dynamic themes and themed icon
 - Rich memo content: Markdown editor and renderer, images, non-image attachments, and to-do items

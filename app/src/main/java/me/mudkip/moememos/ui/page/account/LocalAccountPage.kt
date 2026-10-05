@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,9 +40,11 @@ fun LocalAccountPage(
     showSwitchAccountButton: Boolean,
     transferTargets: List<Account>,
     transferInProgress: Boolean,
+    backupInProgress: Boolean,
     onSwitchAccount: () -> Unit,
     onTransferLocalMemos: (Account) -> Unit,
-    onExportLocalAccount: () -> Unit
+    onExportLocalAccount: () -> Unit,
+    onImportLocalAccount: () -> Unit,
 ) {
     var showTransferDialog by remember { mutableStateOf(false) }
 
@@ -86,6 +89,7 @@ fun LocalAccountPage(
             item {
                 FilledTonalButton(
                     onClick = onSwitchAccount,
+                    enabled = !backupInProgress && !transferInProgress,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 10.dp),
@@ -100,7 +104,7 @@ fun LocalAccountPage(
             item {
                 FilledTonalButton(
                     onClick = { showTransferDialog = true },
-                    enabled = !transferInProgress,
+                    enabled = !transferInProgress && !backupInProgress,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
@@ -114,12 +118,37 @@ fun LocalAccountPage(
         item {
             FilledTonalButton(
                 onClick = onExportLocalAccount,
+                enabled = !backupInProgress && !transferInProgress,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp),
+                    .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
                 contentPadding = PaddingValues(10.dp)
             ) {
                 Text(R.string.export_local_account.string)
+            }
+        }
+
+        item {
+            FilledTonalButton(
+                onClick = onImportLocalAccount,
+                enabled = !backupInProgress && !transferInProgress,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
+                contentPadding = PaddingValues(10.dp),
+            ) { Text(R.string.import_local_account.string) }
+            Text(
+                R.string.local_backup_description.string,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline,
+            )
+        }
+
+        if (backupInProgress) {
+            item {
+                Column(Modifier.fillMaxWidth().padding(20.dp)) {
+                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                    Text(R.string.local_backup_processing.string, modifier = Modifier.padding(top = 8.dp))
+                }
             }
         }
     }

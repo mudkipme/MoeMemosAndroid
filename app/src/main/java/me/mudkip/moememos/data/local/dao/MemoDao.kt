@@ -48,6 +48,13 @@ interface MemoDao {
     @Upsert
     suspend fun insertMemo(memo: MemoEntity)
 
+    // Imports must never replace a row, including an identifier owned by another account.
+    @Insert
+    suspend fun insertImportedMemo(memo: MemoEntity)
+
+    @Insert
+    suspend fun insertImportedResource(resource: ResourceEntity)
+
     /**
      * Upserts [memo] only if its stored row still has [expectedLastModified], i.e. nothing wrote the
      * row since the caller read it. Returns false (and writes nothing) otherwise or if the row is gone.
