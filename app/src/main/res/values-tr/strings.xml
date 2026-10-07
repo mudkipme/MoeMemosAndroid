@@ -33,6 +33,10 @@
     <string name="access_token">Access Token</string>
     <string name="edit">Düzenle</string>
     <string name="close">Kapat</string>
+    <string name="save_changes_title">Değişiklikler kaydedilsin mi?</string>
+    <string name="save_changes_message">Çıkmadan önce değişiklikleri kaydetmek istiyor musunuz?</string>
+    <string name="save">Kaydet</string>
+    <string name="discard">Değişiklikleri at</string>
     <string name="add_task">Görev Ekle</string>
     <string name="add_image">Resim Ekle</string>
     <string name="take_photo">Fotoğraf Çek</string>

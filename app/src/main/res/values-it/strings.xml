@@ -33,6 +33,10 @@
     <string name="access_token">Token di accesso</string>
     <string name="edit">Modifica</string>
     <string name="close">Chiudi</string>
+    <string name="save_changes_title">Salvare le modifiche?</string>
+    <string name="save_changes_message">Vuoi salvare le modifiche prima di uscire?</string>
+    <string name="save">Salva</string>
+    <string name="discard">Scarta</string>
     <string name="add_task">Aggiungi Task</string>
     <string name="add_image">Aggiungi Immagine</string>
     <string name="take_photo">Fai una foto</string>

@@ -33,6 +33,10 @@
     <string name="access_token">Jeton d\'accès</string>
     <string name="edit">Modifier</string>
     <string name="close">Fermer</string>
+    <string name="save_changes_title">Enregistrer les modifications ?</string>
+    <string name="save_changes_message">Voulez-vous enregistrer les modifications avant de quitter ?</string>
+    <string name="save">Enregistrer</string>
+    <string name="discard">Ignorer</string>
     <string name="add_task">Ajouter une Tâche</string>
     <string name="add_image">Ajouter une Image</string>
     <string name="take_photo">Prendre une Photo</string>

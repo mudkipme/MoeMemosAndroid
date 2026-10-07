@@ -32,6 +32,10 @@
     <string name="account_name">Название аккаунта (необязательно)</string>
     <string name="edit">Редактировать</string>
     <string name="close">Закрыть</string>
+    <string name="save_changes_title">Сохранить изменения?</string>
+    <string name="save_changes_message">Хотите сохранить изменения перед выходом?</string>
+    <string name="save">Сохранить</string>
+    <string name="discard">Отбросить</string>
     <string name="add_task">Добавить задачу</string>
     <string name="add_image">Добавить изображение</string>
     <string name="take_photo">Сделать снимок</string>
