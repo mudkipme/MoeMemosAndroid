@@ -1,0 +1,17 @@
+## What's Changed
+* Added support for Memos 0.31.0.
+* Added support for restoring local backups.
+* Added support for transferring local memos and attachments to a server account by @Ekats.
+* Added client certificate support for mTLS by @tkutsuya.
+* Added Ukrainian localization by @draskold.
+* Added support for smaller home screen widgets by @bbohue.
+* Improved autosave reliability and fixed edits being lost when syncing or leaving the editor by @Ekats.
+* Fixed pinned and archived status being lost when memos are first uploaded by @Ekats.
+* Fixed widgets not refreshing after editing memos by @Ekats.
+* Fixed duplicate attachment uploads when saving memos.
+
+## New Contributors
+* @bbohue made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/386
+* @tkutsuya made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/387
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/2.0.5...2.0.6
