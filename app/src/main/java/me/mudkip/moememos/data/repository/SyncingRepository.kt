@@ -127,12 +127,7 @@ class SyncingRepository(
             memoDao.insertMemo(localMemo)
 
             resources.forEach { resource ->
-                memoDao.insertResource(
-                    resource.copy(
-                        accountKey = accountKey,
-                        memoId = localMemo.identifier
-                    )
-                )
+                memoDao.attachResourceToMemo(resource, localMemo.identifier, accountKey)
             }
 
             refreshUnsyncedCount()
@@ -184,12 +179,7 @@ class SyncingRepository(
                     }
                 }
                 resources.forEach { resource ->
-                    memoDao.insertResource(
-                        resource.copy(
-                            accountKey = accountKey,
-                            memoId = identifier
-                        )
-                    )
+                    memoDao.attachResourceToMemo(resource, identifier, accountKey)
                 }
             }
 
@@ -779,13 +769,12 @@ class SyncingRepository(
         )
 
         val remoteResource = uploaded.getOrNull() ?: return null
-        val synced = resource.copy(
+        return memoDao.recordResourceUpload(
+            identifier = resource.identifier,
+            accountKey = accountKey,
             remoteId = remoteResourceId(remoteResource),
-            uri = remoteResource.uri,
-            localUri = resource.localUri ?: resource.uri
+            uri = remoteResource.uri
         )
-        memoDao.insertResource(synced)
-        return synced
     }
 
     /**

@@ -78,6 +78,27 @@ interface MemoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertResource(resource: ResourceEntity)
 
+    @Transaction
+    suspend fun attachResourceToMemo(resource: ResourceEntity, memoId: String, accountKey: String) {
+        // The editor may still hold the pre-upload snapshot. Keep the stored server metadata.
+        val current = getResourceById(resource.identifier, accountKey) ?: resource
+        insertResource(current.copy(accountKey = accountKey, memoId = memoId))
+    }
+
+    @Transaction
+    suspend fun recordResourceUpload(
+        identifier: String,
+        accountKey: String,
+        remoteId: String,
+        uri: String
+    ): ResourceEntity? {
+        // The resource may have been attached or removed while the upload was in flight.
+        val current = getResourceById(identifier, accountKey) ?: return null
+        val uploaded = current.copy(remoteId = remoteId, uri = uri, localUri = current.localUri ?: current.uri)
+        insertResource(uploaded)
+        return uploaded
+    }
+
     @Delete
     suspend fun deleteResource(resource: ResourceEntity)
 
