@@ -32,6 +32,10 @@
     <string name="account_name">アカウント名（任意）</string>
     <string name="edit">編集</string>
     <string name="close">閉じる</string>
+    <string name="save_changes_title">変更を保存しますか？</string>
+    <string name="save_changes_message">終了する前に変更を保存しますか？</string>
+    <string name="save">保存</string>
+    <string name="discard">破棄</string>
     <string name="add_task">タスクを追加</string>
     <string name="add_image">画像を追加</string>
     <string name="take_photo">写真を撮る</string>

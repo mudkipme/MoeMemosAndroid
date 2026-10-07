@@ -43,6 +43,10 @@
     <string name="remove_client_certificate_message">Moe Memos will no longer use the selected client certificate.</string>
     <string name="edit">Edit</string>
     <string name="close">Close</string>
+    <string name="save_changes_title">Save Changes?</string>
+    <string name="save_changes_message">Do you want to save changes before exiting?</string>
+    <string name="save">Save</string>
+    <string name="discard">Discard</string>
     <string name="add_task">Add Task</string>
     <string name="add_image">Add Image</string>
     <string name="take_photo">Take Photo</string>

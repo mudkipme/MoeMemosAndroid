@@ -351,16 +351,16 @@ internal fun SaveChangesDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Save Changes?") },
-        text = { Text("Do you want to save changes before exiting?") },
+        title = { Text(stringResource(R.string.save_changes_title)) },
+        text = { Text(stringResource(R.string.save_changes_message)) },
         confirmButton = {
             Button(onClick = onSave) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             Button(onClick = onDiscard) {
-                Text("Discard")
+                Text(stringResource(R.string.discard))
             }
         }
     )

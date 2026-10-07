@@ -32,6 +32,10 @@
     <string name="account_name">Kontoname (freiwillig)</string>
     <string name="edit">Bearbeiten</string>
     <string name="close">Schließen</string>
+    <string name="save_changes_title">Änderungen speichern?</string>
+    <string name="save_changes_message">Möchten Sie die Änderungen vor dem Beenden speichern?</string>
+    <string name="save">Speichern</string>
+    <string name="discard">Verwerfen</string>
     <string name="add_task">Aufgabe hinzufügen</string>
     <string name="add_image">Bild hinzufügen</string>
     <string name="take_photo">Foto aufnehmen</string>

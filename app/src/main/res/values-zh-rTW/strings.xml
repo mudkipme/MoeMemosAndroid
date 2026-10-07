@@ -32,6 +32,10 @@
     <string name="account_name">帳戶名稱（選填）</string>
     <string name="edit">編輯</string>
     <string name="close">關閉</string>
+    <string name="save_changes_title">儲存變更？</string>
+    <string name="save_changes_message">是否在離開前儲存變更？</string>
+    <string name="save">儲存</string>
+    <string name="discard">捨棄</string>
     <string name="add_task">新增任務</string>
     <string name="add_image">新增圖片</string>
     <string name="take_photo">拍照</string>
