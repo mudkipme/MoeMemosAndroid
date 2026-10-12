@@ -14,6 +14,8 @@ import me.mudkip.moememos.data.api.MemosVisibility
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.model.MemoLocation
+import me.mudkip.moememos.data.model.MemoLocationChange
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.User
@@ -67,7 +69,8 @@ class MemosV0Repository (
         visibility: MemoVisibility,
         resourceRemoteIds: List<String>,
         tags: List<String>?,
-        createdAt: Instant?
+        createdAt: Instant?,
+        location: MemoLocation?
     ): ApiResponse<Memo> {
         val result = memosApi.createMemo(
             MemosV0CreateMemoInput(
@@ -92,7 +95,8 @@ class MemosV0Repository (
         visibility: MemoVisibility?,
         tags: List<String>?,
         pinned: Boolean?,
-        archived: Boolean?
+        archived: Boolean?,
+        location: MemoLocationChange?
     ): ApiResponse<Memo> {
         var touched = false
         var result: ApiResponse<Memo> = ApiResponse.exception(MoeMemosException.invalidParameter)

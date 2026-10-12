@@ -1,10 +1,12 @@
 package me.mudkip.moememos.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Embedded
 import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import me.mudkip.moememos.data.model.MemoRepresentable
+import me.mudkip.moememos.data.model.MemoLocation
 import me.mudkip.moememos.data.model.MemoVisibility
 import java.time.Instant
 
@@ -28,7 +30,9 @@ data class MemoEntity(
     val needsSync: Boolean = true,
     val isDeleted: Boolean = false,
     val lastModified: Instant = Instant.now(),
-    val lastSyncedAt: Instant? = null
+    val lastSyncedAt: Instant? = null,
+    @Embedded(prefix = "location_")
+    override val location: MemoLocation? = null,
 ) : MemoRepresentable {
     @Ignore
     override var resources: List<ResourceEntity> = emptyList()

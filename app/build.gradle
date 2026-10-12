@@ -78,6 +78,7 @@ android {
     }
 
     namespace = 'me.mudkip.moememos'
+    sourceSets.androidTest.assets.srcDirs += "$projectDir/schemas"
 }
 
 dependencies {

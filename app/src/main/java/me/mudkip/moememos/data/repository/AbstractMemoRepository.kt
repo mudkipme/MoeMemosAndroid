@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.ResourceEntity
+import me.mudkip.moememos.data.model.MemoLocation
+import me.mudkip.moememos.data.model.MemoLocationChange
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.SyncStatus
 import me.mudkip.moememos.data.model.User
@@ -21,8 +23,8 @@ abstract class AbstractMemoRepository {
     abstract suspend fun listMemos(): ApiResponse<List<MemoEntity>>
     abstract suspend fun listArchivedMemos(): ApiResponse<List<MemoEntity>>
     abstract suspend fun getMemo(identifier: String): MemoEntity?
-    abstract suspend fun createMemo(content: String, visibility: MemoVisibility, resources: List<ResourceEntity>, tags: List<String>? = null, deferPush: Boolean = false): ApiResponse<MemoEntity>
-    abstract suspend fun updateMemo(identifier: String, content: String? = null, resources: List<ResourceEntity>? = null, visibility: MemoVisibility? = null, tags: List<String>? = null, pinned: Boolean? = null, deferPush: Boolean = false): ApiResponse<MemoEntity>
+    abstract suspend fun createMemo(content: String, visibility: MemoVisibility, resources: List<ResourceEntity>, tags: List<String>? = null, deferPush: Boolean = false, location: MemoLocation? = null): ApiResponse<MemoEntity>
+    abstract suspend fun updateMemo(identifier: String, content: String? = null, resources: List<ResourceEntity>? = null, visibility: MemoVisibility? = null, tags: List<String>? = null, pinned: Boolean? = null, deferPush: Boolean = false, location: MemoLocationChange? = null): ApiResponse<MemoEntity>
     open suspend fun flushPendingPush(identifier: String) = Unit
     abstract suspend fun deleteMemo(identifier: String): ApiResponse<Unit>
     abstract suspend fun archiveMemo(identifier: String): ApiResponse<Unit>

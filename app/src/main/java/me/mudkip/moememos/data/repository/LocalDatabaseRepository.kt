@@ -11,6 +11,8 @@ import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.MemoWithResources
 import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.Account
+import me.mudkip.moememos.data.model.MemoLocation
+import me.mudkip.moememos.data.model.MemoLocationChange
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.util.extractCustomTags
@@ -58,7 +60,8 @@ class LocalDatabaseRepository(
         visibility: MemoVisibility,
         resources: List<ResourceEntity>,
         tags: List<String>?,
-        deferPush: Boolean
+        deferPush: Boolean,
+        location: MemoLocation?
     ): ApiResponse<MemoEntity> {
         return try {
             val now = Instant.now()
@@ -66,6 +69,7 @@ class LocalDatabaseRepository(
                 identifier = UUID.randomUUID().toString(),
                 accountKey = accountKey,
                 content = content,
+                location = location,
                 date = now,
                 visibility = visibility,
                 pinned = false,
@@ -99,7 +103,8 @@ class LocalDatabaseRepository(
         visibility: MemoVisibility?,
         tags: List<String>?,
         pinned: Boolean?,
-        deferPush: Boolean
+        deferPush: Boolean,
+        location: MemoLocationChange?
     ): ApiResponse<MemoEntity> {
         return try {
             val existingMemo = memoDao.getMemoById(identifier, accountKey)
@@ -108,6 +113,7 @@ class LocalDatabaseRepository(
             val updatedAt = Instant.now()
             val updatedMemo = existingMemo.copy(
                 content = content ?: existingMemo.content,
+                location = if (location != null) location.value else existingMemo.location,
                 visibility = visibility ?: existingMemo.visibility,
                 pinned = pinned ?: existingMemo.pinned,
                 lastModified = updatedAt,

@@ -128,4 +128,15 @@
     <string name="retry">Повторить</string>
     <string name="failed_to_load_memos">Не удалось загрузить заметки</string>
     <string name="select_memo">Выберите заметку для чтения</string>
+    <string name="memo_location">Местоположение</string>
+    <string name="location_name">Название места</string>
+    <string name="latitude">Широта</string>
+    <string name="longitude">Долгота</string>
+    <string name="use_current_location">Использовать текущее местоположение</string>
+    <string name="remove_location">Удалить местоположение</string>
+    <string name="location_permission_denied">Доступ к местоположению запрещён. Можно ввести координаты вручную.</string>
+    <string name="location_services_disabled">Включите определение местоположения или введите координаты вручную.</string>
+    <string name="location_unavailable">Не удалось определить текущее местоположение. Повторите попытку или введите координаты вручную.</string>
+    <string name="location_settings">Настройки местоположения</string>
+    <string name="location_no_map_app">Нет доступного приложения карт или браузера.</string>
 </resources>

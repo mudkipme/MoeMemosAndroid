@@ -4,7 +4,10 @@ import android.content.ActivityNotFoundException
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -14,11 +17,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -29,19 +32,22 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.mudkip.moememos.MoeMemosFileProvider
+import me.mudkip.moememos.data.model.Account
+import me.mudkip.moememos.data.model.MemoLocation
+import me.mudkip.moememos.data.model.MemoLocationChange
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.ShareContent
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ext.suspendOnErrorMessage
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import me.mudkip.moememos.util.extractCustomTags
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
@@ -68,20 +74,27 @@ fun MemoInputPage(
     // copy above is not refreshed while a push or sync runs, so it can be older).
     var baseline by remember { mutableStateOf(memo) }
     val autosaveEnabled by viewModel.autosaveEnabled.collectAsStateWithLifecycle(initialValue = false)
-    var autosaveIdentifier by rememberSaveable { mutableStateOf(memo?.identifier) }
+    var autosaveIdentifier by rememberSaveable { mutableStateOf(memoIdentifier ?: memo?.identifier) }
+    var editorRestored by rememberSaveable { mutableStateOf(false) }
+    var initialized by remember { mutableStateOf(false) }
     var autosaveDirty by remember { mutableStateOf(false) }
     var exiting by remember { mutableStateOf(false) }
     var initialContent by remember { mutableStateOf(memo?.content ?: "") }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(memo?.content ?: "", TextRange(memo?.content?.length ?: 0)))
     }
+    var locationState by rememberSaveable(stateSaver = Saver<MemoLocationChange, String>(
+        save = { Json.encodeToString(it.value) },
+        restore = { MemoLocationChange(Json.decodeFromString<MemoLocation?>(it)) }
+    )) { mutableStateOf(MemoLocationChange(memo?.location)) }
+    var showLocationDialog by rememberSaveable { mutableStateOf(false) }
     var visibilityMenuExpanded by remember { mutableStateOf(false) }
     var tagMenuExpanded by remember { mutableStateOf(false) }
     var photoImageUri by remember { mutableStateOf<Uri?>(null) }
     var showExitConfirmation by remember { mutableStateOf(false) }
 
     val defaultVisibility = userStateViewModel.currentUser?.defaultVisibility ?: MemoVisibility.PRIVATE
-    var currentVisibility by remember { mutableStateOf(memo?.visibility ?: defaultVisibility) }
+    var currentVisibility by rememberSaveable { mutableStateOf(memo?.visibility ?: defaultVisibility) }
 
     val validMimeTypePrefixes = remember {
         setOf("text/")
@@ -94,6 +107,7 @@ fun MemoInputPage(
         return !autosaveDirty &&
             text.text == base.content &&
             currentVisibility == base.visibility &&
+            locationState.value == base.location &&
             viewModel.uploadResources.size == base.resources.size
     }
 
@@ -107,7 +121,7 @@ fun MemoInputPage(
         }
 
         if (autosaveEnabled) {
-            viewModel.flushAutosave(text.text, currentVisibility, tags.toList(), clearDraftOnCreate = shareContent == null).suspendOnSuccess {
+            viewModel.flushAutosave(text.text, currentVisibility, tags.toList(), clearDraftOnCreate = shareContent == null, location = locationState.value).suspendOnSuccess {
                 exiting = true
                 memosViewModel.refreshLocalSnapshot()
                 navController.popBackStack()
@@ -117,8 +131,8 @@ fun MemoInputPage(
             return@launch
         }
 
-        memo?.let {
-            viewModel.editMemo(memo.identifier, text.text, currentVisibility, tags.toList()).suspendOnSuccess {
+        baseline?.let {
+            viewModel.editMemo(it.identifier, text.text, currentVisibility, tags.toList(), locationState.value).suspendOnSuccess {
                 memosViewModel.refreshLocalSnapshot()
                 navController.popBackStack()
             }.suspendOnErrorMessage { message ->
@@ -127,8 +141,10 @@ fun MemoInputPage(
             return@launch
         }
 
-        viewModel.createMemo(text.text, currentVisibility, tags.toList()).suspendOnSuccess {
+        viewModel.createMemo(text.text, currentVisibility, tags.toList(), locationState.value).suspendOnSuccess {
+            exiting = true
             text = TextFieldValue("")
+            locationState = MemoLocationChange(null)
             viewModel.updateDraft("")
             memosViewModel.refreshLocalSnapshot()
             navController.popBackStack()
@@ -151,7 +167,8 @@ fun MemoInputPage(
                         text.text,
                         currentVisibility,
                         extractCustomTags(text.text).toList(),
-                        clearDraftOnCreate = shareContent == null
+                        clearDraftOnCreate = shareContent == null,
+                        location = locationState.value
                     )
                 }
                 exiting = true
@@ -160,7 +177,7 @@ fun MemoInputPage(
             }
             return
         }
-        if (text.text != initialContent || viewModel.uploadResources.size != (baseline?.resources?.size ?: 0)) {
+        if (text.text != initialContent || locationState.value != baseline?.location || currentVisibility != (baseline?.visibility ?: defaultVisibility) || viewModel.uploadResources.size != (baseline?.resources?.size ?: 0)) {
             showExitConfirmation = true
         } else {
             navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
@@ -213,8 +230,8 @@ fun MemoInputPage(
         modifier = Modifier.imePadding(),
         topBar = {
             MemoInputTopBar(
-                isEditMode = memo != null,
-                canSubmit = text.text.isNotEmpty() || viewModel.uploadResources.isNotEmpty(),
+                isEditMode = memoIdentifier != null,
+                canSubmit = initialized && (text.text.isNotEmpty() || viewModel.uploadResources.isNotEmpty()),
                 onClose = { handleExit() },
                 onSubmit = { submit() }
             )
@@ -256,6 +273,8 @@ fun MemoInputPage(
                         }
                     }
                 },
+                showLocation = initialized && (currentAccount is Account.Local || currentAccount is Account.MemosV1),
+                onLocationClick = { showLocationDialog = true },
                 onFormat = { format ->
                     text = applyMarkdownFormatToText(text, format)
                 }
@@ -290,7 +309,20 @@ fun MemoInputPage(
                 text = text.copy(text = text.text + droppedText)
             },
             uploadResources = viewModel.uploadResources.toList(),
-            inputViewModel = viewModel
+            inputViewModel = viewModel,
+            location = locationState.value,
+            onLocationClick = { showLocationDialog = true }
+        )
+    }
+
+    if (showLocationDialog) {
+        MemoLocationDialog(
+            location = locationState.value,
+            onConfirm = {
+                locationState = MemoLocationChange(it)
+                showLocationDialog = false
+            },
+            onDismiss = { showLocationDialog = false }
         )
     }
 
@@ -302,7 +334,10 @@ fun MemoInputPage(
             },
             onDiscard = {
                 showExitConfirmation = false
+                exiting = true
                 text = TextFieldValue("")
+                locationState = MemoLocationChange(null)
+                if (memoIdentifier == null && shareContent == null) viewModel.updateDraft("")
                 navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
             },
             onDismiss = {
@@ -314,23 +349,26 @@ fun MemoInputPage(
     LaunchedEffect(Unit) {
         viewModel.autosaveIdentifier = autosaveIdentifier
         viewModel.uploadResources.clear()
+        val initialRow = memo ?: (memoIdentifier ?: autosaveIdentifier)?.let { viewModel.loadMemo(it) }
         when {
-            memo != null -> {
-                viewModel.uploadResources.addAll(memo.resources)
-                initialContent = memo.content
+            initialRow != null -> {
+                viewModel.uploadResources.addAll(initialRow.resources)
+                initialContent = initialRow.content
                 // Adopt the database row if the list copy was stale and nothing was edited yet
-                val fresh = viewModel.loadMemo(memo.identifier)
-                if (fresh != null && fresh != memo && isUntouchedExistingMemo()) {
+                val fresh = viewModel.loadMemo(initialRow.identifier) ?: initialRow
+                if (!editorRestored && (memo == null || isUntouchedExistingMemo())) {
                     baseline = fresh
                     initialContent = fresh.content
                     currentVisibility = fresh.visibility
+                    locationState = MemoLocationChange(fresh.location)
                     viewModel.uploadResources.clear()
                     viewModel.uploadResources.addAll(fresh.resources)
                     text = TextFieldValue(fresh.content, TextRange(fresh.content.length))
                 }
+                baseline = fresh
             }
 
-            shareContent != null -> {
+            shareContent != null && !editorRestored -> {
                 text = TextFieldValue(shareContent.text, TextRange(shareContent.text.length))
                 for (item in shareContent.images) {
                     uploadImage(item)
@@ -339,21 +377,24 @@ fun MemoInputPage(
 
             else -> {
                 // After process death with an autosaved row, the restored text is newer than the draft
-                if (autosaveIdentifier == null) {
+                if (autosaveIdentifier == null && !editorRestored) {
+                    if (locationState.value == null) locationState = MemoLocationChange(viewModel.draftLocation.first())
                     viewModel.draft.first()?.let {
                         text = TextFieldValue(it, TextRange(it.length))
                     }
                 }
             }
         }
+        editorRestored = true
+        initialized = true
         delay(300)
         focusRequester.requestFocus()
     }
 
     // Restarts per change; a restart cancels a previous run still waiting for the autosave mutex,
     // so at most one write runs and one (the newest) waits.
-    LaunchedEffect(autosaveEnabled, text.text, currentVisibility, viewModel.uploadResources.size) {
-        if (!autosaveEnabled) {
+    LaunchedEffect(initialized, autosaveEnabled, text.text, currentVisibility, locationState.value, viewModel.uploadResources.size) {
+        if (!initialized || !autosaveEnabled) {
             return@LaunchedEffect
         }
         autosaveIdentifier = autosaveIdentifier ?: viewModel.autosaveIdentifier
@@ -368,7 +409,8 @@ fun MemoInputPage(
             text.text,
             currentVisibility,
             extractCustomTags(text.text).toList(),
-            clearDraftOnCreate = shareContent == null
+            clearDraftOnCreate = shareContent == null,
+            location = locationState.value
         ).suspendOnSuccess {
             autosaveIdentifier = data.identifier
         }
@@ -383,7 +425,8 @@ fun MemoInputPage(
                     text.text,
                     currentVisibility,
                     extractCustomTags(text.text).toList(),
-                    clearDraftOnCreate = shareContent == null
+                    clearDraftOnCreate = shareContent == null,
+                    location = locationState.value
                 )
             }
         }
@@ -400,8 +443,8 @@ fun MemoInputPage(
                 // set, so the deferred push or the next sync uploads the row.
                 return@onDispose
             }
-            if (memo == null && shareContent == null) {
-                viewModel.updateDraft(text.text)
+            if (memoIdentifier == null && baseline == null && shareContent == null && initialized && !exiting) {
+                viewModel.updateDraft(text.text, locationState.value)
             }
         }
     }

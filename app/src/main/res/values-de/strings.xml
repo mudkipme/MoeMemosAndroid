@@ -127,4 +127,15 @@
     <string name="retry">Erneut versuchen</string>
     <string name="failed_to_load_memos">Notizen konnten nicht geladen werden</string>
     <string name="select_memo">Notiz zum Lesen auswählen</string>
+    <string name="memo_location">Standort</string>
+    <string name="location_name">Ortsname</string>
+    <string name="latitude">Breitengrad</string>
+    <string name="longitude">Längengrad</string>
+    <string name="use_current_location">Aktuellen Standort verwenden</string>
+    <string name="remove_location">Standort entfernen</string>
+    <string name="location_permission_denied">Der Standortzugriff wurde verweigert. Du kannst Koordinaten manuell eingeben.</string>
+    <string name="location_services_disabled">Aktiviere den Gerätestandort oder gib Koordinaten manuell ein.</string>
+    <string name="location_unavailable">Der aktuelle Standort konnte nicht ermittelt werden. Versuche es erneut oder gib Koordinaten manuell ein.</string>
+    <string name="location_settings">Standorteinstellungen</string>
+    <string name="location_no_map_app">Keine Karten-App und kein Browser verfügbar.</string>
 </resources>

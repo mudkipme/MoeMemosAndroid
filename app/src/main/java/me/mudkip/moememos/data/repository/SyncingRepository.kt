@@ -27,6 +27,8 @@ import me.mudkip.moememos.data.local.entity.MemoWithResources
 import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.model.MemoLocation
+import me.mudkip.moememos.data.model.MemoLocationChange
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.SyncStatus
@@ -106,7 +108,8 @@ class SyncingRepository(
         visibility: MemoVisibility,
         resources: List<ResourceEntity>,
         tags: List<String>?,
-        deferPush: Boolean
+        deferPush: Boolean,
+        location: MemoLocation?
     ): ApiResponse<MemoEntity> {
         return try {
             val now = Instant.now()
@@ -115,6 +118,7 @@ class SyncingRepository(
                 remoteId = null,
                 accountKey = accountKey,
                 content = content,
+                location = location,
                 date = now,
                 visibility = visibility,
                 pinned = false,
@@ -149,7 +153,8 @@ class SyncingRepository(
         visibility: MemoVisibility?,
         tags: List<String>?,
         pinned: Boolean?,
-        deferPush: Boolean
+        deferPush: Boolean,
+        location: MemoLocationChange?
     ): ApiResponse<MemoEntity> {
         return try {
             var updatedMemo: MemoEntity
@@ -161,6 +166,7 @@ class SyncingRepository(
 
                 updatedMemo = existingMemo.copy(
                     content = content ?: existingMemo.content,
+                    location = if (location != null) location.value else existingMemo.location,
                     visibility = visibility ?: existingMemo.visibility,
                     pinned = pinned ?: existingMemo.pinned,
                     needsSync = true,
@@ -524,6 +530,11 @@ class SyncingRepository(
             if (local.remoteId != null && remoteById.containsKey(local.remoteId)) {
                 continue
             }
+            // A conflict copy (or concurrent push) can gain a remote ID after the server snapshot
+            // was fetched. Its absence from that snapshot does not mean it was deleted remotely.
+            if (local.remoteId != null && !localByRemoteId.containsKey(local.remoteId)) {
+                continue
+            }
 
             if (local.remoteId != null && !remoteById.containsKey(local.remoteId)) {
                 if (local.isDeleted) {
@@ -619,7 +630,8 @@ class SyncingRepository(
                 resourceRemoteIds = remoteResourceIds,
                 visibility = local.visibility,
                 pinned = local.pinned,
-                archived = local.archived
+                archived = local.archived,
+                location = MemoLocationChange(local.location)
             )
             if (updated is ApiResponse.Success) {
                 reconcileServerCreatedMemo(
@@ -636,7 +648,8 @@ class SyncingRepository(
                 visibility = local.visibility,
                 resourceRemoteIds = remoteResourceIds,
                 tags = null,
-                createdAt = local.date
+                createdAt = local.date,
+                location = local.location
             )
             if (created !is ApiResponse.Success) {
                 return false
@@ -653,7 +666,8 @@ class SyncingRepository(
                     resourceRemoteIds = remoteResourceIds,
                     visibility = local.visibility,
                     pinned = local.pinned,
-                    archived = local.archived
+                    archived = local.archived,
+                    location = MemoLocationChange(local.location)
                 )
                 if (updated !is ApiResponse.Success) {
                     // Keep the server linkage and needsSync: the next push is an update and retries
@@ -799,6 +813,7 @@ class SyncingRepository(
             remoteId = remoteId,
             accountKey = accountKey,
             content = remoteMemo.content,
+            location = remoteMemo.location,
             date = remoteMemo.date,
             visibility = remoteMemo.visibility,
             pinned = remoteMemo.pinned,
@@ -870,6 +885,9 @@ class SyncingRepository(
     }
 
     private suspend fun memoEquivalent(local: MemoEntity, remote: Memo): Boolean {
+        if (local.location != remote.location) {
+            return false
+        }
         if (local.content != remote.content) {
             return false
         }

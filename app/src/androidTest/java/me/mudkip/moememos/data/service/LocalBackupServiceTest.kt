@@ -17,6 +17,7 @@ import me.mudkip.moememos.data.local.MoeMemosDatabase
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.MemoVisibility
+import me.mudkip.moememos.data.model.MemoLocation
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -58,7 +59,8 @@ class LocalBackupServiceTest {
     @Test fun exportAndRestorePreserveLocalIdsMetadataAndAttachments() = runBlocking {
         val dao = database.memoDao()
         val memo = MemoEntity("local-memo", accountKey = "local", content = "#旅行\n- [x] done", date = date,
-            visibility = MemoVisibility.PRIVATE, pinned = true, archived = true, needsSync = false, lastModified = date.plusSeconds(20))
+            visibility = MemoVisibility.PRIVATE, pinned = true, archived = true, needsSync = false, lastModified = date.plusSeconds(20),
+            location = MemoLocation("Home", -1.234567, 2.345678))
         dao.insertMemo(memo)
         val uri = storage.saveFile("local", byteArrayOf(1, 2, 3), "original-photo")
         val resource = ResourceEntity("local-resource", accountKey = "local", date = date, filename = "photo.jpg",

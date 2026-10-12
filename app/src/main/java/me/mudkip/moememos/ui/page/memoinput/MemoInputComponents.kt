@@ -30,6 +30,7 @@ import androidx.compose.material.icons.outlined.FormatItalic
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.FormatStrikethrough
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material3.AlertDialog
@@ -39,7 +40,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import me.mudkip.moememos.ui.component.ActionIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -63,12 +63,15 @@ import androidx.compose.ui.window.PopupProperties
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.Account
+import me.mudkip.moememos.data.model.MemoLocation
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.ext.icon
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
+import me.mudkip.moememos.ui.component.ActionIconButton
 import me.mudkip.moememos.ui.component.Attachment
 import me.mudkip.moememos.ui.component.InputImage
+import me.mudkip.moememos.ui.component.MemoLocationRow
 import me.mudkip.moememos.viewmodel.MemoInputViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -144,6 +147,8 @@ internal fun MemoInputBottomBar(
     onPickAttachment: () -> Unit,
     onTakePhoto: () -> Unit,
     onFormat: (MarkdownFormat) -> Unit,
+    showLocation: Boolean = false,
+    onLocationClick: () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
 
@@ -241,6 +246,12 @@ internal fun MemoInputBottomBar(
                     Icon(Icons.Outlined.PhotoCamera, contentDescription = stringResource(R.string.take_photo))
                 }
 
+                if (showLocation) {
+                    ActionIconButton(label = stringResource(R.string.memo_location), onClick = onLocationClick) {
+                        Icon(Icons.Outlined.LocationOn, contentDescription = stringResource(R.string.memo_location))
+                    }
+                }
+
                 Spacer(modifier = Modifier.size(4.dp))
 
                 FormattingButtons(onFormat = onFormat)
@@ -259,7 +270,9 @@ internal fun MemoInputEditor(
     validMimeTypePrefixes: Set<String>,
     onDroppedText: (String) -> Unit,
     uploadResources: List<ResourceEntity>,
-    inputViewModel: MemoInputViewModel
+    inputViewModel: MemoInputViewModel,
+    location: MemoLocation? = null,
+    onLocationClick: () -> Unit = {},
 ) {
     val imageResources = remember(uploadResources) {
         uploadResources.filter { it.mimeType?.startsWith("image/") == true }
@@ -308,6 +321,10 @@ internal fun MemoInputEditor(
             onValueChange = onTextChange,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
         )
+
+        location?.let {
+            MemoLocationRow(it, Modifier.padding(horizontal = 20.dp), onClick = onLocationClick)
+        }
 
         if (imageResources.isNotEmpty()) {
             LazyRow(
