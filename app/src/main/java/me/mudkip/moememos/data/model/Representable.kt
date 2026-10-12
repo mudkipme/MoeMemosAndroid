@@ -19,4 +19,5 @@ interface MemoRepresentable {
     val visibility: MemoVisibility
     val resources: List<ResourceRepresentable>
     val archived: Boolean
+    val location: MemoLocation?
 }

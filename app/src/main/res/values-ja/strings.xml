@@ -129,4 +129,15 @@
     <string name="retry">再試行</string>
     <string name="failed_to_load_memos">メモを読み込めませんでした</string>
     <string name="select_memo">読むメモを選択してください</string>
+    <string name="memo_location">位置情報</string>
+    <string name="location_name">場所の名前</string>
+    <string name="latitude">緯度</string>
+    <string name="longitude">経度</string>
+    <string name="use_current_location">現在地を使用</string>
+    <string name="remove_location">位置情報を削除</string>
+    <string name="location_permission_denied">位置情報へのアクセスが許可されませんでした。座標を手動で入力できます。</string>
+    <string name="location_services_disabled">端末の位置情報を有効にするか、座標を手動で入力してください。</string>
+    <string name="location_unavailable">現在地を取得できませんでした。再試行するか、座標を手動で入力してください。</string>
+    <string name="location_settings">位置情報の設定</string>
+    <string name="location_no_map_app">利用できる地図アプリやブラウザがありません。</string>
 </resources>

@@ -140,4 +140,15 @@
     <string name="retry">重试</string>
     <string name="failed_to_load_memos">无法加载笔记</string>
     <string name="select_memo">选择一条笔记阅读</string>
+    <string name="memo_location">位置</string>
+    <string name="location_name">地点名称</string>
+    <string name="latitude">纬度</string>
+    <string name="longitude">经度</string>
+    <string name="use_current_location">使用当前位置</string>
+    <string name="remove_location">移除位置</string>
+    <string name="location_permission_denied">未获准访问位置。你可以手动输入坐标。</string>
+    <string name="location_services_disabled">请开启设备定位或手动输入坐标。</string>
+    <string name="location_unavailable">无法获取当前位置。请重试或手动输入坐标。</string>
+    <string name="location_settings">定位设置</string>
+    <string name="location_no_map_app">没有可用的地图应用或浏览器。</string>
 </resources>

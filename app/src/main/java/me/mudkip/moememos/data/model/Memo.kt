@@ -20,4 +20,5 @@ data class Memo(
     val creator: User? = null,
     override val archived: Boolean = false,
     val updatedAt: Instant? = null,
+    override val location: MemoLocation? = null,
 ) : MemoRepresentable

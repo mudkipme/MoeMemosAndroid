@@ -2,6 +2,8 @@ package me.mudkip.moememos.data.repository
 
 import com.skydoves.sandwich.ApiResponse
 import me.mudkip.moememos.data.model.Memo
+import me.mudkip.moememos.data.model.MemoLocation
+import me.mudkip.moememos.data.model.MemoLocationChange
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.User
@@ -19,7 +21,8 @@ abstract class RemoteRepository {
         visibility: MemoVisibility,
         resourceRemoteIds: List<String>,
         tags: List<String>? = null,
-        createdAt: Instant? = null
+        createdAt: Instant? = null,
+        location: MemoLocation? = null
     ): ApiResponse<Memo>
 
     abstract suspend fun updateMemo(
@@ -29,7 +32,8 @@ abstract class RemoteRepository {
         visibility: MemoVisibility? = null,
         tags: List<String>? = null,
         pinned: Boolean? = null,
-        archived: Boolean? = null
+        archived: Boolean? = null,
+        location: MemoLocationChange? = null
     ): ApiResponse<Memo>
 
     abstract suspend fun deleteMemo(remoteId: String): ApiResponse<Unit>

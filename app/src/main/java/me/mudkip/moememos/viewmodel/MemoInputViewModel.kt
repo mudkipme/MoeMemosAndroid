@@ -19,6 +19,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.ResourceEntity
+import me.mudkip.moememos.data.model.MemoLocation
+import me.mudkip.moememos.data.model.MemoLocationChange
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ext.settingsDataStore
@@ -36,6 +38,9 @@ class MemoInputViewModel @Inject constructor(
     val draft = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.settings?.draft
     }
+    val draftLocation = context.settingsDataStore.data.map { settings ->
+        settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.settings?.draftLocation
+    }
     val autosaveEnabled = context.settingsDataStore.data.map { settings ->
         settings.usersList.firstOrNull { it.accountKey == settings.currentUser }?.settings?.autosave ?: false
     }
@@ -46,12 +51,12 @@ class MemoInputViewModel @Inject constructor(
     var autosaveIdentifier: String? = null
     private val autosaveMutex = Mutex()
 
-    suspend fun autosave(content: String, visibility: MemoVisibility, tags: List<String>, clearDraftOnCreate: Boolean = false): ApiResponse<MemoEntity> = autosaveMutex.withLock {
+    suspend fun autosave(content: String, visibility: MemoVisibility, tags: List<String>, clearDraftOnCreate: Boolean = false, location: MemoLocation? = null): ApiResponse<MemoEntity> = autosaveMutex.withLock {
         withContext(NonCancellable) {
             val repository = memoService.getRepository()
             val identifier = autosaveIdentifier
             if (identifier == null) {
-                repository.createMemo(content, visibility, uploadResources, tags, deferPush = true).also { response ->
+                repository.createMemo(content, visibility, uploadResources, tags, deferPush = true, location = location).also { response ->
                     response.suspendOnSuccess {
                         autosaveIdentifier = data.identifier
                         if (clearDraftOnCreate) {
@@ -60,13 +65,13 @@ class MemoInputViewModel @Inject constructor(
                     }
                 }
             } else {
-                repository.updateMemo(identifier, content, null, visibility, tags, deferPush = true)
+                repository.updateMemo(identifier, content, null, visibility, tags, deferPush = true, location = MemoLocationChange(location))
             }
         }
     }
 
-    suspend fun flushAutosave(content: String, visibility: MemoVisibility, tags: List<String>, clearDraftOnCreate: Boolean = false): ApiResponse<MemoEntity> {
-        val response = autosave(content, visibility, tags, clearDraftOnCreate)
+    suspend fun flushAutosave(content: String, visibility: MemoVisibility, tags: List<String>, clearDraftOnCreate: Boolean = false, location: MemoLocation? = null): ApiResponse<MemoEntity> {
+        val response = autosave(content, visibility, tags, clearDraftOnCreate, location)
         response.suspendOnSuccess {
             // Not cancellable: flush drops the deferred push before enqueueing the real one
             withContext(NonCancellable) {
@@ -78,9 +83,9 @@ class MemoInputViewModel @Inject constructor(
     }
 
     // In viewModelScope, so it outlives the page's composition (leaving the app, app lock).
-    fun flushAutosaveInBackground(content: String, visibility: MemoVisibility, tags: List<String>, clearDraftOnCreate: Boolean = false) {
+    fun flushAutosaveInBackground(content: String, visibility: MemoVisibility, tags: List<String>, clearDraftOnCreate: Boolean = false, location: MemoLocation? = null) {
         viewModelScope.launch {
-            flushAutosave(content, visibility, tags, clearDraftOnCreate)
+            flushAutosave(content, visibility, tags, clearDraftOnCreate, location)
         }
     }
 
@@ -94,8 +99,8 @@ class MemoInputViewModel @Inject constructor(
 
     suspend fun loadMemo(identifier: String): MemoEntity? = memoService.getRepository().getMemo(identifier)
 
-    suspend fun createMemo(content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<MemoEntity> = withContext(viewModelScope.coroutineContext) {
-        val response = memoService.getRepository().createMemo(content, visibility, uploadResources, tags)
+    suspend fun createMemo(content: String, visibility: MemoVisibility, tags: List<String>, location: MemoLocation? = null): ApiResponse<MemoEntity> = withContext(viewModelScope.coroutineContext) {
+        val response = memoService.getRepository().createMemo(content, visibility, uploadResources, tags, location = location)
         // Update widgets when a new memo is created
         response.suspendOnSuccess {
             WidgetUpdater.updateWidgets(getApplication())
@@ -103,8 +108,8 @@ class MemoInputViewModel @Inject constructor(
         response
     }
 
-    suspend fun editMemo(identifier: String, content: String, visibility: MemoVisibility, tags: List<String>): ApiResponse<MemoEntity> = withContext(viewModelScope.coroutineContext) {
-        val response = memoService.getRepository().updateMemo(identifier, content, uploadResources, visibility, tags)
+    suspend fun editMemo(identifier: String, content: String, visibility: MemoVisibility, tags: List<String>, location: MemoLocation? = null): ApiResponse<MemoEntity> = withContext(viewModelScope.coroutineContext) {
+        val response = memoService.getRepository().updateMemo(identifier, content, uploadResources, visibility, tags, location = MemoLocationChange(location))
         // Update widgets when a memo is edited
         response.suspendOnSuccess {
             WidgetUpdater.updateWidgets(getApplication())
@@ -112,7 +117,7 @@ class MemoInputViewModel @Inject constructor(
         response
     }
 
-    fun updateDraft(content: String) {
+    fun updateDraft(content: String, location: MemoLocation? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             context.settingsDataStore.updateData { settings ->
                 val index = settings.usersList.indexOfFirst { it.accountKey == settings.currentUser }
@@ -121,7 +126,7 @@ class MemoInputViewModel @Inject constructor(
                 }
                 val users = settings.usersList.toMutableList()
                 val user = users[index]
-                users[index] = user.copy(settings = user.settings.copy(draft = content))
+                users[index] = user.copy(settings = user.settings.copy(draft = content, draftLocation = location))
                 settings.copy(usersList = users)
             }
         }

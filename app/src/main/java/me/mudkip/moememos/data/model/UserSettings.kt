@@ -16,4 +16,5 @@ data class UserSettings(
     val acceptedUnsupportedSyncVersions: List<String> = emptyList(),
     val editGesture: MemoEditGesture = MemoEditGesture.NONE,
     val autosave: Boolean = false,
+    val draftLocation: MemoLocation? = null,
 )

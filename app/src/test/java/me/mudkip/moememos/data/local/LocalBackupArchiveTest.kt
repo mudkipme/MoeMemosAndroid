@@ -2,6 +2,7 @@ package me.mudkip.moememos.data.local
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import me.mudkip.moememos.data.model.MemoLocation
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -66,6 +67,14 @@ class LocalBackupArchiveTest {
         val data = sample()
         val detached = data.copy(manifest = data.manifest.copy(memos = emptyList(), attachments = data.manifest.attachments.map { it.copy(memoId = null) }), contents = emptyMap())
         assertNull(read(write(detached)).manifest.attachments.single().memoId)
+    }
+
+    @Test fun locationRoundTripsAndLegacyMetadataRemainsReadable() {
+        val data = sample()
+        val location = MemoLocation("Home", -1.234567, 2.345678)
+        val withLocation = data.copy(manifest = data.manifest.copy(memos = data.manifest.memos.map { it.copy(location = location) }))
+        assertEquals(location, read(write(withLocation)).manifest.memos.single().location)
+        assertNull(read(write(data)).manifest.memos.single().location)
     }
 
     @Test fun legacyRecoversDateCollisionsAndAssociatesMarkdownAndExtensionlessAttachments() {

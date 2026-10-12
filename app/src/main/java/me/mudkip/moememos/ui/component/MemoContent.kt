@@ -75,6 +75,7 @@ fun MemoContent(
         )
 
         MemoResourceContent(memo)
+        memo.location?.let { MemoLocationRow(it) }
 
         if (previewed && onViewMore != null) {
             Row {

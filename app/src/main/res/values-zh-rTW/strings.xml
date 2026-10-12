@@ -140,4 +140,15 @@
     <string name="retry">重試</string>
     <string name="failed_to_load_memos">無法載入筆記</string>
     <string name="select_memo">選擇一則筆記閱讀</string>
+    <string name="memo_location">位置</string>
+    <string name="location_name">地點名稱</string>
+    <string name="latitude">緯度</string>
+    <string name="longitude">經度</string>
+    <string name="use_current_location">使用目前位置</string>
+    <string name="remove_location">移除位置</string>
+    <string name="location_permission_denied">未獲准存取位置。你可以手動輸入座標。</string>
+    <string name="location_services_disabled">請開啟裝置定位或手動輸入座標。</string>
+    <string name="location_unavailable">無法取得目前位置。請重試或手動輸入座標。</string>
+    <string name="location_settings">定位設定</string>
+    <string name="location_no_map_app">沒有可用的地圖應用程式或瀏覽器。</string>
 </resources>

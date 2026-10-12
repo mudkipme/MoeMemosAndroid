@@ -160,4 +160,17 @@
     <string name="retry">Retry</string>
     <string name="failed_to_load_memos">Could not load memos</string>
     <string name="select_memo">Select a memo to read</string>
+    <string name="memo_location">Location</string>
+    <string name="location_name">Place name</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="latitude_range" translatable="false">−90 to 90</string>
+    <string name="longitude_range" translatable="false">−180 to 180</string>
+    <string name="use_current_location">Use current location</string>
+    <string name="remove_location">Remove location</string>
+    <string name="location_permission_denied">Location permission was denied. You can enter coordinates manually.</string>
+    <string name="location_services_disabled">Turn on device location or enter coordinates manually.</string>
+    <string name="location_unavailable">Could not get your current location. Try again or enter coordinates manually.</string>
+    <string name="location_settings">Location settings</string>
+    <string name="location_no_map_app">No map app or browser is available.</string>
 </resources>

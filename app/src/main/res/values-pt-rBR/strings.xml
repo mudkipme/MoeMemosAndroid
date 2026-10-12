@@ -129,4 +129,15 @@
     <string name="retry">Tentar novamente</string>
     <string name="failed_to_load_memos">Não foi possível carregar as notas</string>
     <string name="select_memo">Selecione uma nota para ler</string>
+    <string name="memo_location">Localização</string>
+    <string name="location_name">Nome do lugar</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="use_current_location">Usar localização atual</string>
+    <string name="remove_location">Remover localização</string>
+    <string name="location_permission_denied">A permissão de localização foi negada. Você pode inserir as coordenadas manualmente.</string>
+    <string name="location_services_disabled">Ative a localização do dispositivo ou insira as coordenadas manualmente.</string>
+    <string name="location_unavailable">Não foi possível obter sua localização atual. Tente novamente ou insira as coordenadas manualmente.</string>
+    <string name="location_settings">Configurações de localização</string>
+    <string name="location_no_map_app">Nenhum aplicativo de mapas ou navegador disponível.</string>
 </resources>

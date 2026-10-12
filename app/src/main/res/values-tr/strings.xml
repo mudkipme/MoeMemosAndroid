@@ -127,4 +127,15 @@
     <string name="retry">Yeniden dene</string>
     <string name="failed_to_load_memos">Notlar yüklenemedi</string>
     <string name="select_memo">Okumak için bir not seçin</string>
+    <string name="memo_location">Konum</string>
+    <string name="location_name">Yer adı</string>
+    <string name="latitude">Enlem</string>
+    <string name="longitude">Boylam</string>
+    <string name="use_current_location">Geçerli konumu kullan</string>
+    <string name="remove_location">Konumu kaldır</string>
+    <string name="location_permission_denied">Konum izni reddedildi. Koordinatları elle girebilirsiniz.</string>
+    <string name="location_services_disabled">Cihaz konumunu açın veya koordinatları elle girin.</string>
+    <string name="location_unavailable">Geçerli konumunuz alınamadı. Tekrar deneyin veya koordinatları elle girin.</string>
+    <string name="location_settings">Konum ayarları</string>
+    <string name="location_no_map_app">Kullanılabilir harita uygulaması veya tarayıcı yok.</string>
 </resources>

@@ -127,4 +127,15 @@
     <string name="retry">Réessayer</string>
     <string name="failed_to_load_memos">Impossible de charger les mémos</string>
     <string name="select_memo">Sélectionnez un mémo à lire</string>
+    <string name="memo_location">Position</string>
+    <string name="location_name">Nom du lieu</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="use_current_location">Utiliser la position actuelle</string>
+    <string name="remove_location">Supprimer la position</string>
+    <string name="location_permission_denied">L’accès à la position a été refusé. Vous pouvez saisir les coordonnées manuellement.</string>
+    <string name="location_services_disabled">Activez la localisation de votre appareil ou saisissez les coordonnées manuellement.</string>
+    <string name="location_unavailable">Impossible de déterminer votre position actuelle. Réessayez ou saisissez les coordonnées manuellement.</string>
+    <string name="location_settings">Paramètres de localisation</string>
+    <string name="location_no_map_app">Aucune application de cartographie ni aucun navigateur disponible.</string>
 </resources>

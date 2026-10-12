@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Required
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import me.mudkip.moememos.data.model.MemoLocation
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
@@ -40,6 +41,8 @@ data class LocalBackupMemo(
     val visibility: String,
     val pinned: Boolean,
     val archived: Boolean,
+    @Serializable(with = BackupMemoLocationSerializer::class)
+    val location: MemoLocation? = null,
 )
 
 @Serializable
@@ -239,6 +242,7 @@ object LocalBackupArchive {
             Instant.parse(memo.createdAt)
             Instant.parse(memo.updatedAt)
             require(memo.visibility in setOf("PRIVATE", "PROTECTED", "PUBLIC", "SPACE")) { "Unknown memo visibility" }
+            require(memo.location == null || memo.location.hasValidCoordinates) { "Invalid memo location" }
         }
         var attachmentBytes = 0L
         manifest.attachments.forEach { attachment ->

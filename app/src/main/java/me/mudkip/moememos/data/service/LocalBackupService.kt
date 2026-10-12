@@ -64,7 +64,7 @@ class LocalBackupService @Inject constructor(
             val resources = dao.getAllResources(accountKey).filter { it.memoId == null || it.memoId in memoIds }
             val memoRecords = memos.mapIndexed { index, memo ->
                 LocalBackupMemo(memo.identifier, "memos/$index.md", memo.date.toString(), memo.lastModified.toString(),
-                    memo.visibility.name, memo.pinned, memo.archived)
+                    memo.visibility.name, memo.pinned, memo.archived, memo.location)
             }
             val attachmentRecords = resources.mapIndexed { index, resource ->
                 LocalBackupAttachment(resource.identifier, resource.memoId, resource.filename, resource.mimeType,
@@ -142,6 +142,7 @@ class LocalBackupService @Inject constructor(
                                 content = data.contents.getValue(memo.contentFile), date = Instant.parse(memo.createdAt),
                                 visibility = MemoVisibility.valueOf(memo.visibility), pinned = memo.pinned, archived = memo.archived,
                                 needsSync = false, lastModified = Instant.parse(memo.updatedAt), lastSyncedAt = null,
+                                location = memo.location,
                             ))
                         }
                         var attachments = 0
