@@ -41,6 +41,7 @@ import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.util.edgeToEdgeContentPadding
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.util.hasCustomTag
+import me.mudkip.moememos.util.memoMatchesSearch
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.ManualSyncResult
@@ -86,7 +87,7 @@ fun MemosList(
         searchString?.let { searchString ->
             if (searchString.isNotEmpty()) {
                 fullList = fullList.filter { memo ->
-                    memo.content.contains(searchString, true)
+                    memoMatchesSearch(memo.content, searchString)
                 }
             }
         }
