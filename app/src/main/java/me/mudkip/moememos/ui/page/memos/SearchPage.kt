@@ -27,34 +27,67 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import me.mudkip.moememos.data.model.Settings
+import me.mudkip.moememos.ext.settingsDataStore
+import me.mudkip.moememos.util.archivedSearchResults
+import me.mudkip.moememos.viewmodel.ArchivedMemoListViewModel
+import me.mudkip.moememos.viewmodel.LocalArchivedMemos
 import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
 import me.mudkip.moememos.ui.component.ActionIconButton
 import me.mudkip.moememos.ui.page.common.RouteName
 
 @Composable
-fun SearchPage(navController: NavHostController) {
+fun SearchPage(
+    navController: NavHostController,
+    archivedViewModel: ArchivedMemoListViewModel = hiltViewModel(),
+) {
     val searchText = rememberTextFieldState()
     val lifecycleOwner = LocalLifecycleOwner.current
-    MemoBrowser { onMemoClick ->
-        Scaffold(
-            topBar = {
-                MemoSearchBar(searchText) {
-                    navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
-                }
-            },
-        ) { innerPadding ->
-            MemosList(
-                contentPadding = innerPadding,
-                searchString = searchText.text.toString(),
-                onMemoClick = onMemoClick,
-                onTagClick = { tag ->
-                    navController.navigate("${RouteName.TAG}/${Uri.encode(tag)}") {
-                        launchSingleTop = true
-                        restoreState = true
+    val context = LocalContext.current
+    val settings by context.settingsDataStore.data.collectAsStateWithLifecycle(initialValue = Settings())
+    val includeArchived = settings.usersList
+        .firstOrNull { it.accountKey == settings.currentUser }
+        ?.settings
+        ?.searchIncludesArchived
+        ?: false
+
+    LaunchedEffect(includeArchived) {
+        if (includeArchived) archivedViewModel.loadMemos()
+    }
+
+    val query = searchText.text.toString()
+    val archivedResults = remember(archivedViewModel.memos.toList(), query, includeArchived) {
+        archivedSearchResults(archivedViewModel.memos, query, includeArchived)
+    }
+
+    CompositionLocalProvider(LocalArchivedMemos provides archivedViewModel) {
+        MemoBrowser { onMemoClick ->
+            Scaffold(
+                topBar = {
+                    MemoSearchBar(searchText) {
+                        navController.popBackStackIfLifecycleIsResumed(lifecycleOwner)
                     }
                 },
-            )
+            ) { innerPadding ->
+                MemosList(
+                    contentPadding = innerPadding,
+                    searchString = query,
+                    onMemoClick = onMemoClick,
+                    onTagClick = { tag ->
+                        navController.navigate("${RouteName.TAG}/${Uri.encode(tag)}") {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    archivedResults = archivedResults,
+                )
+            }
         }
     }
 }
