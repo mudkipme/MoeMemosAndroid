@@ -3,7 +3,6 @@ package me.mudkip.moememos.ui.security
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
-import android.os.Build
 import android.provider.Settings as AndroidSettings
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -53,16 +52,9 @@ import timber.log.Timber
 private const val APP_LOCK_TIMEOUT_MILLIS = 60_000L
 private const val AUTH_PROMPT_THROTTLE_MILLIS = 1_000L
 private fun appLockAuthenticators(): Int {
-    val biometricOrDeviceCredential =
-        BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL
-
-    return if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P ||
-        Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
-    ) {
-        BiometricManager.Authenticators.BIOMETRIC_WEAK
-    } else {
-        biometricOrDeviceCredential
-    }
+    // WEAK | DEVICE_CREDENTIAL is supported on every API level supported by the app,
+    // including Android 9 and 10 (where STRONG | DEVICE_CREDENTIAL is unsupported).
+    return BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL
 }
 
 object AppLockSession {
@@ -154,6 +146,14 @@ object AppLockSession {
 }
 
 object AppLockAuthenticator {
+    internal fun createPromptInfo(context: Context): BiometricPrompt.PromptInfo {
+        return BiometricPrompt.PromptInfo.Builder()
+            .setTitle(context.getString(R.string.app_lock_prompt_title))
+            .setSubtitle(context.getString(R.string.app_lock_prompt_subtitle))
+            .setAllowedAuthenticators(appLockAuthenticators())
+            .build()
+    }
+
     fun canAuthenticate(context: Context): Boolean {
         return runCatching {
             BiometricManager.from(context).canAuthenticate(appLockAuthenticators()) == BiometricManager.BIOMETRIC_SUCCESS
@@ -169,33 +169,27 @@ object AppLockAuthenticator {
             return
         }
 
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(activity.getString(R.string.app_lock_prompt_title))
-            .setSubtitle(activity.getString(R.string.app_lock_prompt_subtitle))
-            .setAllowedAuthenticators(appLockAuthenticators())
-            .build()
-
-        val prompt = BiometricPrompt(
-            activity,
-            ContextCompat.getMainExecutor(activity),
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    AppLockSession.markAuthenticated()
-                    onSuccess()
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    AppLockSession.markAuthenticationFinished()
-                    onError(errString)
-                }
-
-                override fun onAuthenticationFailed() {
-                    // The system prompt remains visible for retry attempts.
-                }
-            }
-        )
-
         runCatching {
+            val promptInfo = createPromptInfo(activity)
+            val prompt = BiometricPrompt(
+                activity,
+                ContextCompat.getMainExecutor(activity),
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        AppLockSession.markAuthenticated()
+                        onSuccess()
+                    }
+
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        AppLockSession.markAuthenticationFinished()
+                        onError(errString)
+                    }
+
+                    override fun onAuthenticationFailed() {
+                        // The system prompt remains visible for retry attempts.
+                    }
+                }
+            )
             prompt.authenticate(promptInfo)
         }.onFailure { throwable ->
             AppLockSession.markAuthenticationFinished()
