@@ -17,4 +17,5 @@ data class UserSettings(
     val editGesture: MemoEditGesture = MemoEditGesture.NONE,
     val autosave: Boolean = false,
     val draftLocation: MemoLocation? = null,
+    val searchIncludesArchived: Boolean = false,
 )

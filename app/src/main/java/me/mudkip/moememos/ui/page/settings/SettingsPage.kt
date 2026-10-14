@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Edit
@@ -45,6 +46,7 @@ import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemoEditGesture
 import me.mudkip.moememos.data.model.Settings
+import me.mudkip.moememos.data.model.UserSettings
 import me.mudkip.moememos.data.model.displayTitle
 import me.mudkip.moememos.data.mtls.MtlsManager
 import me.mudkip.moememos.ext.popBackStackIfLifecycleIsResumed
@@ -126,7 +128,13 @@ fun SettingsPage(
         ?.autosave
         ?: false
 
-    fun setAutosaveEnabled(enabled: Boolean) {
+    val searchIncludesArchived = settings.usersList
+        .firstOrNull { it.accountKey == settings.currentUser }
+        ?.settings
+        ?.searchIncludesArchived
+        ?: false
+
+    fun updateCurrentUserSettings(transform: (UserSettings) -> UserSettings) {
         scope.launch(Dispatchers.IO) {
             context.settingsDataStore.updateData { existingSettings ->
                 val userIndex = existingSettings.usersList.indexOfFirst { user ->
@@ -137,13 +145,17 @@ fun SettingsPage(
                 }
                 val users = existingSettings.usersList.toMutableList()
                 val user = users[userIndex]
-                users[userIndex] = user.copy(
-                    settings = user.settings.copy(autosave = enabled)
-                )
+                users[userIndex] = user.copy(settings = transform(user.settings))
                 existingSettings.copy(usersList = users)
             }
         }
     }
+
+    fun setAutosaveEnabled(enabled: Boolean) =
+        updateCurrentUserSettings { it.copy(autosave = enabled) }
+
+    fun setSearchIncludesArchived(enabled: Boolean) =
+        updateCurrentUserSettings { it.copy(searchIncludesArchived = enabled) }
 
     Scaffold(
         modifier = Modifier
@@ -276,6 +288,16 @@ fun SettingsPage(
                     subtitle = R.string.autosave_summary.string,
                     checked = autosaveEnabled,
                     onCheckedChange = ::setAutosaveEnabled,
+                )
+            }
+
+            item {
+                SettingSwitchItem(
+                    icon = Icons.Outlined.Archive,
+                    text = R.string.search_include_archived.string,
+                    subtitle = R.string.search_include_archived_summary.string,
+                    checked = searchIncludesArchived,
+                    onCheckedChange = ::setSearchIncludesArchived,
                 )
             }
 

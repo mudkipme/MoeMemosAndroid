@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -31,16 +32,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
+import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemoEditGesture
 import me.mudkip.moememos.data.model.Settings
 import me.mudkip.moememos.ext.settingsDataStore
 import me.mudkip.moememos.ext.string
+import me.mudkip.moememos.ui.component.ArchivedMemoCard
 import me.mudkip.moememos.ui.component.MemosCard
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.util.edgeToEdgeContentPadding
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.util.hasCustomTag
+import me.mudkip.moememos.util.memoMatchesSearch
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.ManualSyncResult
@@ -57,6 +61,7 @@ fun MemosList(
     onRefresh: (suspend () -> Unit)? = null,
     onTagClick: ((String) -> Unit)? = null,
     onMemoClick: ((String) -> Unit)? = null,
+    archivedResults: List<MemoEntity> = emptyList(),
 ) {
     val context = LocalContext.current
     val navController = LocalRootNavController.current
@@ -86,7 +91,7 @@ fun MemosList(
         searchString?.let { searchString ->
             if (searchString.isNotEmpty()) {
                 fullList = fullList.filter { memo ->
-                    memo.content.contains(searchString, true)
+                    memoMatchesSearch(memo.content, searchString)
                 }
             }
         }
@@ -135,7 +140,7 @@ fun MemosList(
             state = lazyListState,
             contentPadding = listContentPadding
         ) {
-            if (filteredMemos.isEmpty()) {
+            if (filteredMemos.isEmpty() && archivedResults.isEmpty()) {
                 item(key = "empty") {
                     Text(stringResource(R.string.no_memos), modifier = Modifier.padding(24.dp))
                 }
@@ -155,6 +160,19 @@ fun MemosList(
                     showSyncStatus = currentAccount !is Account.Local,
                     onTagClick = onTagClick
                 )
+            }
+            if (archivedResults.isNotEmpty()) {
+                item(key = "archived-header") {
+                    Text(
+                        stringResource(R.string.archived),
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                }
+                items(archivedResults, key = { "archived-${it.identifier}" }) { memo ->
+                    ArchivedMemoCard(memo)
+                }
             }
         }
     }
