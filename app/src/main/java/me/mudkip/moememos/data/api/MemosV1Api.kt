@@ -193,5 +193,7 @@ enum class MemosV1State {
 
 @Serializable
 data class MemosV1Stats(
-    val tagCount: Map<String, Int>,
+    // Memos 0.27–0.31 return `tagCount`; 26.10+ renamed it to `tagCounts`.
+    val tagCount: Map<String, Int>? = null,
+    val tagCounts: Map<String, Int>? = null,
 )

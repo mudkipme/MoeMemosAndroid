@@ -69,7 +69,7 @@
         </activity>
         
         <provider
-            android:authorities="me.mudkip.moememos.fileprovider"
+            android:authorities="${applicationId}.fileprovider"
             android:name=".MoeMemosFileProvider"
             android:grantUriPermissions="true"
             android:exported="false">

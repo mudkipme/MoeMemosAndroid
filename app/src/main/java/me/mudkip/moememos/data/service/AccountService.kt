@@ -20,8 +20,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.MemosV0Api
+import me.mudkip.moememos.data.api.MemosApiPathInterceptor
 import me.mudkip.moememos.data.api.MemosV1Api
 import me.mudkip.moememos.data.constant.MemosVersionSupport
+import me.mudkip.moememos.data.constant.MemosVersionSupport.MEMOS_CALVER_MAX_VERSION
+import me.mudkip.moememos.data.constant.MemosVersionSupport.MEMOS_CALVER_MIN_VERSION
 import me.mudkip.moememos.data.constant.MemosVersionSupport.MEMOS_V0_MIN_VERSION
 import me.mudkip.moememos.data.constant.MemosVersionSupport.MEMOS_V1_MAX_VERSION
 import me.mudkip.moememos.data.constant.MemosVersionSupport.MEMOS_V1_MIN_VERSION
@@ -362,6 +365,7 @@ class AccountService @Inject constructor(
 
     fun createMemosV1Client(host: String, accessToken: String?): Pair<OkHttpClient, MemosV1Api> {
         val client = okHttpClient.newBuilder().apply {
+            addInterceptor(MemosApiPathInterceptor(host))
             if (!accessToken.isNullOrBlank()) {
                 addNetworkInterceptor { chain ->
                     var request = chain.request()
@@ -607,6 +611,7 @@ class AccountService @Inject constructor(
                     versionName.isEmpty() -> VersionPolicy.TOO_LOW
                     version == null -> VersionPolicy.V1_HIGHER
                     version < MEMOS_V1_MIN_VERSION -> VersionPolicy.TOO_LOW
+                    version >= MEMOS_CALVER_MIN_VERSION && version <= MEMOS_CALVER_MAX_VERSION -> VersionPolicy.SUPPORTED
                     version > MEMOS_V1_MAX_VERSION -> VersionPolicy.V1_HIGHER
                     else -> VersionPolicy.SUPPORTED
                 }
