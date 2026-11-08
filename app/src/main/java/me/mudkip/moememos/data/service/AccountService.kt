@@ -263,7 +263,7 @@ class AccountService @Inject constructor(
         // Check every attachment first, so a missing file stops the transfer before anything is copied
         resourcesByMemo.values.flatten().forEach { resource ->
             if (localFileForResource(resource)?.exists() != true) {
-                throw IllegalStateException("Missing attachment file: ${resource.filename}")
+                throw IllegalStateException(R.string.missing_attachment_file.string.format(resource.filename))
             }
         }
 

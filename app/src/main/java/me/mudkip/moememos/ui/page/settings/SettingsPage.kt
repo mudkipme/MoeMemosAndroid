@@ -2,6 +2,7 @@ package me.mudkip.moememos.ui.page.settings
 
 import android.app.Activity
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Save
@@ -56,6 +58,8 @@ import me.mudkip.moememos.ui.component.MemosIcon
 import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.ui.security.AppLockAuthenticator
 import me.mudkip.moememos.ui.security.AppLockSession
+import me.mudkip.moememos.ui.security.findFragmentActivity
+import me.mudkip.moememos.util.AppLanguage
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.widget.WidgetUpdater
 
@@ -77,6 +81,8 @@ fun SettingsPage(
         AppLockAuthenticator.canAuthenticate(context)
     }
     var showEditGestureDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    var selectedLanguage by remember { mutableStateOf(AppLanguage.currentTag()) }
     var showRemoveCertificateDialog by remember { mutableStateOf(false) }
     var hasClientCertificate by remember {
         mutableStateOf(
@@ -115,6 +121,15 @@ fun SettingsPage(
                 existingSettings.copy(appLockEnabled = enabled)
             }
         }
+    }
+
+    fun selectLanguage(tag: String) {
+        showLanguageDialog = false
+        if (tag == selectedLanguage) return
+        AppLanguage.setLanguage(context, tag)
+        selectedLanguage = AppLanguage.currentTag()
+        WidgetUpdater.updateWidgets(context)
+        context.findFragmentActivity()?.recreate()
     }
 
     val currentEditGesture = settings.usersList
@@ -268,6 +283,22 @@ fun SettingsPage(
 
             item {
                 SettingItem(
+                    icon = Icons.Outlined.Language,
+                    text = R.string.language.string,
+                    trailingIcon = {
+                        Text(
+                            text = AppLanguage.options.firstOrNull { it.tag == selectedLanguage }?.displayName
+                                ?: R.string.language_system_default.string,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                ) {
+                    showLanguageDialog = true
+                }
+            }
+
+            item {
+                SettingItem(
                     icon = Icons.Outlined.Edit,
                     text = R.string.edit_gesture.string,
                     trailingIcon = {
@@ -392,6 +423,36 @@ fun SettingsPage(
             }
         }
     }
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(R.string.language.string) },
+            text = {
+                LazyColumn(modifier = Modifier.heightIn(max = 320.dp)) {
+                    item {
+                        LanguageChoiceRow(
+                            text = R.string.language_system_default.string,
+                            selected = selectedLanguage == AppLanguage.SYSTEM,
+                            onClick = { selectLanguage(AppLanguage.SYSTEM) }
+                        )
+                    }
+                    items(AppLanguage.options.size) { index ->
+                        val option = AppLanguage.options[index]
+                        LanguageChoiceRow(
+                            text = option.displayName,
+                            selected = option.tag == selectedLanguage,
+                            onClick = { selectLanguage(option.tag) }
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text(R.string.cancel.string)
+                }
+            }
+        )
+    }
     if (showRemoveCertificateDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -475,6 +536,28 @@ fun SettingsPage(
                     Text(R.string.close.string)
                 }
             }
+        )
+    }
+}
+
+@Composable
+private fun LanguageChoiceRow(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = text,
+            color = if (selected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

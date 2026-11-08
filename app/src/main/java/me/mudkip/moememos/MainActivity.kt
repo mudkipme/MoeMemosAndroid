@@ -1,5 +1,6 @@
 package me.mudkip.moememos
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -15,6 +16,7 @@ import androidx.fragment.app.FragmentActivity
 import dagger.hilt.android.AndroidEntryPoint
 import me.mudkip.moememos.ui.page.common.Navigation
 import me.mudkip.moememos.ui.security.AppLockGate
+import me.mudkip.moememos.util.AppLanguage
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 import me.mudkip.moememos.viewmodel.MemosViewModel
@@ -32,6 +34,10 @@ class MainActivity : FragmentActivity() {
         const val ACTION_EDIT_MEMO = "me.mudkip.moememos.action.EDIT_MEMO"
         const val ACTION_VIEW_MEMO = "me.mudkip.moememos.action.VIEW_MEMO"
         const val EXTRA_MEMO_ID = "memoId"
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

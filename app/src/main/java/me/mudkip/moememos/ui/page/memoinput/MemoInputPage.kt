@@ -40,6 +40,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.mudkip.moememos.MoeMemosFileProvider
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemoLocation
 import me.mudkip.moememos.data.model.MemoLocationChange
@@ -269,7 +270,7 @@ fun MemoInputPage(
                         takePhoto.launch(uri)
                     } catch (e: ActivityNotFoundException) {
                         coroutineScope.launch {
-                            snackbarState.showSnackbar(e.localizedMessage ?: "Unable to take picture.")
+                            snackbarState.showSnackbar(e.localizedMessage ?: navController.context.getString(R.string.unable_to_take_picture))
                         }
                     }
                 },

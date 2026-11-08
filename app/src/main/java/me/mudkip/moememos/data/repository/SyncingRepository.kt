@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.local.dao.MemoDao
@@ -34,6 +35,7 @@ import me.mudkip.moememos.data.model.Resource
 import me.mudkip.moememos.data.model.SyncStatus
 import me.mudkip.moememos.data.model.User
 import me.mudkip.moememos.ext.getErrorMessage
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.util.extractCustomTags
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -162,7 +164,7 @@ class SyncingRepository(
             // remoteId) is not overwritten with the stale copy, which would re-create the memo remotely.
             do {
                 val existingMemo = memoDao.getMemoById(identifier, accountKey)
-                    ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+                    ?: return ApiResponse.Failure.Exception(Exception(R.string.memo_not_found.string))
 
                 updatedMemo = existingMemo.copy(
                     content = content ?: existingMemo.content,
@@ -208,7 +210,7 @@ class SyncingRepository(
     override suspend fun deleteMemo(identifier: String): ApiResponse<Unit> {
         return try {
             val memo = memoDao.getMemoById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.memo_not_found.string))
             memoDao.insertMemo(
                 memo.copy(
                     isDeleted = true,
@@ -228,7 +230,7 @@ class SyncingRepository(
     override suspend fun archiveMemo(identifier: String): ApiResponse<Unit> {
         return try {
             val memo = memoDao.getMemoById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.memo_not_found.string))
             memoDao.insertMemo(
                 memo.copy(
                     archived = true,
@@ -247,7 +249,7 @@ class SyncingRepository(
     override suspend fun restoreMemo(identifier: String): ApiResponse<Unit> {
         return try {
             val memo = memoDao.getMemoById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.memo_not_found.string))
             memoDao.insertMemo(
                 memo.copy(
                     archived = false,
@@ -333,7 +335,7 @@ class SyncingRepository(
     override suspend fun deleteResource(identifier: String): ApiResponse<Unit> {
         return try {
             val resource = memoDao.getResourceById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Resource not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.resource_not_found.string))
 
             val memoId = resource.memoId
             deleteLocalFile(resource)
@@ -366,16 +368,16 @@ class SyncingRepository(
     override suspend fun cacheResourceFile(identifier: String, downloadedUri: Uri): ApiResponse<Unit> {
         return try {
             val resource = memoDao.getResourceById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Resource not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.resource_not_found.string))
             val existingLocal = existingLocalUri(resource)
             if (existingLocal != null) {
                 return ApiResponse.Success(Unit)
             }
 
-            val sourcePath = downloadedUri.path ?: return ApiResponse.Failure.Exception(Exception("Invalid downloaded file"))
+            val sourcePath = downloadedUri.path ?: return ApiResponse.Failure.Exception(Exception(R.string.invalid_downloaded_file.string))
             val sourceFile = File(sourcePath)
             if (!sourceFile.exists()) {
-                return ApiResponse.Failure.Exception(Exception("Downloaded file does not exist"))
+                return ApiResponse.Failure.Exception(Exception(R.string.downloaded_file_not_exist.string))
             }
 
             val canonical = fileStorage.saveFile(
@@ -562,7 +564,7 @@ class SyncingRepository(
 
         return if (hadErrors) {
             ApiResponse.Failure.Exception(
-                Exception(firstErrorMessage ?: "Sync finished with partial failures")
+                Exception(firstErrorMessage ?: R.string.sync_partial_failures.string)
             )
         } else {
             ApiResponse.Success(Unit)
@@ -935,19 +937,19 @@ class SyncingRepository(
     }
 
     private fun enqueuePushMemo(identifier: String, forceCreate: Boolean = false) {
-        enqueueOperation("Failed to sync memo") {
+        enqueueOperation(R.string.sync_memo_failed.string) {
             pushLocalMemo(identifier, forceCreate)
         }
     }
 
     private fun enqueuePushResource(identifier: String) {
-        enqueueOperation("Failed to sync resource") {
+        enqueueOperation(R.string.sync_resource_failed.string) {
             pushLocalResource(identifier)
         }
     }
 
     private fun enqueueDeleteRemoteResource(remoteId: String) {
-        enqueueOperation("Failed to delete resource on server") {
+        enqueueOperation(R.string.sync_delete_resource_failed.string) {
             remoteRepository.deleteResource(remoteId) is ApiResponse.Success
         }
     }
@@ -1055,8 +1057,8 @@ class SyncingRepository(
 
     companion object {
         private const val MAX_RECONCILE_ATTEMPTS = 5
-        private const val ATTACHMENT_UPLOAD_FAILED_MESSAGE =
-            "Failed to upload one or more attachments during sync"
+        private val ATTACHMENT_UPLOAD_FAILED_MESSAGE: String
+            get() = R.string.attachment_upload_failed.string
     }
 
 }

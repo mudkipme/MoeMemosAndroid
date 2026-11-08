@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
 import me.mudkip.moememos.ui.security.AppLockSession
+import me.mudkip.moememos.util.AppLanguage
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -20,7 +21,12 @@ class MoeMemosApp: Application() {
 
     override fun attachBaseContext(base: Context?) {
         CONTEXT = this
-        super.attachBaseContext(base)
+        if (base != null) {
+            AppLanguage.initialize(base)
+            super.attachBaseContext(AppLanguage.wrap(base))
+        } else {
+            super.attachBaseContext(base)
+        }
     }
 
     override fun onCreate() {
