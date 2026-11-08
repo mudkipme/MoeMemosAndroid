@@ -151,4 +151,54 @@
     <string name="location_unavailable">无法获取当前位置。请重试或手动输入坐标。</string>
     <string name="location_settings">定位设置</string>
     <string name="location_no_map_app">没有可用的地图应用或浏览器。</string>
+
+    <!-- 语言设置 -->
+    <string name="language">语言</string>
+    <string name="language_system_default">跟随系统</string>
+
+    <!-- 客户端证书 -->
+    <string name="client_certificate">客户端证书</string>
+    <string name="client_certificate_selected">已选择证书</string>
+    <string name="client_certificate_not_selected">未选择证书</string>
+    <string name="select_certificate">选择证书</string>
+    <string name="change_certificate">更换证书</string>
+    <string name="remove_client_certificate">移除客户端证书</string>
+    <string name="remove_client_certificate_title">移除客户端证书？</string>
+    <string name="remove_client_certificate_message">Moe Memos 将不再使用已选择的客户端证书。</string>
+
+    <!-- 可见性与搜索 -->
+    <string name="memo_visibility_space">空间成员可见</string>
+    <string name="search_include_archived">搜索包含归档</string>
+    <string name="search_include_archived_summary">搜索结果也显示匹配的归档 MEMO</string>
+
+    <!-- 传输到服务器 -->
+    <string name="transfer_local_memos">传输到服务器</string>
+    <string name="transfer_local_memos_message">将所有本地 MEMO 及其附件复制到此账户，并在下次同步时上传。本地 MEMO 会保留，已传输过的 MEMO 将跳过，因此中断后可再次执行。</string>
+    <string name="transfer_local_memos_success">已复制 %1$d 条 MEMO 到 %2$s</string>
+    <string name="transfer_local_memos_failed">传输本地 MEMO 失败</string>
+    <string name="transfer_local_memos_empty">没有需要传输的新本地 MEMO</string>
+
+    <!-- 小组件与媒体 -->
+    <string name="widget_private">私密</string>
+    <string name="widget_pinned">已置顶</string>
+    <string name="live_photo">动态照片</string>
+    <string name="unable_to_take_picture">无法拍照。</string>
+
+    <!-- 本地备份与传输错误 -->
+    <string name="transfer_local_account_only">仅本地账户支持传输</string>
+    <string name="local_backup_read_write_failed">无法读取或写入本地备份</string>
+    <string name="local_backup_too_large">备份文件过大</string>
+    <string name="local_backup_cannot_open_destination">无法打开导出目标</string>
+    <string name="local_backup_cannot_open">无法打开备份文件</string>
+    <string name="missing_attachment_file">缺少附件文件：%1$s</string>
+
+    <!-- 同步错误 -->
+    <string name="resource_not_found">未找到资源</string>
+    <string name="invalid_downloaded_file">下载的文件无效</string>
+    <string name="downloaded_file_not_exist">下载的文件不存在</string>
+    <string name="sync_partial_failures">同步完成，但部分操作失败</string>
+    <string name="sync_memo_failed">同步 MEMO 失败</string>
+    <string name="sync_resource_failed">同步资源失败</string>
+    <string name="sync_delete_resource_failed">删除服务器上的资源失败</string>
+    <string name="attachment_upload_failed">同步期间一个或多个附件上传失败</string>
 </resources>

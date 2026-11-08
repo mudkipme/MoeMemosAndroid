@@ -1,6 +1,7 @@
 package me.mudkip.moememos.widget
 
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -56,6 +57,7 @@ import me.mudkip.moememos.R
 import me.mudkip.moememos.data.service.MemoService
 import me.mudkip.moememos.ui.security.AppLockGate
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
+import me.mudkip.moememos.util.AppLanguage
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -65,6 +67,10 @@ class MeoMemosGlanceWidgetConfigurationActivity : FragmentActivity() {
     lateinit var memoService: MemoService
 
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -174,7 +180,7 @@ class MeoMemosGlanceWidgetConfigurationActivity : FragmentActivity() {
                             FilterChip(
                                 selected = selectedTag == null,
                                 onClick = { selectedTag = null },
-                                label = { Text("None") }
+                                label = { Text(stringResource(R.string.edit_gesture_none)) }
                             )
                             tags.forEach { tag ->
                                 FilterChip(

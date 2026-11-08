@@ -5,6 +5,7 @@ import androidx.core.net.toUri
 import com.skydoves.sandwich.ApiResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.local.dao.MemoDao
 import me.mudkip.moememos.data.local.entity.MemoEntity
@@ -15,6 +16,7 @@ import me.mudkip.moememos.data.model.MemoLocation
 import me.mudkip.moememos.data.model.MemoLocationChange
 import me.mudkip.moememos.data.model.MemoVisibility
 import me.mudkip.moememos.data.model.User
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.util.extractCustomTags
 import okhttp3.MediaType
 import java.time.Instant
@@ -108,7 +110,7 @@ class LocalDatabaseRepository(
     ): ApiResponse<MemoEntity> {
         return try {
             val existingMemo = memoDao.getMemoById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.memo_not_found.string))
 
             val updatedAt = Instant.now()
             val updatedMemo = existingMemo.copy(
@@ -151,7 +153,7 @@ class LocalDatabaseRepository(
     override suspend fun deleteMemo(identifier: String): ApiResponse<Unit> {
         return try {
             val memo = memoDao.getMemoById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.memo_not_found.string))
             memoDao.getMemoResources(identifier, accountKey).forEach { resource ->
                 deleteLocalFile(resource)
                 memoDao.deleteResource(resource)
@@ -166,7 +168,7 @@ class LocalDatabaseRepository(
     override suspend fun archiveMemo(identifier: String): ApiResponse<Unit> {
         return try {
             val memo = memoDao.getMemoById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.memo_not_found.string))
             val now = Instant.now()
             memoDao.insertMemo(
                 memo.copy(
@@ -185,7 +187,7 @@ class LocalDatabaseRepository(
     override suspend fun restoreMemo(identifier: String): ApiResponse<Unit> {
         return try {
             val memo = memoDao.getMemoById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Memo not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.memo_not_found.string))
             val now = Instant.now()
             memoDao.insertMemo(
                 memo.copy(
@@ -257,7 +259,7 @@ class LocalDatabaseRepository(
     override suspend fun deleteResource(identifier: String): ApiResponse<Unit> {
         return try {
             val resource = memoDao.getResourceById(identifier, accountKey)
-                ?: return ApiResponse.Failure.Exception(Exception("Resource not found"))
+                ?: return ApiResponse.Failure.Exception(Exception(R.string.resource_not_found.string))
             deleteLocalFile(resource)
             memoDao.deleteResource(resource)
             ApiResponse.Success(Unit)

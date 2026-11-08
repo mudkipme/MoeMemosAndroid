@@ -13,6 +13,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.local.FileStorage
 import me.mudkip.moememos.data.local.LocalBackupArchive
 import me.mudkip.moememos.data.local.LocalBackupAttachment
@@ -24,6 +25,7 @@ import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.ResourceEntity
 import me.mudkip.moememos.data.model.Account
 import me.mudkip.moememos.data.model.MemoVisibility
+import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.widget.WidgetUpdater
 import java.io.Closeable
 import java.io.File
@@ -75,7 +77,7 @@ class LocalBackupService @Inject constructor(
                 memoRecords.zip(memos).associate { (record, memo) -> record.contentFile to memo.content },
                 attachmentRecords.zip(resources).associate { (record, resource) ->
                     val uri = (resource.localUri ?: resource.uri).toUri()
-                    require(uri.scheme == "file" && uri.path != null) { "Missing local attachment: ${resource.filename}" }
+                    require(uri.scheme == "file" && uri.path != null) { R.string.missing_attachment_file.string.format(resource.filename) }
                     record.file to File(requireNotNull(uri.path))
                 },
             )
@@ -84,8 +86,8 @@ class LocalBackupService @Inject constructor(
         val archive = File.createTempFile("local-export-", ".zip", context.cacheDir)
         try {
             archive.outputStream().use { LocalBackupArchive.write(data, it) { coroutineContext.ensureActive() } }
-            require(archive.length() <= LocalBackupArchive.MAX_ARCHIVE_BYTES) { "Backup is too large" }
-            val output = requireNotNull(context.contentResolver.openOutputStream(destination, "wt")) { "Cannot open export destination" }
+            require(archive.length() <= LocalBackupArchive.MAX_ARCHIVE_BYTES) { R.string.local_backup_too_large.string }
+            val output = requireNotNull(context.contentResolver.openOutputStream(destination, "wt")) { R.string.local_backup_cannot_open_destination.string }
             output.use { target ->
                 archive.inputStream().use { input ->
                     LocalBackupArchive.copyLimited(input, target, LocalBackupArchive.MAX_ARCHIVE_BYTES) { _, _ -> coroutineContext.ensureActive() }
@@ -102,7 +104,7 @@ class LocalBackupService @Inject constructor(
             return withContext(Dispatchers.IO) {
                 val coroutineContext = currentCoroutineContext()
                 val archive = File(directory, "backup.zip")
-                val input = requireNotNull(context.contentResolver.openInputStream(source)) { "Cannot open backup" }
+                val input = requireNotNull(context.contentResolver.openInputStream(source)) { R.string.local_backup_cannot_open.string }
                 input.use { stream ->
                     archive.outputStream().use { output ->
                         LocalBackupArchive.copyLimited(stream, output, LocalBackupArchive.MAX_ARCHIVE_BYTES) { _, _ -> coroutineContext.ensureActive() }

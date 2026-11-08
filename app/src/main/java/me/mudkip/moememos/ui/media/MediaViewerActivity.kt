@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.media
 
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -89,6 +90,7 @@ import me.mudkip.moememos.R
 import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ui.security.AppLockGate
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
+import me.mudkip.moememos.util.AppLanguage
 import me.mudkip.moememos.viewmodel.UserStateViewModel
 import okhttp3.OkHttpClient
 import timber.log.Timber
@@ -108,6 +110,10 @@ class MediaViewerActivity : FragmentActivity() {
         const val EXTRA_IMAGE_URLS = "image_urls"
         const val EXTRA_INITIAL_INDEX = "initial_index"
         const val EXTRA_CAPTION = "caption"
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -579,7 +585,7 @@ private fun LivePhotoButton(
             tint = Color.White
         )
         Text(
-            text = "LIVE",
+            text = R.string.live_photo.string,
             color = Color.White,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold

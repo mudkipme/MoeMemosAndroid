@@ -175,4 +175,32 @@
     <string name="location_unavailable">Could not get your current location. Try again or enter coordinates manually.</string>
     <string name="location_settings">Location settings</string>
     <string name="location_no_map_app">No map app or browser is available.</string>
+
+    <!-- In-app language -->
+    <string name="language">Language</string>
+    <string name="language_system_default">System default</string>
+
+    <!-- Widget and media labels -->
+    <string name="widget_private">Private</string>
+    <string name="widget_pinned">Pinned</string>
+    <string name="live_photo">LIVE</string>
+    <string name="unable_to_take_picture">Unable to take picture.</string>
+
+    <!-- Local backup and transfer errors -->
+    <string name="transfer_local_account_only">Transfer is available for local account only</string>
+    <string name="local_backup_read_write_failed">Unable to read or write local backup</string>
+    <string name="local_backup_too_large">Backup is too large</string>
+    <string name="local_backup_cannot_open_destination">Cannot open export destination</string>
+    <string name="local_backup_cannot_open">Cannot open backup</string>
+    <string name="missing_attachment_file">Missing attachment file: %1$s</string>
+
+    <!-- Sync errors -->
+    <string name="resource_not_found">Resource not found</string>
+    <string name="invalid_downloaded_file">Invalid downloaded file</string>
+    <string name="downloaded_file_not_exist">Downloaded file does not exist</string>
+    <string name="sync_partial_failures">Sync finished with partial failures</string>
+    <string name="sync_memo_failed">Failed to sync memo</string>
+    <string name="sync_resource_failed">Failed to sync resource</string>
+    <string name="sync_delete_resource_failed">Failed to delete resource on server</string>
+    <string name="attachment_upload_failed">Failed to upload one or more attachments during sync</string>
 </resources>

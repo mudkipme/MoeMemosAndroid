@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
+import me.mudkip.moememos.R
 import me.mudkip.moememos.data.api.MemosProfile
 import me.mudkip.moememos.data.api.MemosV0Api
 import me.mudkip.moememos.data.api.MemosV1Api
@@ -30,6 +31,7 @@ import me.mudkip.moememos.data.service.LocalBackupService
 import me.mudkip.moememos.data.service.LocalImportPreview
 import me.mudkip.moememos.data.service.LocalImportResult
 import me.mudkip.moememos.data.service.PreparedLocalImport
+import me.mudkip.moememos.ext.string
 
 @HiltViewModel(assistedFactory = AccountViewModel.AccountViewModelFactory::class)
 class AccountViewModel @AssistedInject constructor(
@@ -87,7 +89,7 @@ class AccountViewModel @AssistedInject constructor(
 
     suspend fun transferLocalMemos(targetAccountKey: String): Result<Int> = withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
         if (selectedAccountKey != Account.Local().accountKey()) {
-            return@withContext Result.failure(IllegalStateException("Transfer is available for local account only"))
+            return@withContext Result.failure(IllegalStateException(R.string.transfer_local_account_only.string))
         }
         runCatching {
             accountService.copyLocalMemosToAccount(targetAccountKey)
@@ -152,7 +154,7 @@ class AccountViewModel @AssistedInject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                backupError = error.localizedMessage ?: "Unable to read or write local backup"
+                backupError = error.localizedMessage ?: R.string.local_backup_read_write_failed.string
             } finally {
                 backupBusy = false
             }
