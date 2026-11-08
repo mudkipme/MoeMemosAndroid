@@ -37,11 +37,12 @@ import com.mikepenz.markdown.model.ImageTransformer
 import com.mikepenz.markdown.model.markdownAnnotator
 import com.mikepenz.markdown.model.markdownAnnotatorConfig
 import com.mikepenz.markdown.model.rememberMarkdownState
-import com.mikepenz.markdown.utils.getUnescapedTextInNode
+import com.mikepenz.markdown.utils.EntityConverter
 import me.mudkip.moememos.util.findCustomTagMatches
 import me.mudkip.moememos.util.getCustomTagName
 import me.mudkip.moememos.util.isCustomTagSupportedNode
 import org.intellij.markdown.MarkdownTokenTypes
+import org.intellij.markdown.ast.getTextInNode
 import com.mikepenz.markdown.m3.Markdown as M3Markdown
 
 @Composable
@@ -127,7 +128,7 @@ fun Markdown(
                     if (!isCustomTagSupportedNode(child)) {
                         return@markdownAnnotator false
                     }
-                    val source = child.getUnescapedTextInNode(content)
+                    val source = child.getTextInNode(content).toString()
                     val tags = findCustomTagMatches(source).toList()
                     if (tags.isEmpty()) {
                         return@markdownAnnotator false
@@ -138,7 +139,13 @@ fun Markdown(
                         val start = match.range.first
                         val endInclusive = match.range.last
                         if (start > cursor) {
-                            append(source.substring(cursor, start))
+                            append(
+                                EntityConverter.replaceEntities(
+                                    source.substring(cursor, start),
+                                    processEntities = false,
+                                    processEscapes = true
+                                )
+                            )
                         }
                         val tagRaw = getCustomTagName(match)
                         withLink(
@@ -153,7 +160,13 @@ fun Markdown(
                         cursor = endInclusive + 1
                     }
                     if (cursor < source.length) {
-                        append(source.substring(cursor))
+                        append(
+                            EntityConverter.replaceEntities(
+                                source.substring(cursor),
+                                processEntities = false,
+                                processEscapes = true
+                            )
+                        )
                     }
                     true
                 }
