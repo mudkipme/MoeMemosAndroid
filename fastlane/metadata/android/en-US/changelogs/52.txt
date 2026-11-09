@@ -1,0 +1,20 @@
+## What's Changed
+* Added support for Memos 26.10 and 26.11 by @cercle10.
+* Added support for attaching a location to memos.
+* Added in-app language selection by @fastmind2014.
+* Added an option to include archived memos in search results by @the-great-bear.
+* Improved tag detection so tags stop at punctuation and escaped tags are ignored.
+* Improved memo preview length for CJK text by @PC267.
+* Fixed app lock crashes on Android 9 and 10.
+* Added Vietnamese localization by @dinhkarate.
+* Refined German translations by @bttrx.
+
+## New Contributors
+* @the-great-bear made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/404
+* @PC267 made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/407
+* @bttrx made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/408
+* @cercle10 made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/411
+* @dinhkarate made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/412
+* @fastmind2014 made their first contribution in https://github.com/mudkipme/MoeMemosAndroid/pull/417
+
+**Full Changelog**: https://github.com/mudkipme/MoeMemosAndroid/compare/2.0.6...2.1.0
