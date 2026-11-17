@@ -198,4 +198,3 @@
     <string name="sync_delete_resource_failed">No se ha podido eliminar el recurso del servidor</string>
     <string name="attachment_upload_failed">No se han podido subir uno o más archivos adjuntos durante la sincronización</string>
 </resources>
-

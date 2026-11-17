@@ -110,4 +110,3 @@ object AppLanguage {
         else -> Locale.forLanguageTag(tag)
     }
 }
-
