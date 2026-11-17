@@ -12,4 +12,6 @@
     <locale android:name="ja"/>
     <locale android:name="pt-BR"/>
     <locale android:name="vi"/>
+    <locale android:name="es" />
 </locale-config>
+
