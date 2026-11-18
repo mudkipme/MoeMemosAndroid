@@ -42,6 +42,7 @@ object AppLanguage {
         LanguageOption("tr", "Türkçe"),
         LanguageOption("it", "Italiano"),
         LanguageOption("de", "Deutsch"),
+        LanguageOption("es", "Español"),
         LanguageOption("ja", "日本語"),
         LanguageOption("pt-BR", "Português (Brasil)"),
         LanguageOption("vi", "Tiếng Việt"),
