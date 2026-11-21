@@ -92,6 +92,28 @@
     <string name="export_local_account">Экспортировать локальные данные</string>
     <string name="local_export_success">Локальные данные экспортированы</string>
     <string name="local_export_failed">Не удалось экспортировать локальные данные</string>
+    <!-- Voice recording strings -->
+    <string name="voice_recording">Голосовая заметка</string>
+    <string name="start_voice_recording">Запись голоса</string>
+    <string name="record_audio">Записать аудио</string>
+    <string name="pause">Пауза</string>
+    <string name="resume">Продолжить</string>
+    <string name="stop">Стоп</string>
+    <string name="recording_time">%02d:%02d,%d</string>
+    <string name="speech">Речь</string>
+    <string name="waveform">Волна</string>
+    <string name="transcription">Расшифровка</string>
+    <string name="play">Воспроизведение</string>
+    <string name="rewind_5">-5s</string>
+    <string name="forward_10">+10s</string>
+    <string name="remaining_time">-%02d:%02d</string>
+    <string name="current_time">%02d:%02d</string>
+    <string name="audio_permission_required">Требуется разрешение на запись аудио для записи голосовых заметок</string>
+    <string name="recording_failed">Не удалось записать аудио</string>
+    <string name="transcription_failed">Не удалось расшифровать аудио</string>
+    <string name="save_voice_memo">Сохранить голосовую заметку</string>
+    <string name="discard_recording">Отменить запись</string>
+
     <string name="memos_widget_title">Заметки</string>
     <string name="memory_widget_title">Воспоминание</string>
     <string name="memory_widget_description">Показывает случайную заметку из вашей ленты.</string>

@@ -32,6 +32,8 @@ import me.mudkip.moememos.ui.page.memos.SearchPage
 import me.mudkip.moememos.ui.page.memos.TagMemoPage
 import me.mudkip.moememos.ui.page.resource.ResourceListPage
 import me.mudkip.moememos.ui.page.settings.SettingsPage
+import me.mudkip.moememos.ui.page.voicerecording.VoiceRecordingPage
+import me.mudkip.moememos.ui.page.voicerecording.VoiceMemoPlayerPage
 import me.mudkip.moememos.ui.theme.MoeMemosTheme
 import me.mudkip.moememos.ui.util.rememberLocalNetworkPermissionRequest
 import me.mudkip.moememos.util.usesLocalNetwork
@@ -122,6 +124,28 @@ fun Navigation() {
                     if (memoId != null) {
                         MemoDetailPage(navController = navController, memoIdentifier = Uri.decode(memoId))
                     }
+                }
+
+                composable(RouteName.VOICE_RECORDING) {
+                    VoiceRecordingPage(
+                        onComplete = { transcribedText ->
+                            navController.popBackStack()
+                        },
+                        onCancel = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable("${RouteName.VOICE_MEMO_PLAYER}?audioUri={audioUri}&transcription={transcription}") { entry ->
+                    val audioUri = entry.arguments?.getString("audioUri")?.let(Uri::decode) ?: ""
+                    val transcription = entry.arguments?.getString("transcription")?.let(Uri::decode) ?: ""
+                    VoiceMemoPlayerPage(
+                        audioUri = audioUri,
+                        transcription = transcription,
+                        onBack = { navController.popBackStack() },
+                        onDelete = { navController.popBackStack() }
+                    )
                 }
             }
         }

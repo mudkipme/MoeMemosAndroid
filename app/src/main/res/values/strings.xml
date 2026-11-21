@@ -143,6 +143,28 @@
     <string name="unlock">Unlock</string>
     <string name="open_system_security_settings">Open system security settings</string>
 
+    <!-- Voice recording strings -->
+    <string name="voice_recording">Voice Memo</string>
+    <string name="start_voice_recording">Voice Record</string>
+    <string name="record_audio">Record Audio</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="stop">Stop</string>
+    <string name="recording_time">%02d:%02d,%d</string>
+    <string name="speech">Speech</string>
+    <string name="waveform">Waveform</string>
+    <string name="transcription">Transcription</string>
+    <string name="play">Play</string>
+    <string name="rewind_5">-5s</string>
+    <string name="forward_10">+10s</string>
+    <string name="remaining_time">-%02d:%02d</string>
+    <string name="current_time">%02d:%02d</string>
+    <string name="audio_permission_required">Audio permission is required to record voice memos</string>
+    <string name="recording_failed">Failed to record audio</string>
+    <string name="transcription_failed">Failed to transcribe audio</string>
+    <string name="save_voice_memo">Save Voice Memo</string>
+    <string name="discard_recording">Discard Recording</string>
+
     <!-- Widget strings -->
     <string name="memos_widget_title">Memos</string>
     <string name="memory_widget_title">Memory</string>

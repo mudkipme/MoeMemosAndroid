@@ -4,11 +4,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import me.mudkip.moememos.ui.component.ActionIconButton
 import androidx.compose.material3.Scaffold
@@ -24,6 +26,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.mudkip.moememos.R
@@ -118,14 +125,31 @@ private fun MemosHomePageContent(
         },
 
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    rootNavController.navigate(RouteName.INPUT)
-                },
-                expanded = expandedFab,
-                text = { Text(R.string.new_memo.string) },
-                icon = { Icon(Icons.Filled.Add, contentDescription = R.string.compose.string) }
-            )
+            Box(contentAlignment = Alignment.BottomEnd) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier.padding(end = 16.dp)
+                ) {
+                    FloatingActionButton(
+                        onClick = {
+                            rootNavController.navigate(RouteName.VOICE_RECORDING)
+                        },
+                        containerColor = Color(0xFFFF6B6B),
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    ) {
+                        Icon(Icons.Filled.Mic, contentDescription = R.string.start_voice_recording.string)
+                    }
+
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            rootNavController.navigate(RouteName.INPUT)
+                        },
+                        expanded = expandedFab,
+                        text = { Text(R.string.new_memo.string) },
+                        icon = { Icon(Icons.Filled.Add, contentDescription = R.string.compose.string) }
+                    )
+                }
+            }
         },
 
         content = { innerPadding ->
