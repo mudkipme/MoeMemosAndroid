@@ -147,6 +147,7 @@ data class MemosV1Memo(
     val attachments: List<MemosV1Resource>? = null,
     val tags: List<String>? = null,
     val location: MemoLocation? = null,
+    val parent: String? = null,
 )
 
 @Serializable
