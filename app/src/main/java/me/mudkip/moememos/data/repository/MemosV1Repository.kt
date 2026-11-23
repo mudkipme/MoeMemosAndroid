@@ -65,7 +65,7 @@ class MemosV1Repository(
         do {
             val resp = memosApi.listMemos(PAGE_SIZE, nextPageToken, state, filter)
                 .onSuccess { nextPageToken = data.nextPageToken.orEmpty() }
-                .mapSuccess { this.memos.map { convertMemo(it) } }
+                .mapSuccess { this.memos.filter { it.parent.isNullOrEmpty() }.map { convertMemo(it) } }
             if (resp is ApiResponse.Success) {
                 memos.addAll(resp.data)
             } else {
@@ -112,7 +112,7 @@ class MemosV1Repository(
         val userMap = mapOf(*userResp.map { user -> user.name to user }.toTypedArray())
 
         return resp
-            .mapSuccess { this.memos.map {
+            .mapSuccess { this.memos.filter { it.parent.isNullOrEmpty() }.map {
                 convertMemo(it).copy(
                     creator = it.creator?.let { creator ->
                         userMap[creator]?.let { user ->
