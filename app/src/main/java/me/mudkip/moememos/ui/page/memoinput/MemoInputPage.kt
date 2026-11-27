@@ -91,7 +91,9 @@ fun MemoInputPage(
     var showLocationDialog by rememberSaveable { mutableStateOf(false) }
     var visibilityMenuExpanded by remember { mutableStateOf(false) }
     var tagMenuExpanded by remember { mutableStateOf(false) }
-    var photoImageUri by remember { mutableStateOf<Uri?>(null) }
+    // Saveable: the activity can be recreated while the camera app is in front,
+    // and the result callback still needs the URI the photo was written to.
+    var photoImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var showExitConfirmation by remember { mutableStateOf(false) }
 
     val defaultVisibility = userStateViewModel.currentUser?.defaultVisibility ?: MemoVisibility.PRIVATE
