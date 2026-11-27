@@ -23,12 +23,16 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.mikepenz.markdown.coil3.Coil3ImageTransformerImpl
 import com.mikepenz.markdown.compose.components.markdownComponents
 import com.mikepenz.markdown.compose.elements.MarkdownCheckBox
+import com.mikepenz.markdown.compose.elements.MarkdownTable
+import com.mikepenz.markdown.compose.elements.MarkdownTableHeader
+import com.mikepenz.markdown.compose.elements.MarkdownTableRow
 import com.mikepenz.markdown.compose.elements.highlightedCodeBlock
 import com.mikepenz.markdown.compose.elements.highlightedCodeFence
 import com.mikepenz.markdown.m3.markdownTypography
@@ -174,6 +178,35 @@ fun Markdown(
             components = markdownComponents(
                 codeFence = highlightedCodeFence,
                 codeBlock = highlightedCodeBlock,
+                // The library's default cells use maxLines = 1 with an ellipsis, which hides the
+                // rest of long cell text. Wrap it instead so the whole content stays readable.
+                table = {
+                    MarkdownTable(
+                        content = it.content,
+                        node = it.node,
+                        style = it.typography.table,
+                        headerBlock = { content, header, tableWidth, style ->
+                            MarkdownTableHeader(
+                                content = content,
+                                header = header,
+                                tableWidth = tableWidth,
+                                style = style,
+                                maxLines = Int.MAX_VALUE,
+                                overflow = TextOverflow.Clip,
+                            )
+                        },
+                        rowBlock = { content, row, tableWidth, style ->
+                            MarkdownTableRow(
+                                content = content,
+                                header = row,
+                                tableWidth = tableWidth,
+                                style = style,
+                                maxLines = Int.MAX_VALUE,
+                                overflow = TextOverflow.Clip,
+                            )
+                        },
+                    )
+                },
                 checkbox = {
                     val node = it.node
                     MarkdownCheckBox(
