@@ -77,8 +77,25 @@ internal fun handleEnterInText(text: TextFieldValue): TextFieldValue? {
         )
     }
 
+    val orderedItem = ORDERED_LIST_ITEM.find(currentLine)
+    if (orderedItem != null) {
+        val prefixLength = orderedItem.value.length
+        if (currentLine.length <= prefixLength || text.selection.min - lastLineBreak <= prefixLength) {
+            return null
+        }
+        val (indent, number, delimiter) = orderedItem.destructured
+        val nextPrefix = "$indent${number.toInt() + 1}$delimiter "
+        return text.copy(
+            text.text.substring(0, text.selection.min) + "\n" + nextPrefix + text.text.substring(text.selection.max),
+            TextRange(text.selection.min + 1 + nextPrefix.length, text.selection.min + 1 + nextPrefix.length)
+        )
+    }
+
     return null
 }
+
+// Markdown ordered list item: optional indentation, up to 9 digits, "." or ")" and a space.
+private val ORDERED_LIST_ITEM = Regex("""^([ \t]*)(\d{1,9})([.)]) """)
 
 internal fun applyMarkdownFormatToText(text: TextFieldValue, format: MarkdownFormat): TextFieldValue {
     if (format.isLinePrefix) {
